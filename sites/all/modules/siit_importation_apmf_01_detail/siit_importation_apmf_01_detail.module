@@ -1,0 +1,153 @@
+<?php
+
+/**
+* @file
+* Détail des données des entrées pour APMF (fichier APMF01)
+*/
+
+function siit_importation_apmf_01_detail_menu(){
+    $items = array();
+    $items['siit_importation_apmf_01_detail'] = array(
+        'title'            => t('Détail des données APMF'), 
+        'page callback'    => 'drupal_get_form',
+        'page arguments' => array('siit_importation_apmf_01_detail_form'),
+        'access arguments' => array('access siit_importation_apmf_01_detail'),
+        'type'             => MENU_LOCAL_TASK,
+    	//'access callback' => TRUE,
+    );
+    
+    return $items;
+    
+}  
+
+function siit_importation_apmf_01_detail_permission() {
+  return array( 
+    'access siit_importation_apmf_01_detail' => array(
+      'title' => t('siit_importation_apmf_01_detail : Detail importation Apmf01'),
+      'description' => t('Perform administration tasks for Detail importation Apmf01.'),
+    ),
+  );
+}
+
+function siit_importation_apmf_01_detail_form($form) {
+
+	$header = array(
+		array('data' => t('Année'), 'field' => 'annee'),
+	    array('data' => t('Date Escale'), 'field' => 'dt_escale', 'sort' => 'desc' ),
+        array('data' => t('ID'), 'field' => 'id_croisiere', 'sort' => 'asc' ),
+	    array('data' => t('Premier Toucher'), 'field' => 'is_premier_toucher'),
+	    array('data' => t('Port'), 'field' => 'li_port'/*, 'sort' => 'desc'*/),
+        array('data' => t('Navire'), 'field' => 'li_navire'/*, 'sort' => 'desc'*/),
+        array('data' => t('Typologie de transport'), 'field' => 'li_type_transport_maritime'/*, 'sort' => 'desc'*/),
+		array('data' => t('Provenance'), 'field' => 'li_pays'/*, 'sort' => 'desc'*/),
+        array('data' => t('Nationalité'), 'field' => 'li_nationalite'/*, 'sort' => 'desc'*/),
+		array('data' => t('Nombre de passagers'), 'field' => 'nb_passagers'/*, 'sort' => 'desc'*/)
+	);
+	
+	
+	$rows = Null;
+	$i=0;
+	
+	global $user;
+    $uid = $user->uid;
+    
+    $limit = 10;
+    if (isset($_REQUEST['page']) && !empty($_REQUEST['page'])) {
+    	$start = $_REQUEST['page'] * $limit;
+    	$page = $_REQUEST['page'];
+    } else {
+    	$page = 0;
+    	$start = 0;
+    }
+	
+	
+    $sqlList = "select esc.annee, dt_escale, id_croisiere, is_premier_toucher, li_port,
+						nav.li_navire, li_type_transport_maritime ,li_pays, li_nationalite, nb_passagers ";
+    $sqlCount = "select count(*) as total ";  
+    $sql = "from siit_apmf_passagers pax 
+				left join siit_apmf_escale esc on esc.id_apmf_escale =  pax.id_apmf_escale
+				left join siit_apmf_croisiere croi on croi.id_croisiere =  esc.id_apmf_croisiere
+				left join siit_nationalite nat  on nat.id_nationalite = pax.id_nationalite  
+
+				left join siit_apmf_navire nav on nav.id_apmf_navire = croi.id_navire
+				left join siit_type_transport_maritime tm  on tm.id_type_transport_maritime = croi.id_type_transport_maritime  
+				left join siit_port port  on port.id_port = esc.id_port  
+				left join siit_pays pays on pays.id_pays = croi.id_pays_provenance
+				
+				where pax.id_importation=".$_GET["idImportation"];
+        
+    $order = tablesort_get_order($header);
+	$sort = tablesort_get_sort($header);
+	
+	if (isset($order["sql"]) && !empty($order['sql'])) {
+		
+		if($order["sql"]!== "annee"){			
+			$sql .= " order by ".$order["sql"]." ".$sort;
+		}		
+		else {			
+		    $sql .= " order by esc.".$order["sql"]." ".$sort;
+		}
+		
+	} else {
+		$sql .= " order by dt_escale desc";
+	}
+	
+	//$results = db_query($sqlList.$sql);
+	$count_result = db_query($sqlCount.$sql)->fetchAssoc();;
+	$results = db_query_range($sqlList.$sql,$start,$limit);
+	$nbTotal = $count_result["total"];
+	pager_default_initialize($count_result["total"], $limit, $element = 0);
+	
+	$nb = 0; 
+	foreach($results as $result) {
+	 			
+	    $date_escale = $result->dt_escale;
+		$date_escale =  substr($date_escale,8,2)."/".substr($date_escale,5,2)."/".substr($date_escale,0,4)." ".substr($date_escale,11,8); 
+		   
+	    $rows[$i] = array(
+			    					'annee' => $result->annee,
+			        				'dt_escale' => $date_escale,
+			        				'id_croisiere' => $result->id_croisiere,
+			        				'is_premier_toucher' => $result->is_premier_toucher==0?"Non":"Oui",
+                                    'li_port' => $result->li_port,
+                                    'li_navire' => $result->li_navire,
+                                    'li_type_transport_maritime' => $result->li_type_transport_maritime,
+                                    'li_pays' => $result->li_pays,
+                                    'li_nationalite' => $result->li_nationalite,
+									'li_pays' => $result->li_pays,
+                                    'nb_passagers' => $result->nb_passagers,
+		  );
+	     $i++;        				  
+	}
+     
+    $nbStart = ($page)*$limit +1;
+ 	$nbEnd = ($page+1)*$limit;
+ 	if ($nbTotal < $nbEnd) {
+ 		$nbEnd = $nbTotal;
+ 	}
+ 
+	$form['nb'] = array(
+		    '#markup' => "<br>Résultats affichés : ".$nbStart." à ".$nbEnd. " / ".$nbTotal,
+		  );
+ 
+	$form['table'] = array(
+		    '#theme' => 'table',
+		    '#header' => $header,
+		    '#rows' => $rows,
+		    '#empty' => t('Aucun r&eacute;sultat.')
+		  );
+	$form['pager'] = array('#markup' => theme('pager'));
+	
+	/*$text = getTextType('Contributor','bottom');
+	$form['contributor_bottom'] = array(
+	  '#markup' => str_replace("\n", "<br />",$text['body_value'])
+	);*/
+	
+	$form['importation']['back'] = array('#type' => 'submit', '#value' => t('Back'));
+	// $form['importation']['back']['#limit_validation_errors'] = array();
+	$form['importation']['back']['#submit'] = array('siit_importation_liste_back_submit');
+	// $form['importation']['back']['#name'] = 'reset';
+	
+	return $form;
+	
+}

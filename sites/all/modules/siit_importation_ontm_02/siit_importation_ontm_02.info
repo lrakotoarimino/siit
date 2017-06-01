@@ -1,0 +1,5 @@
+name = SIIT ONTM : Formulaire d'importation des vignettes touristiques pour l'ONTM
+description = SIIT ONTM : Formulaire d'importation des vignettes touristiques pour l'ONTM
+core = 7.x
+version = 7.x-0.x-dev
+package = SIIT

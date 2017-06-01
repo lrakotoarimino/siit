@@ -1,0 +1,106 @@
+<?php
+
+/**
+* @file
+* Display a Ravinala Airports Importation formulaire
+*/
+
+	function siit_importation_ravinala_01_menu(){
+    $items = array();
+    $items['siit_importation_ravinala_01'] = array(
+        'title'            => t('Formulaire RAVINALA'), 
+        'page callback'    => 'drupal_get_form',
+        'page arguments' => array('siit_importation_ravinala_01_form'),
+        'access arguments' => array('access siit_importation_ravinala_01'),
+        'type'             => MENU_LOCAL_TASK,
+    		//'access callback' => TRUE,
+    );
+    
+    return $items;
+    
+}  
+
+function siit_importation_ravinala_01_permission() {
+  return array( 
+    'access siit_importation_ravinala_01' => array(
+      'title' => t('siit_importation_ravinala_01 : ravinala airports importation formulaire'),
+      'description' => t('Perform administration tasks for Ravinala airports importation formulaire.'),
+    ),
+  );
+}
+
+function siit_importation_ravinala_01_form($form) {
+	
+	drupal_set_title(t('Formulaire RAVINALA'));
+	
+	$form['annee'] = array(
+    "#type" => "select",      
+    "#title" => t("Année :"),
+    "#options" => array(
+	    "vide" => t(""),
+      "0" => t("2016"),
+      "1" => t("2017"),
+    ),
+    //"#default_value" => $settings[""],
+    "#required" => FALSE,
+	);
+	
+	
+	$form["mois"] = array(
+    "#type" => "select",      
+    "#title" => t("Mois :"),
+    "#options" => array(
+	    "vide" => t(""),
+      "Janvier" => t("Janvier"),
+      "Fevrier" => t("Février"),
+			"Mars" => t("Mars"),
+      "Avril" => t("Avril"),
+			"Mai" => t("Mai"),
+      "Juin" => t("Juin"),
+			"Juillet" => t("Juillet"),
+      "Aout" => t("Aout"),
+			"Septembre" => t("Septembre"),
+      "Octobre" => t("Octobre"),
+			"Novembre" => t("Novembre"),
+      "Decembre" => t("Décembre"),
+    ),
+    //"#default_value" => $settings[""],
+    "#required" => FALSE,
+    //"#description" => t("La ville de depart de la carte ?"),
+    );
+	/*	$options = arraySemesterOrYear('without');
+		$form['importation']['periodSelect']['#options'] = $options;*/
+		
+		
+		//if (isset($_GET["period"]) && !empty($_GET["period"])) {
+		//	$period = $_GET["period"];
+		//	$form['importation']['periodSelect']['#default_value'] = $period;
+		//	$form['importation']['period']['#default_value'] = $period;
+
+	$form['importation']['csv_file'] = array(
+	        '#title' => 'Importer Fichier :', // Titre dans la page d'importation du fichier
+	        '#description' => 'Seuls ces fichiers csv, xlsx sont valides.',
+	        '#type' => 'managed_file',
+	        '#required' => FALSE,
+	        '#upload_validators' => array(
+	            'file_validate_extensions' => array("csv xlsx"),
+	        ),
+	    );
+	    
+	 $form['importation']['submit'] = array(
+	        '#type' => 'submit',
+	        '#value' => t('Process'),
+	        '#attributes' => array('class' => array('button button--primary js-form-submit form-submit btn-success btn'),),
+	    		'#submit' => array('csv_import_ravinala_submit'),
+	    );
+	    
+	    
+	 $form['importation']['back'] = array('#type' => 'submit', '#value' => t('Back'));
+   // $form['importation']['back']['#limit_validation_errors'] = array();
+   // $form['importation']['back']['#submit'] = array('feve_import_statistiques_back_submit');
+   // $form['importation']['back']['#name'] = 'reset';
+	$form['#attributes']['class'][] = 'import-form';
+	return $form;
+	
+}
+

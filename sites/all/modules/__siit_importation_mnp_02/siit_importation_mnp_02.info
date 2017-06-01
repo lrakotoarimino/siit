@@ -1,0 +1,6 @@
+; $Id:
+name = Mnp formulaire parc detaille
+description = Importation detaillee des visiteurs du parc
+core = 7.x
+version = 7.x-0.x-dev
+package = SIIT

@@ -1,0 +1,233 @@
+<?php
+function siit_manage_nationalite_menu(){
+ $items = array();
+	 $items['manage_nationalite_form'] = array(
+		'title' => t('Nationalités'),
+		'page callback' => 'manage_nationalite_list',
+		//'page arguments' => array('siit_importation_paf_01_form'),
+        'access arguments' => array('access manage_nationalite_list'),
+		
+	);
+	$items['manage_nationalite_form/delete/%'] = array(
+		'title' => t('Delete Nationalité'),
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('manage_nationalite_delete_confirm', 2),
+		 'access arguments' => array('access manage_nationalite_list'),
+		//'access callback' => TRUE,
+		'type' => MENU_CALLBACK, 
+	);
+	$items['manage_nationalite_form/edit/%'] = array(
+		'title' => t('Edit Nationalité'),
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('manage_nationalite_edit_confirm', 2),
+	    //'access callback' => TRUE,
+		 'access arguments' => array('access manage_nationalite_list'),
+		'type' => MENU_NORMAL_ITEM,
+    );
+    
+    $items['manage_nationalite_form/add'] = array(
+		'title' => t('Add Nationalité'),
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('manage_nationalite_edit_confirm', 2),
+	     'access arguments' => array('access manage_nationalite_list'),
+	    //'access callback' => TRUE,
+		'type' => MENU_NORMAL_ITEM,
+    );
+	
+ return $items;
+}
+
+
+function manage_nationalite_list() {
+	$header = array('ID','Nationalité unique','Nationalité',' ');
+	$results = db_query("SELECT id_nationalite_entite,n.id_nationalite,n.li_nationalite
+		,ne.li_nationalite as nationalite_entite
+		FROM {siit_nationalite_entite} ne
+		INNER JOIN {siit_nationalite} n ON n.id_nationalite = ne.id_nationalite");
+	$rows = array();
+	foreach($results as $key) {
+		$id_nationalite_entite = $key->id_nationalite_entite;
+		$id_nationalite = $key->id_nationalite;
+		$li_nationalite = $key->li_nationalite;
+		$nationalite_entite = $key->nationalite_entite;
+	    $rows[] = array($id_nationalite_entite,$li_nationalite,
+	    	$nationalite_entite,"<a href='manage_nationalite_form/edit/{$key->id_nationalite_entite}'>" . t('Edit') . "</a> | <a href='manage_nationalite_form/delete/{$key->id_nationalite_entite}'>" . t('Delete') . "</a>");
+	}
+	return theme('table', array('header' => $header, 'rows' => $rows));
+}
+
+
+function manage_nationalite_delete_confirm($form ,&$form_state, $id_nationalite_entite) {
+
+	$id_nationalite='';
+	$li_nationalite='';
+	$edit = false;
+	
+	if ($id_nationalite_entite && !empty($id_nationalite_entite)) {
+		//Edition
+		$edit = true;
+		$results = db_query("SELECT id_nationalite_entite,id_nationalite,li_nationalite 
+			FROM {siit_nationalite_entite} WHERE 
+			id_nationalite_entite='{$id_nationalite_entite}'");
+		
+		foreach($results as $key) {
+			$id_nationalite_entite = $key->id_nationalite_entite;
+			$id_nationalite = $key->id_nationalite;
+			$li_nationalite = $key->li_nationalite;
+		}
+	}
+
+	$form['li_nationalite'] = array(
+		'#type' => 'value',
+		'#value' => $li_nationalite,
+		'#required' => true);
+		
+	$form['id_nationalite_entite'] = array(
+		'#type' => 'hidden',
+		'#value' => $id_nationalite_entite,);
+		
+		drupal_set_message($li_nationalite);
+		
+	return confirm_form($form,t('Voulez vous supprimer cette nationalité '.$li_nationalite.' ?'),
+    	isset($_GET['destination']) ? $_GET['destination'] : "manage_nationalite_form",t('This action cannot be undone.'),t('Delete'),t('Cancel'));
+		
+}
+
+
+function manage_nationalite_delete_confirm_submit($form, &$form_state) {
+	
+	if ($form_state['values']['confirm']) {
+			                        
+	    $result = db_query("DELETE FROM {siit_nationalite_entite} 
+	    	where id_nationalite_entite={$form_state['values']['id_nationalite_entite']}");
+	 	drupal_set_message(t('La Nationalité a été supprimée.'));}
+	 	drupal_goto("siit_nationalite_entite");
+}
+
+
+function manage_nationalite_edit_confirm($form ,&$form_state, $id_nationalite_entite){
+	
+	$id_nationalite='';
+	$li_nationalite='';
+	$edit = false;
+	
+	if ($id_nationalite_entite && !empty($id_nationalite_entite)) {
+		//Edition
+		$edit = true;
+		$results = db_query("SELECT id_nationalite_entite,id_nationalite,li_nationalite 
+			FROM {siit_nationalite_entite} WHERE 
+			id_nationalite_entite='{$id_nationalite_entite}'");
+		
+		foreach($results as $key) {
+			$id_nationalite_entite = $key->id_nationalite_entite;
+			$id_nationalite = $key->id_nationalite;
+			$li_nationalite = $key->li_nationalite;
+		}
+	}
+	
+	$nationalites = db_query("SELECT id_nationalite, li_nationalite
+		FROM {siit_nationalite} ORDER BY li_nationalite");
+	
+	foreach($nationalites as $key) {
+		$optionNat[$key->id_nationalite] = $key->li_nationalite;
+	}
+	
+	$form = array();
+
+	$form['id_nationalite_entite']=array(
+			'#title'=>t('ID'),
+			'#type'=>'textfield',
+			'#attributes' => array('readonly'=>'readonly'),
+			'#value' => $id_nationalite_entite,);
+	
+	
+	/*$form['id_nationalite']=array(
+			'#title'=>t('Nationalité unique'),
+			'#type'=>'textfield',
+			'#value' => $id_nationalite,);*/
+			
+	$form["id_nationalite"] = array(
+	    "#type" => "select",      
+	    '#title'=>t('Nationalité unique'),
+	    "#options" => $optionNat,
+	    "#required" => TRUE,
+	    '#default_value' => $id_nationalite,
+	    );
+			
+	$form['li_nationalite']=array(
+		'#title'=>t('Nationalité utilisée'),
+		'#type'=>'textfield',
+		'#value' => $li_nationalite,
+		"#required" => TRUE,
+	);
+			
+
+	return confirm_form($form,t(''),
+			isset($_GET['destination']) ? $_GET['destination'] : "manage_nationalite_form",
+			t(''),t('Edit'),t('Cancel'));
+}
+
+
+function manage_nationalite_edit_confirm_submit($form, &$form_state)
+{
+
+	
+	if ($form_state['values']['confirm']) {
+	    
+		$id_nationalite_entite = $form_state['input']['id_nationalite_entite'];
+	    $id_nationalite = $form_state['input']['id_nationalite'];
+	    $li_nationalite = $form_state['input']['li_nationalite'];
+	    
+	    if (empty($li_nationalite)) {
+	    	drupal_set_message(t('Le libellé ne peut être vide.'), 'error');
+	    	drupal_goto("siit_nationalite_entite");
+	    }
+		
+		if ($id_nationalite_entite && !empty($id_nationalite_entite)) {
+		
+			//On vérifie que le libellé n'existe pas déjà pour une autre nationalité
+			$results = db_query("SELECT n.li_nationalite FROM siit_nationalite n
+				INNER JOIN siit_nationalite_entite ne ON ne.id_nationalite = n.id_nationalite
+				WHERE (n.li_nationalite = '".$li_nationalite."'
+					OR ne.li_nationalite = '".$li_nationalite."')
+					AND ne.id_nationalite_entite <> $id_nationalite_entite");
+			$existeDeja = false;
+			foreach($results as $key) {
+				$li_nationalite_prev = $key->li_nationalite;
+				$existeDeja = true;
+			}
+			if ($existeDeja) {
+				drupal_set_message(t("Cette nationalité est déjà affectée à ".$li_nationalite_prev), $type = 'error', $repeat = FALSE);
+			} else {
+		
+				$rs = db_query("UPDATE {siit_nationalite_entite} 
+				SET li_nationalite= '".str_replace("'", "''", $li_nationalite)."' ,
+				id_nationalite = $id_nationalite
+				WHERE  id_nationalite_entite='{$id_nationalite_entite}'");
+			 drupal_set_message(t('La Nationalité a été mise à jour.'));
+			 }
+		 } else {
+		 	//On vérifie que le libellé n'existe pas déjà pour une autre nationalité
+			$results = db_query("SELECT n.li_nationalite FROM siit_nationalite n
+				INNER JOIN siit_nationalite_entite ne ON ne.id_nationalite = n.id_nationalite
+				WHERE (n.li_nationalite = '".$li_nationalite."'
+					OR ne.li_nationalite = '".$li_nationalite."')");
+			$existeDeja = false;
+			foreach($results as $key) {
+				$li_nationalite_prev = $key->li_nationalite;
+				$existeDeja = true;
+			}
+			if ($existeDeja) {
+				drupal_set_message(t("Cette nationalité est déjà affectée à ".$li_nationalite_prev), $type = 'error', $repeat = FALSE);
+			} else {
+		 
+		 		$rs = db_query("INSERT INTO {siit_nationalite_entite} 
+				(id_nationalite,li_nationalite) VALUES ($id_nationalite, '".str_replace("'", "''", $li_nationalite)."')");
+			 	drupal_set_message(t('La Nationalité a été insérée.'));
+			 }
+		 }
+	}
+		drupal_goto("siit_nationalite_entite");
+		
+}
+ 

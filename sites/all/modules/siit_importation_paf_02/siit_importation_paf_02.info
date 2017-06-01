@@ -1,0 +1,5 @@
+name = SIIT PAF : Formulaire d'importation des données globales pour la PAF (Nosy be)
+description = SIIT PAF : Formulaire d'importation des données globales pour la PAF (Nosy be)
+core = 7.x
+version = 7.x-0.x-dev
+package = SIIT

@@ -1,0 +1,8 @@
+name = SIIT Manage Pays
+description = SIIT Manage Pays
+core = 7.x
+version = 7.x-0.x-dev
+package = SIIT
+dependencies[] = ctools
+dependencies[] = views
+files[] = views/siit_manage_pays.views.inc

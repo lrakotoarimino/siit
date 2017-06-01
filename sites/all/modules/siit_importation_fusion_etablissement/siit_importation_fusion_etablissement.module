@@ -1,0 +1,572 @@
+<?php
+
+/**
+* @file
+* Fusionne les données des Etablissements
+*/
+
+function siit_importation_fusion_etablissement_menu(){
+    $items = array();
+    $items['siit_importation_fusion_etablissement'] = array(
+        'title'            => t('Fusion des établissements'), 
+        'page callback'    => 'drupal_get_form',
+        'page arguments' => array('siit_importation_fusion_etablissement_form'),
+        'access arguments' => array('access siit_importation_fusion_etablissement'),
+        'type'             => MENU_LOCAL_TASK,
+    	//'access callback' => TRUE,
+    );
+    
+    return $items;
+    
+}  
+
+function siit_importation_fusion_etablissement_permission() {
+  return array( 
+    'access siit_importation_fusion_etablissement' => array(
+      'title' => t('siit_importation_fusion_etablissement : Detail importation Edbm01'),
+      'description' => t('Perform administration tasks for Detail importation Edbm01.'),
+    ),
+  );
+}
+function get_siit_importation_fusion_etablissement_form($form, &$form_state) {
+
+	$header = array(
+            array('data' => t('Id'), 'field' => 'id_etablissement', 'sort' => 'asc'),
+			array('data' => t('Etablissement'), 'field' => 'li_etablissement', 'sort' => 'asc'),
+            array('data' => t('Enseigne'), 'field' => 'li_enseigne', 'sort' => 'asc'),
+            array('data' => t('EDBM'), 'field' => 'is_edbm'),
+            array('data' => t('ONTM'), 'field' => 'is_ontm'),
+            array('data' => t('CNAPS'), 'field' => 'is_cnaps'),
+	        array('data' => t('Adresse'), 'field' => 'li_adresse', 'sort' => 'asc'),
+			array('data' => t('Région'), 'field' => 'li_region', 'sort' => 'asc'),
+			array('data' => t('Activités'), 'field' => 'li_activite_etablissement', 'sort' => 'asc'),
+			array('data' => t('Nb emplois nat.'), 'field' => 'nb_emplois_nationaux', 'sort' => 'asc'),
+			array('data' => t('Nb emplois étr.'), 'field' => 'nb_emplois_etrangers', 'sort' => 'asc'),
+			array('data' => t('Date autor.'), 'field' => 'dt_autorisation', 'sort' => 'asc'),
+			array('data' => t('Num. autor.'), 'field' => 'num_autorisation', 'sort' => 'asc'),
+			array('data' => t('Nat. Prom.'), 'field' => 'li_nationalite', 'sort' => 'asc'),
+			array('data' => t('Classement'), 'field' => 'li_classement_etablissement', 'sort' => 'asc'),
+			array('data' => t('Nb chambres'), 'field' => 'nb_chambres', 'sort' => 'asc'),
+			
+            
+          //  array('data' => t('Id'), 'field' => 'id_2'),
+          //  array('data' => t('Nom établissement'), 'field' => 'li_etablissementC'),
+          //  array('data' => t('Enseigne'), 'field' => 'li_enseigneC'),
+          //  array('data' => t('Adresse'), 'field' => 'li_adresseC'),
+	      //  array('data' => t('Région'), 'field' => 'li_regionC'/*, 'sort' => 'desc'*/),
+	      //  array('data' => t('Nombre employés nationaux'), 'field' => 'nbr_emplois_nationaux'/*, 'sort' => 'desc'*/),
+          //  array('data' => t('Nombre employés étrangers'), 'field' => 'nbr_emplois_etrangers'/*, 'sort' => 'desc'*/), 
+	);
+	$form['#attached']['js'] = array(
+      drupal_get_path('module', 'siit_importation_liste') . '/js/siit_importation_liste.js'
+    );
+    
+    $form['criteria'] = array(
+			'#type' => 'fieldset',
+			'#title' => t('Filtres'),
+			'#collapsible' => FALSE, // Added
+			'#collapsed' => FALSE,  // Added
+			'#attributes' => array('class' => array('container-inline'))
+	);
+	
+	
+	
+	$form['criteria']['id'] = array(
+			'#type' => 'textfield',
+			'#title' => t('Id :'),
+			'#required' => false,
+            '#attributes' => array('size' => 10)
+	);
+	
+	
+	/*$form['criteria']['nom'] = array(
+			'#type' => 'textfield',
+			'#title' => t('Nom :'),
+			'#required' => false,
+            '#attributes' => array('size' => 20)
+	);*/
+	
+	$form['criteria']['enseigne'] = array(
+			'#type' => 'textfield',
+			'#title' => t('Etablissement ou Enseigne :'),
+			'#required' => false,
+            '#attributes' => array('size' => 20)
+	);
+	if (isset($_REQUEST['id'])) {
+		$form['criteria']['id']['#default_value'] = $_REQUEST['id'];
+	}
+    if (isset($_REQUEST['nom'])) {
+		$form['criteria']['nom']['#default_value'] = $_REQUEST['nom'];
+	}
+    if (isset($_REQUEST['enseigne'])) {
+		$form['criteria']['enseigne']['#default_value'] = $_REQUEST['enseigne'];
+	}
+
+	
+	$rows = Null;
+	$i=0;
+	$nb = 0;
+	global $user;
+    $uid = $user->uid;
+    $count = 0;
+    
+    //Récupérer les données de ONTM
+    $id_importation_ONTM = 0;
+    $results = db_query("select max(id_importation) as id_importation from siit_importation where id_type_fichier = 7 and id_statut in (1,2)");
+    foreach($results as $result) $id_importation_ONTM = $result->id_importation;
+    if($id_importation_ONTM)$count++;
+    //Récupérer les données de CNAPS
+    $id_importation_CNAPS = 0;
+    $results = db_query("select max(id_importation) as id_importation from siit_importation where id_type_fichier = 10 and id_statut in (1,2) and annee = (select max(annee) from siit_importation where id_type_fichier = 10 and id_statut in (1,2))");
+    foreach($results as $result) $id_importation_CNAPS = $result->id_importation;
+    if($id_importation_CNAPS)$count++;
+    //Récupérer les données de EDBM
+    $id_importation_EDBM = 0;
+    $results = db_query("select max(id_importation) as id_importation from siit_importation where id_type_fichier = 5 and id_statut in (1,2) and annee = (select max(annee) from siit_importation where id_type_fichier = 5 and id_statut in (1,2))");
+    foreach($results as $result) $id_importation_EDBM = $result->id_importation;
+    if($id_importation_EDBM)$count++;
+    //if($count > 1){
+            $id_importation = $id_importation_ONTM;
+            if($id_importation_CNAPS && $id_importation_EDBM)$idIN = "(".$id_importation_CNAPS.",".$id_importation_EDBM.")";
+            else if($id_importation_CNAPS)$idIN = "(".$id_importation_CNAPS.")";
+            else if($id_importation_EDBM)$idIN = "(".$id_importation_EDBM.")";
+            if($id_importation_CNAPS>$id_importation){
+                $id_importation = $id_importation_CNAPS;
+                if($id_importation_ONTM && $id_importation_EDBM)$idIN = "(".$id_importation_ONTM.",".$id_importation_EDBM.")";
+                else if($id_importation_ONTM)$idIN = "(".$id_importation_ONTM.")";
+                else if($id_importation_EDBM)$idIN = "(".$id_importation_EDBM.")";
+            }
+            if($id_importation_EDBM>$id_importation){
+                $id_importation = $id_importation_EDBM;
+                if($id_importation_ONTM && $id_importation_CNAPS)$idIN = "(".$id_importation_ONTM.",".$id_importation_CNAPS.")";
+                else if($id_importation_ONTM)$idIN = "(".$id_importation_ONTM.")";
+                else if($id_importation_CNAPS)$idIN = "(".$id_importation_CNAPS.")";
+            }
+            
+            //GSE : PAGINATION
+            $limit = 10;
+		    if (isset($_REQUEST['page']) && !empty($_REQUEST['page'])) {
+		    	$start = $_REQUEST['page'] * $limit;
+		    	$page = $_REQUEST['page'];
+		    } else {
+		    	$page = 0;
+		    	$start = 0;
+		    }
+            
+            
+            $sqlList = "select id_etablissement, li_etablissement,li_enseigne,li_adresse,li_region,
+                   li_activite_etablissement,nb_emplois_nationaux,
+                   nb_emplois_etrangers,mt_investissement,
+                   case when dt_autorisation is not null and dt_autorisation > '1970-01-01'
+                   then date(dt_autorisation) else ''
+                   end as dt_autorisation,
+                   num_autorisation,li_nationalite,li_classement_etablissement,nb_chambres,
+                   nb_places_repas,fixe,mobile,email,website,
+                   CASE WHEN is_edbm IS true THEN 'X' ELSE '-' END as is_edbm,
+                   CASE WHEN is_ontm IS true THEN 'X' ELSE '-' END as is_ontm,
+                   CASE WHEN is_cnaps IS true THEN 'X' ELSE '-' END as is_cnaps
+                   ";
+                   
+            $sqlCount = "select count(*) as total ";         
+                   
+            $sql = " from siit_etablissement etab
+                   left join siit_region region on region.id_region = etab.id_region
+                   
+                   left join siit_nationalite nat on nat.id_nationalite = etab.id_nationalite_promoteur
+                   left join siit_activite_etablissement actetab on actetab.id_activite_etablissement = etab.id_activite_etablissement  
+                   left join siit_classement_etablissement classetab on classetab.id_classement_etablissement = etab.id_classement_etablissement
+                   where 1 = 1 "; 
+                   //where id_importation in ".$idIN;
+                   
+            if (isset($_REQUEST['id']) && !empty($_REQUEST['id'])) {
+        		$sql .= " AND id_etablissement = ".$_REQUEST['id'];
+        	}
+            if (isset($_REQUEST['nom']) && !empty($_REQUEST['nom'])) {
+        		$sql .= " AND (li_etablissement like  '%".$_REQUEST['nom']."%' OR li_enseigne like  '%".$_REQUEST['nom']."%')";
+        	}
+            if (isset($_REQUEST['enseigne']) && !empty($_REQUEST['enseigne'])) {
+        		$sql .= " AND (li_etablissement like  '%".$_REQUEST['enseigne']."%' OR li_enseigne like  '%".$_REQUEST['enseigne']."%')";
+        	}
+        	
+        	$order = tablesort_get_order($header);
+			$sort = tablesort_get_sort($header);
+			
+			if (isset($order["sql"]) && !empty($order['sql'])) {
+				$sql .= " order by ".$order["sql"]." ".$sort;
+			} else {
+				$sql .= " order by li_etablissement desc";
+			}
+			
+			$count_result = db_query($sqlCount.$sql)->fetchAssoc();;
+			$results = db_query_range($sqlList.$sql,$start,$limit);
+			$nbTotal = $count_result["total"];
+			pager_default_initialize($count_result["total"], $limit, $element = 0);
+			
+            //echo $sql;
+            //$results = db_query($sql);
+            
+            foreach($results as $result) {
+                $nb++;
+                $id_etablissement = $result->id_etablissement;
+                $dt_autorisation = $result->dt_autorisation;
+                if (!empty($dt_autorisation)) {
+        	 		$dt_autorisation=  substr($dt_autorisation,8,2)."/".substr($dt_autorisation,5,2)."/".substr($dt_autorisation,0,4);
+        	 	}
+        	 	$rows[$i] = array(
+                 	'id_1' => $result->id_etablissement,
+                 	'li_etablissement' => $result->li_etablissement,
+				    'li_enseigne' => $result->li_enseigne,
+				    'is_edbm' => $result->is_edbm,
+				    'is_ontm' => $result->is_ontm,
+				    'is_cnaps' => $result->is_cnaps,
+				   	'li_adresse' => $result->li_adresse,
+					'li_region' => $result->li_region,
+				  	//'li_forme_juridique' => $result->li_forme_juridique,
+					//'li_type_etablissement' => $result->li_type_etablissement,
+					'li_activite_etablissement' => $result->li_activite_etablissement,
+					'nb_emplois_nationaux' => $result->nb_emplois_nationaux,
+					'nb_emplois_etrangers' => $result->nb_emplois_etrangers,
+					//'mt_investissement' => $result->mt_investissement,
+					'dt_autorisation' => $dt_autorisation,
+					'num_autorisation' => $result->num_autorisation,
+					'li_nationalite' => $result->li_nationalite,
+					'li_classement_etablissement' => $result->li_classement_etablissement,
+					'nb_chambres' => $result->nb_chambres,
+					//'nb_places_repas' => $result->nb_places_repas
+        			        				  );
+        	     $i++; 
+            }
+            
+            /*
+            $i=0;
+            $sql = "select etab.id_etablissement,li_etablissement,li_enseigne,li_adresse,li_region,nb_emplois_nationaux,nb_emplois_etrangers from siit_etablissement etab   
+        							left join siit_region reg on etab.id_region=reg.id_region 
+        							where etab.id_importation=".$id_importation;
+        	
+            if (isset($_REQUEST['id']) && !empty($_REQUEST['id'])) {
+        		$sql .= " AND etab.id_etablissement = ".$_REQUEST['id'];
+        	}
+            if (isset($_REQUEST['nom']) && !empty($_REQUEST['nom'])) {
+        		$sql .= " AND (li_etablissement like  '%".$_REQUEST['nom']."%' OR li_enseigne like  '%".$_REQUEST['nom']."%')";
+        	}
+            if (isset($_REQUEST['enseigne']) && !empty($_REQUEST['enseigne'])) {
+        		$sql .= " AND (li_etablissement like  '%".$_REQUEST['enseigne']."%' OR li_enseigne like  '%".$_REQUEST['enseigne']."%')";
+        	}	
+            
+            //echo $sql;
+            $results = db_query($sql); 							
+        	 foreach($results as $result) {
+        	   $nb++;
+        	    if(!array_key_exists($i,$rows)){
+        	       $rows[$i] = array('id_1' => "",
+	                    'li_etablissement' => '',
+						'li_enseigne' => '',
+					    'li_adresse' =>  '',
+						'li_region' =>  '',
+					  	'li_activite_etablissement' =>  '',
+			      		'nb_emplois_nationaux' =>  '',
+			      		'nb_emplois_etrangers' =>  '',
+			      		'mt_investissement' => '',
+			      		'dt_autorisation' =>  '',
+			      		'num_autorisation' =>  '',
+			      		'li_nationalite' =>  '',
+			      		'li_classement_etablissement' =>  '',
+			      		'nb_chambres' => '',
+			      		'nb_places_repas' =>  '',
+				  );
+        	    }
+                $rows[$i]['id_2'] = $result->id_etablissement;
+                $rows[$i]['li_etablissementC'] = $result->li_etablissement;
+        	 	$rows[$i]['li_enseigneC'] = $result->li_enseigne;
+                $rows[$i]['li_adresseC'] = $result->li_adresse;
+                $rows[$i]['li_regionC'] = $result->li_region;
+                $rows[$i]['emplois_nationaux'] = $result->nb_emplois_nationaux;
+                $rows[$i]['emplois_etrangers'] = $result->nb_emplois_etrangers;
+        	    
+    	        $i++;        				  
+        	 }
+        	 */
+    /*}
+    else {
+        //$form_state['redirect'] ="siit_importation_liste";
+        header('Location: siit_importation_liste');
+        exit;
+    }*/
+    
+    
+	
+	$form['submit'] = array(
+			'#type' => 'submit',
+			'#value' => t('Rechercher'),
+	);
+    
+    $nbStart = ($page)*$limit +1;
+ 	$nbEnd = ($page+1)*$limit;
+ 	if ($nbTotal < $nbEnd) {
+ 		$nbEnd = $nbTotal;
+ 	}
+ 
+	$form['nb'] = array(
+		    '#markup' => "<br>Résultats affichés : ".$nbStart." à ".$nbEnd. " / ".$nbTotal,
+		  );
+ 
+	$form['table'] = array(
+		    '#theme' => 'table',
+		    '#header' => $header,
+		    '#rows' => $rows,
+		    '#empty' => t('Aucun r&eacute;sultat.')
+		  );
+	$form['pager'] = array('#markup' => theme('pager'));
+	
+	$form['saisie'] = array(
+			'#type' => 'fieldset',
+			'#title' => t('Fusion'),
+			'#collapsible' => FALSE, // Added
+			'#collapsed' => FALSE,  // Added
+			'#attributes' => array('class' => array('container-inline'))
+	);
+    
+    $form['saisie']['fusion'] = array(
+	        '#type' => 'submit',
+	        '#value' => t('Fusion'),
+	        '#attributes' => array('class' => array('button button--primary js-form-submit form-submit btn-success btn')),
+	    	'#validate' => array('siit_importation_fusion_etablissement_validate'),
+	    		'#submit' => array('siit_importation_fusion_etablissement_submit'),
+	    );
+    $form['saisie']['id1'] = array(
+			'#type' => 'textfield',
+			'#title' => t('&nbsp;&nbsp;&nbsp;Id 1 (sera conservé) :'),
+			'#required' => false,
+            '#attributes' => array('size' => 10)
+	);
+    /*$form['saisie']['cons'] = array(
+      '#markup' => '* (sera conservé)     &nbsp;&nbsp;&nbsp;&nbsp;'
+    );*/
+    $form['saisie']['id2'] = array(
+			'#type' => 'textfield',
+			'#title' => t('Id 2 (sera supprimé) :'),
+			'#required' => false,
+            '#attributes' => array('size' => 10)
+	);
+	/*$form['saisie']['supp'] = array(
+      '#markup' => '* (sera supprimé)'
+    );*/
+    $form['saisie']['id_type_fichier1'] = array(
+			'#type' => 'hidden'
+	);
+    $form['saisie']['id_type_fichier2'] = array(
+			'#type' => 'hidden'
+	);
+	$form['importation']['back'] = array('#type' => 'submit', '#value' => t('Back'));
+   // $form['importation']['back']['#limit_validation_errors'] = array();
+    $form['importation']['back']['#submit'] = array('siit_importation_liste_back_submit');
+   // $form['importation']['back']['#name'] = 'reset';
+	return $form;
+}
+function get_data_etablissement($id){
+    $sql = "select * from siit_importation imp,siit_etablissement etab left join siit_region region on region.id_region = etab.id_region where etab.id_importation = imp.id_importation and id_etablissement=".$id;
+    $results = db_query($sql); 							
+    foreach($results as $result) {
+         $data1['li_region'] = $result->li_region;
+         $data1['id_etablissement'] = $result->id_etablissement;
+  	     $data1['li_etablissement'] = $result->li_etablissement;
+         $data1['li_enseigne'] = $result->li_enseigne;
+         $data1['li_adresse'] = $result->li_adresse;
+         $data1['id_region'] = $result->id_region;
+         $data1['id_activite_etablissement'] = $result->id_activite_etablissement;
+         $data1['nb_emplois_nationaux'] = $result->nb_emplois_nationaux;
+         $data1['nb_emplois_etrangers'] = $result->nb_emplois_etrangers;
+         $data1['mt_investissement'] = $result->mt_investissement;
+         $data1['dt_autorisation'] = $result->dt_autorisation;
+         $data1['num_autorisation'] = $result->num_autorisation;
+         $data1['id_nationalite_promoteur'] = $result->id_nationalite_promoteur;
+         $data1['id_classement_etablissement'] = $result->id_classement_etablissement;
+         $data1['nb_chambres'] = $result->nb_chambres;
+         $data1['nb_places_repas'] = $result->nb_places_repas;
+         $data1['fixe'] = $result->fixe;
+         $data1['mobile'] = $result->mobile;
+         $data1['email'] = $result->email;
+         $data1['website'] = $result->website;
+         $data1['annee'] = $result->annee;
+         $data1['nb_lits'] = $result->nb_lits;
+         $data1['id_type_fichier'] = $result->id_type_fichier;
+  	}
+    return $data1;
+}
+function doFusion($data1, $data2){
+    if(!$data1['li_etablissement'])$data1['li_etablissement'] = $data2['li_etablissement'];
+    if(!$data1['li_enseigne'])$data1['li_enseigne'] = $data2['li_enseigne'];
+    if(!$data1['li_adresse'])$data1['li_adresse'] = $data2['li_adresse'];
+    if(!$data1['id_region'])$data1['id_region'] = $data2['id_region'] ;
+    //L’activité à récupérer qu’on lie à l’établissement : en priorité celui de l’EDBM, sinon, celui de l’ONTM
+    if($data1['id_type_fichier']==10)$data1['id_activite_etablissement'] = $data2['id_activite_etablissement'];
+    else if($data1['id_type_fichier']==7 && $data2['id_type_fichier']==5)$data1['id_activite_etablissement'] = $data2['id_activite_etablissement'];
+    //Le classement (etoiles et ravinala) à récupérer qu’on lie à l’établissement : en priorité celui de l’ONTM (sauf si NC non connu), sinon, celui de l’EDBM
+    if($data1['id_type_fichier']==10)$data1['id_classement_etablissement'] = $data2['id_classement_etablissement'];
+    else if($data2['id_type_fichier']!=10){
+        if((!$data1['id_classement_etablissement'] || $data1['id_classement_etablissement']==11) && ($data2['id_classement_etablissement'] && $data2['id_classement_etablissement']!=11))$data1['id_classement_etablissement'] = $data2['id_classement_etablissement'];
+    }
+    
+    if(!$data1['mt_investissement'])$data1['mt_investissement'] = $data2['mt_investissement'];
+    //la date d’autorisation d’ouverture : toujours celui de l’EDBM.
+    if($data1['id_type_fichier']!=5)$data1['dt_autorisation'] = $data2['dt_autorisation'];
+    if(!$data1['num_autorisation'])$data1['num_autorisation'] = $data2['num_autorisation'];
+    if(!$data1['id_nationalite_promoteur'])$data1['id_nationalite_promoteur'] = $data2['id_nationalite_promoteur'];
+    
+    if(!$data1['nb_chambres'])$data1['nb_chambres'] = $data2['nb_chambres'];
+    if(!$data1['nb_places_repas'])$data1['nb_places_repas'] = $data2['nb_places_repas'];
+    if(!$data1['fixe'])$data1['fixe'] = $data2['fixe'];
+    if(!$data1['mobile'])$data1['mobile'] = $data2['mobile'];
+    if(!$data1['email'])$data1['email'] = $data2['email'];
+    if(!$data1['website'])$data1['website'] = $data2['website'];
+    if(!$data1['annee'])$data1['annee'] = $data2['annee'];
+    if(!$data1['nb_lits'])$data1['nb_lits'] = $data2['nb_lits'];
+    if(!$data1['nb_emplois_nationaux'])$data1['nb_emplois_nationaux'] = $data2['nb_emplois_nationaux'];
+    if(!$data1['nb_emplois_etrangers'])$data1['nb_emplois_etrangers'] = $data2['nb_emplois_etrangers'];
+    if($data2['id_type_fichier']==5)$data1['is_edbm'] = 1;
+    else if($data2['id_type_fichier']==7)$data1['is_ontm'] = 1;
+    else if($data2['id_type_fichier']==10)$data1['is_cnaps'] = 1;
+    return $data1;
+}
+function siit_importation_fusion_etablissement_form($form, &$form_state) {
+    if(!isset($form_state['storage']['confirm'])){
+	        return get_siit_importation_fusion_etablissement_form($form, $form_state);
+    }
+    else{
+          $question = "Etes-vous sûr de vouloir fusionner les établissements ?";
+          $data1 = get_data_etablissement($_POST['id1']);
+          $data2 = get_data_etablissement($_POST['id2']);
+         
+          $description="
+          <p><strong>Etablissement 1</strong></p>
+          <p>".$data1['id_etablissement']."</p>
+                            <p>".$data1['li_etablissement']  ."</p>
+                            <p>".$data1['li_enseigne']."</p>
+                            <p>".$data1['li_adresse']."</p>
+                            <p>".$data1['li_region']."</p>
+          <p><strong>Avec</strong></p>                  
+          <p><strong>Etablissement 2</strong></p>
+          <p>".$data2['id_etablissement']."</p>
+                            <p>".$data2['li_etablissement']  ."</p>
+                            <p>".$data2['li_enseigne']."</p>
+                            <p>".$data2['li_adresse']."</p>
+                            <p>".$data2['li_region']."</p>
+                           ";           
+          $path = 'siit_importation_fusion_etablissement';
+          
+          $yes = 'Oui';
+          $no = 'Non';
+          $id_type_fichier1 = $form_state['values']['id_type_fichier1'] ;
+          $id_type_fichier2 = $form_state['values']['id_type_fichier2'];
+          $form = confirm_form($form, $question, $path, $description, $yes, $no);
+          
+    
+          $form['id1'] = array('#type' => 'hidden', '#value' => $_POST['id1']);
+          $form['id2'] = array('#type' => 'hidden', '#value' => $_POST['id2']);
+          $form['id_type_fichier1'] = array('#type' => 'hidden', '#value' => $id_type_fichier1);
+          $form['id_type_fichier2'] = array('#type' => 'hidden', '#value' => $id_type_fichier2);
+          $form['actions']['submit'] = array(
+            '#type' => 'submit',
+            '#value' => $yes,
+            '#attributes' => array('class' => array('button button--primary js-form-submit form-submit btn-success btn'),),
+    	    '#submit' => array('siit_importation_fusion_etablissement_submit'),
+          );  
+          $form['#attached']['css'] = array(
+              drupal_get_path('module', 'siit_importation_mnp_01') . '/css/mnp.css'
+          );
+          return $form;
+    }
+}
+function siit_importation_fusion_etablissement_submit($form, &$form_state){
+    $id1 = $_POST['id1'];$id2 = $_POST['id2'];
+    if(!isset($form_state['storage']['confirm'])){
+         $form_state['storage']['confirm'] = TRUE;
+         $form_state['rebuild'] = TRUE;
+    }
+    else{
+        $id_type_fichier1 = $form_state['values']['id_type_fichier1'] ;
+        $id_type_fichier2 = $form_state['values']['id_type_fichier2'];
+        $data1 = get_data_etablissement($id1);
+        $data2 = get_data_etablissement($id2);
+        $data1 = doFusion($data1, $data2);
+        if($id_type_fichier2 ==10){
+            db_delete('siit_employes')
+	        			    ->condition('id_etablissement',  $id2)
+	        			    ->execute();
+            
+            
+        }
+        db_delete('siit_etablissement')
+	        			    ->condition('id_etablissement',  $id2)
+	        			    ->execute();
+        $query = db_insert('siit_etablissement_entite');
+        $value['li_etablissement_entite'] = $data2['li_etablissement'] ;
+        $value['li_enseigne_entite'] = $data2['li_enseigne'] ;
+        $query
+          ->fields($value)
+          ->execute();
+        
+        unset($data1['li_region']);
+        unset($data1['id_etablissement']);
+        unset($data1['id_type_fichier']);
+        if($data1['dt_autorisation']=='0000-00-00 00:00:00')$data1['dt_autorisation'] = '2015-01-01';
+        $query = db_update('siit_etablissement')
+        ->condition('id_etablissement', $id1)->fields($data1)
+        ->execute();
+        drupal_set_message("La fusion a été effectuée avec succès.", $type = 'status');
+        $form_state['redirect'] ="siit_importation_fusion_etablissement";
+    }
+}
+function siit_importation_fusion_etablissement_validate($form, &$form_state){
+    
+    $id1 = $_POST['id1'];$id2 = $_POST['id2'];
+    $id_type_fichier1 = 0;$id_type_fichier2 = 0;
+    if(!$id1)
+        form_set_error('edit-annee', t("Le champ Id 1 est obligatoire."));
+    else{
+        $sql = "select tf.id_type_fichier,li_type_fichier
+                       from siit_etablissement etab,siit_importation imp,siit_type_fichier tf
+                       where imp.id_importation=etab.id_importation and imp.id_type_fichier=tf.id_type_fichier and id_etablissement=".$id1;
+                       
+    
+        $results = db_query($sql);
+        foreach($results as $u) {
+    	   $id_type_fichier1 = $u->id_type_fichier;
+           $li_type_fichier = $u->li_type_fichier;
+        }
+        if(!$id_type_fichier1)
+            form_set_error('edit-annee', t("Le champ Id 1 ne correspond à aucun établissement."));
+    }
+    if(!$id2)
+        form_set_error('edit-annee', t("Le champ Id 2 est obligatoire."));
+    else{
+        $sql = "select id_type_fichier
+                       from siit_etablissement etab,siit_importation imp
+                       where imp.id_importation=etab.id_importation and id_etablissement=".$id2;
+                       
+        $results = db_query($sql);
+        foreach($results as $u) {
+    	   $id_type_fichier2 = $u->id_type_fichier;
+        }
+        if(!$id_type_fichier2)
+            form_set_error('edit-annee', t("Le champ Id 2 ne correspond à aucun établissement."));
+    }
+    if($id_type_fichier1 && $id_type_fichier1 == $id_type_fichier2)form_set_error('edit-annee', t("Les 2 établissements proviennent du même source ".$li_type_fichier."."));
+    $form_state['values']['id_type_fichier1'] = $id_type_fichier1;
+    $form_state['values']['id_type_fichier2'] = $id_type_fichier2;
+}
+function siit_importation_fusion_etablissement_form_submit($form, &$form_state){
+	
+	$form_state['redirect'] = array(
+		// $path
+		'siit_importation_fusion_etablissement',
+		// $options
+		array('query' => array('id' => $form_state['values']['id'],
+							   //'nom' => $form_state['values']['nom'],
+							   'enseigne' => $form_state['values']['enseigne'])),
+		// $http_response_code
+		302,
+  );
+}
+
+

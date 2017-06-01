@@ -1,0 +1,24 @@
+Titre_Civilité;Nom;Prénoms;Nom_de_jeune_fille;Date_de_naissance;Lieu_de_naissance;Nationalité;Profession;Numéro_du_passeport;Date_de_délivrance_passeport;Fin_de_validité_passeport;Lieu_d'émission_passeport;Nombre_d'enfants;Enfant_1;Enfant_2;Enfant_3;Enfant_4;Numéro_du_vol;Compagnie;Date_du_vol;Date_de_retour;Numéro_du_visa;Visa_délivré_à;Visa_délivré_le;Autorité_émetteur;Durée_du_séjour(mois);Durée_du_séjour(jours);Aéroport_d'embarquement;Lieu_de_résidence;Adresse;Ville;Pays;En_transit;Lieu_de_destination;Aéroport_de_destination;Date_de_départ;Voyage_en_groupe;Objet_du_voayage;Hébergement
+Monsieur;;;;13/12/1984 00:00;caen;France;realisateur;;;;;0;;;;;md 011;Air Madagascar;17/02/2015 00:00;15/05/2015 00:00;;;;;0;0;;;;;France;;;;;;Visite Familiale;Autre
+Mlle;;;;20/01/2010 00:00;tokyo;japon;;;;;;0;;;;;md 011;Air Madagascar;17/02/2015 00:00;06/03/2015 00:00;;;;;0;0;;;;;tokyo;;;;;;Autre;Hôtel
+Monsieur;;;;25/10/1969 00:00;philippines;philippines;chef cook;;;;;0;;;;;md 011;Air Madagascar;17/02/2015 00:00;17/02/2015 00:00;;;;;0;0;;;;;;;;;;;Autre;Autre
+Monsieur;;;;23/11/1977 00:00;filipino;filipino;valve technicien;;;;;0;;;;;md 011;Air Madagascar;17/02/2015 00:00;17/02/2015 00:00;;;;;0;0;;;;;;;;;;;Autre;Autre
+Monsieur;;;;30/11/1972 00:00;cebu city;filipino;ofw;;;;;0;;;;;md 011;Air Madagascar;17/02/2015 00:00;;;;;;0;0;;;;;philippines;;;;;;Autre;Autre
+Monsieur;;;;04/09/1975 00:00;philippino;philippino;maintenance;;;;;0;;;;;md 011;Air Madagascar;17/02/2015 00:00;;;;;;0;0;;;;;philippines;;;;;;Autre;Autre
+Monsieur;;;;06/04/1980 00:00;chine;chine;business;;;;;0;;;;;md 011;Air Madagascar;17/02/2015 00:00;15/03/2015 00:00;;;;;0;0;;;;;chine;;;;;;Tourisme;Autre
+Monsieur;;;;27/09/1967 00:00;chine;chine;technicien;;;;;0;;;;;md 011;Air Madagascar;17/02/2015 00:00;06/03/2015 00:00;;;;;0;0;;;;;chine;;;;;;Autre;Hôtel
+Monsieur;;;;13/12/1981 00:00;he nan;liu;teacher;;;;;0;;;;;md 011;Air Madagascar;17/02/2015 00:00;06/03/2015 00:00;;;;;0;0;;;;;chine;;;;;;Tourisme;Hôtel
+Monsieur;;;;10/03/1976 00:00;conakry;guinée;business;;;;;0;;;;;md 011;Air Madagascar;17/02/2015 00:00;06/03/2015 00:00;;;;;0;0;;;;;guinée;;;;;;Tourisme;Hôtel
+Monsieur;;;;13/05/1962 00:00;chine;chine;entrepeneur;;;;;0;;;;;md 011;Air Madagascar;17/02/2015 00:00;16/03/2015 00:00;;;;;0;0;;;;;chine;;;;;;Tourisme;Autre
+Monsieur;;;;20/09/1967 00:00;liaoning;chine;;;;;;0;;;;;md 011;Air Madagascar;17/02/2015 00:00;26/02/2015 00:00;;;;;0;0;;;;;chine;;;;;;Tourisme;Hôtel
+Mlle;;;;20/01/2005 00:00;chine;chine;student;;;;;0;;;;;md 011;Air Madagascar;17/02/2015 00:00;26/02/2015 00:00;;;;;0;0;;;;;chine;;;;;;Tourisme;Hôtel
+Monsieur;;;;06/10/1968 00:00;chine;chine;entrepreneur;;;;;0;;;;;md 011;Air Madagascar;17/02/2015 00:00;16/03/2015 00:00;;;;;0;0;;;;;chine;;;;;;Tourisme;Autre
+Mlle;;;;19/01/1989 00:00;chine;chine;;;;;;0;;;;;md 011;Air Madagascar;17/02/2015 00:00;06/03/2015 00:00;;;;;0;0;;;;;chine;;;;;;Visite Familiale;Autre
+Madame;;;;22/09/1969 00:00;liaoning;chine;;;;;;0;;;;;md 011;Air Madagascar;17/02/2015 00:00;26/02/2015 00:00;;;;;0;0;;;;;chine;;;;;;Tourisme;Hôtel
+Madame;;;;07/01/1961 00:00;hebei;chine;;;;;;0;;;;;md 011;Air Madagascar;17/02/2015 00:00;06/03/2015 00:00;;;;;0;0;;;;;chine;;;;;;Autre;Hôtel
+Monsieur;;;;04/11/1954 00:00;France;France;gérant ste floricol;;;;;0;;;;;md 011;Air Madagascar;17/02/2015 00:00;09/03/2015 00:00;;;;;0;0;;;;;calédonie;;;;;;Tourisme;Hôtel
+Monsieur;;;;07/06/1960 00:00;hebei;chine;entrepreneur;;;;;0;;;;;md 011;Air Madagascar;17/02/2015 00:00;03/03/2015 00:00;;;;;0;0;;;;;chine;;;;;;Autre;Hôtel
+Madame;;;;27/11/1967 00:00;hielonjiang;chine;;;;;;0;;;;;md 011;Air Madagascar;17/02/2015 00:00;26/02/2015 00:00;;;;;0;0;;;;;chine;;;;;;Tourisme;Hôtel
+Monsieur;;;;26/10/1973 00:00;fujian;chine;;;;;;0;;;;;md 011;Air Madagascar;17/02/2015 00:00;;;;;;0;0;;;;;;;;;;;Autre;Autre
+Monsieur;;;;28/04/1968 00:00;gansu;chine;;;;;;0;;;;;md 011;Air Madagascar;17/02/2015 00:00;26/02/2015 00:00;;;;;0;0;;;;;chine;;;;;;Tourisme;Hôtel
+Monsieur;;;;17/04/1986 00:00;chine;chine;;;;;;0;;;;;md 011;Air Madagascar;17/02/2015 00:00;;;;;;0;0;;;;;chine;;;;;;Autre;Autre

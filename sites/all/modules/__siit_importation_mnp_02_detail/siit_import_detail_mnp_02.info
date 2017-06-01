@@ -1,0 +1,5 @@
+name = Detail importation Mnp02
+description = Detail importation Mnp02
+core = 7.x
+version = 7.x-0.x-dev
+package = SIIT

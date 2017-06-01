@@ -1,0 +1,1194 @@
+<?php
+
+/**
+* @file
+* Display a Adema Importation
+*/
+define('ENTITE_MNP','MNP');
+define('ENTITE_ONTM01','ONTM01');
+define('ENTITE_ONTM02','ONTM02');
+define('ENTITE_EDBM','EDBM');
+define('ENTITE_PAF01','PAF01');
+define('ENTITE_PAF02','PAF02');
+define('ENTITE_CNAPS01','CNAPS01');
+define('ENTITE_ADEMA','ADEMA');
+define('ENTITE_BCM','BCM');
+define('MNP_NB_COL','26');
+define('ONTM01_NB_COL','11');
+define('EDBM01_NB_COL','16');
+define('TYPE_FICHIER_MNP','3');
+define('TYPE_FICHIER_ONTM02','11');
+define('TYPE_FICHIER_ONTM01','7');
+define('TYPE_FICHIER_CNAPS01','10');
+define('TYPE_FICHIER_PAF01','1');
+define('TYPE_FICHIER_PAF02','2');
+define('TYPE_FICHIER_EDBM','5');
+define('TYPE_FICHIER_ADEMA','9');
+define('TYPE_FICHIER_BCM','8');
+define('STATUT_AVALIDER','1');
+define('STATUT_VALIDE','2');
+define('STATUT_REFUSE','3');
+define('ENTITE_APMF','APMF'); 
+define('TYPE_FICHIER_APMF','6');
+define('NB_JR','50');
+
+define('ID_CATEGORIE_PROFESSIONNELLE_INCONNU',9);
+//$libTotals = array('TOTAL','AVECTO','SANSTO','ENFANTETRG','ADULTETRG','ENFANTNAT','ADULTENAT','CAMPEUR');
+//$categorie_visiteur = array('ADULTETRG','ADULTENAT','ENFANTNAT','ENFANTETRG','AVECTO','CAMPEUR');
+$libTotals = array('TOTAL','AVECTO','INDIVIDUEL','KE','E','KN','M','CAMPEUR');
+$categorie_visiteur = array('E','M','KN','KE','AVECTO','CAMPEUR');
+$villes= array('SAVA','AMBATOLAMPY / BEHENJY','AMBOSITRA','AMPEFY / MIARINARIVO','ANAKAO / IFATY','ANDASIBE / MANTASOA / MORAMANGA','ANTANANARIVO','ANTSIRABE','DIANA','FARAFANGANA / MANAKARA / MANANJARY / RANOMAFANA','FIANARANTSOA','FOULPOINTE / MAHAMBO / MAROANTSETRA','ISALO / RANOHIRA','MAHAJANGA','MANAMBATO','MORONDAVA','NOSY BE','SAINTE MARIE','TOAMASINA','TOLAGNARO','TOLIARY');
+define('LIBTOTALS', json_encode($libTotals));
+define('CATEGORIE_VISITEUR', json_encode($categorie_visiteur));
+define('VILLES', json_encode($villes));
+$devalidateur = array('1','17','16');
+define('DEVALIDATEURS', json_encode($devalidateur));
+
+
+$GLOBALS['libMois'] = optionMonth(false,false);
+function siit_importation_liste_menu(){
+    $items = array();
+    $items['siit_importation_liste'] = array(
+        'title'            => t('Liste des Importations'), 
+        'page callback'    => 'drupal_get_form',
+        'page arguments' => array('siit_importation_liste_form'),
+        'access arguments' => array('access siit_importation_liste'),
+        'type'             => MENU_LOCAL_TASK,
+    		//'access callback' => TRUE,
+    );
+    
+    return $items;
+    
+}  
+
+function siit_importation_liste_permission() {
+  return array( 
+    'access siit_importation_liste' => array(
+      'title' => t('siit_importation_liste : adema siit_importation_liste'),
+      'description' => t('Perform administration tasks for siit_importation_liste.'),
+    ),
+  );
+}
+
+function siit_importation_liste_mail($key, &$message, $params) {
+  // note: l'utilisation d'une clé va nous permettre de distinguer plusieurs templates d'emails pouvant être envoyés par un même module.
+  switch ($key) {
+    case 'envoi_email':
+      // note: Ici nous récupérons les informations passées dans le tableau $params
+		$message['subject'] = $params['subject'];
+		$message['body'][] = $params['body'];
+      break;
+  }
+}
+
+
+function detail_donnee($a_valider){
+	
+	$detail="";
+	
+	foreach($a_valider as $data) {
+		
+		//Type fichier
+		$li_type_fichier  = get_type_tichier_by_id($data['id_type_fichier']);
+		switch($li_type_fichier){
+				 case "PAF01":
+			        $li_type_fichier= "PAF 01 (IVATO)";
+			        break;
+			    case "PAF02":
+			        $li_type_fichier= "PAF 02 (NOSY BE)";
+			        break;					
+			    case "ONTM01":
+			        $li_type_fichier= "ONTM 01 (ETABLISSEMENTS HOTELIERS)";
+			        break;
+			    case "ONTM02":
+			        $li_type_fichier= "ONTM 02 (VIGNETTES TOURISTIQUES)";	
+			        break;
+			    case "EDBM":
+			        $li_type_fichier= "EDBM (ETABLISSEMENTS TOURISTIQUES CREES)";
+			        break;				 									   
+				case "MNP":
+			        $li_type_fichier= "MNP (VISITES DES PARCS NATIONAUX)";
+			        break;	
+				case "RAVINALA":
+			        $li_type_fichier= "RAVINALA (ARRIVEES TOURISTIQUES A IVATO ET NOSY BE)";
+			        break;
+				case "APMF":
+			        $li_type_fichier= "APMF (ARRIVEES TOURISTIQUES PAR BATEAU DE CROISIERE)";
+			        break;
+				case "BCM":
+			        $li_type_fichier= "BCM (DEPENSES DES TOURISTES)";
+			        break;
+				case "ADEMA":
+			        $li_type_fichier= "ADEMA (ARRIVEES TOURISTIQUES A IVATO ET NOSY BE EN 2015 ET 2016)";
+			        break;
+				case "CNAPS01":
+			        $li_type_fichier= "CNAPS01 (ETABLISSEMENTS TOURISTIQUES)";
+			        break;
+		}
+		
+		//Mois
+		$li_mois = $data['id_mois'] >0 ? get_lib_mois($data['id_mois']) : "";
+		
+		//Date d'importation
+		$date_import = $data['dt_importation'];
+	 	$date_import=  substr($date_import,8,2)."/".substr($date_import,5,2)."/".substr($date_import,0,4)." à ".substr($date_import,11,8);
+		
+		//User importation
+		$utilisateur = get_user_by_id($data['uid_importation']);
+	   
+		$detail .= "- ".$li_type_fichier." : Données de ".$li_mois." ".$data['annee']." importées le ".$date_import." par ".$utilisateur.".\n";	
+		
+		//if(strlen($detail) > 65000) {
+			return $detail;
+		//}
+	}
+	
+	
+}
+
+//
+function siit_importation_liste_cronapi() {
+  $items = array();
+  $items['siit_importation_liste_cron_job'] = array();
+  return $items;
+}
+
+/**
+ * The callback for the cron job,
+ */
+function siit_importation_liste_cron_job($job) {
+	
+	// mail de rappel des importations non validées à un delai données
+	//nb_jours pour eviter l'erreur de la table local_source table source
+	
+		$a_valider = array();
+		$results = db_query("select * from siit_importation where (id_statut = 1 OR id_statut = 4) ORDER BY dt_importation DESC " ); //and DATEDIFF( now(),dt_importation) >= ".NB_JR);
+		
+		foreach($results as $result) {
+			$a_valider[] = array(
+								'id_importation' =>  $result->id_importation,
+								'annee' => $result->annee,
+								'id_mois' => $result->id_mois,
+								'id_type_fichier' => $result->id_type_fichier,
+								'dt_importation' => $result->dt_importation,
+								'uid_importation' => $result->uid_importation,
+			);	
+		}
+		//var_dump($a_valider);die();
+		
+		
+		if(sizeof($a_valider) > 0){
+			
+			$body = "Bonjour,\n\n Le serveur du SIIT a généré automatiquement cet email ce ".date('d/m/Y à H:i:s')."."
+					."\n\n Des données dont vous êtes responsable en terme de validation n’ont pas encore été validées ce jour."
+					."\n\n Ci-dessous la liste des importations à valider : \n"
+					.detail_donnee($a_valider)
+					."\n\n Nous vous prions de bien vouloir valider ou refuser ces données dès que possible en vous connectant à l’application.\n\n Cordialement, ";			
+					
+		}else {
+			
+			$body = "Bonjour,\n\n Le serveur du SIIT a généré automatiquement cet email ce ".date('d/m/Y à H:i:s')."."
+					."\n\n Aucune donnée dont vous êtes responsable en terme de validation ne sont à valider ce jour.\n\n Cordialement,";
+			
+		}
+
+		    //Test 'administrator'
+			$res = db_query("select u.mail from role r left join users_roles ur on r.rid = ur.rid 
+								left join users u on ur.uid = u.uid where r.name = 'INSTAT'");
+		
+			foreach($res as $r) {
+				$email = $r->mail;
+				
+				//function envoi mail 
+				$to = $email;
+				$from = 'siit_mail';
+				$language = language_default('language');//user_preferred_language($user);				
+				
+				$params = array(
+				  'body' => t($body),
+				  'subject' =>t("SIIT - Rappel des Importations à valider "),
+				);
+
+				//drupal_set_message("$body");
+				if (drupal_mail('siit_importation_liste', 'envoi_email', $to, $language, $params, $from, TRUE)) {
+				  drupal_set_message("Données à valider : un email à été envoyé à " . $email);
+				}
+				else {
+				  drupal_set_message("Une erreur s'est produite lors de l'envoi de votre email");
+				}
+			}
+		
+}
+
+
+function siit_importation_liste_form($form) {
+     
+	
+	global $user; global $base_url;
+	if(isset($_GET["id_statut"])){
+	   $id_statut = $_GET["id_statut"];
+       //Validation
+		if($id_statut == 2){
+          $query = "UPDATE {siit_importation} SET dt_validation = now(), uid_validation = ".$user->uid.",id_statut=".$id_statut." WHERE id_importation = ".$_GET["id_importation"];
+          drupal_set_message("Import validé.", $type = 'status');
+		}		
+		//Refus
+		else if($id_statut == 3){
+          $query = "UPDATE {siit_importation} SET id_statut=".$id_statut." WHERE id_importation = ".$_GET["id_importation"]; 
+          drupal_set_message("Import refusé.", $type = 'status'); 
+		}
+       db_query($query);
+    }
+	
+	//Rappel de validation
+	siit_importation_liste_cron_job("");
+	
+	$header = array(
+		array('data' => t('Ann&eacute;e'), 'field' => 'annee', 'sort' => 'asc'),
+		array('data' => t('Mois'), 'field' => 'imp.id_mois'),
+	    array('data' => t('Date importation'), 'field' => 'dt_importation' , 'sort' => 'asc'),
+	    array('data' => t('User'), 'field' => 'uid_importation', 'sort' => 'asc'),
+	    array('data' => t('Nom fichier'), 'field' => 'li_fichier', 'sort' => 'asc'),
+	    array('data' => t('User validateur'), 'field' => 'uid_validation', 'sort' => 'asc'),
+	    array('data' => t('Date validation'), 'field' => 'dt_validation', 'sort' => 'asc'),
+	    array('data' => t('Type'), 'field' => 'li_type_fichier', 'sort' => 'asc'),
+	    array('data' => t('Statut'), 'field' => 'li_statut', 'sort' => 'asc'),
+	    array('data' => t('Actions')),
+	);
+	
+    
+    $form['#attached']['js'] = array(
+      drupal_get_path('module', 'siit_importation_liste') . '/js/siit_importation_liste.js',
+      drupal_get_path('module', 'siit_importation_liste') . '/js/bootbox.min.js',
+    );	
+	
+	$form['criteria'] = array(
+			'#type' => 'fieldset',
+			'#title' => t('Filtres'),
+			'#collapsible' => FALSE, // Added
+			'#collapsed' => FALSE,  // Added
+			'#attributes' => array('class' => array('container-inline'))
+	);
+	
+	
+	
+	$form['criteria']['statut'] = array(
+			'#type' => 'select',
+			'#title' => t('Statut :'),
+			'#options' => optionStatut(true),
+			'#required' => false,
+	);
+	if (isset($_REQUEST['statut'])) {
+		$form['criteria']['statut']['#default_value'] = $_REQUEST['statut'];
+	}
+	
+	$form['criteria']['annee'] = array(
+			'#type' => 'select',
+			'#title' => t('Année :'),
+			'#options' => optionYear(true),
+			'#required' => false,
+	);
+	if (isset($_REQUEST['annee'])) {
+		$form['criteria']['annee']['#default_value'] = $_REQUEST['annee'];
+	}
+	
+	$form['criteria']['mois'] = array(
+			'#type' => 'select',
+			'#title' => t('Mois :'),
+			'#options' => optionMonth(false, true),
+			'#required' => false,
+	);
+	if (isset($_REQUEST['mois'])) {
+		$form['criteria']['mois']['#default_value'] = $_REQUEST['mois'];
+	}
+	
+	$form['criteria']['type_fichier'] = array(
+			'#type' => 'select',
+			'#title' => t('Type de fichier :'),
+			'#options' => optionTypeFichier(true),
+			'#required' => false,
+	);
+	if (isset($_REQUEST['type_fichier'])) {
+		$form['criteria']['type_fichier']['#default_value'] = $_REQUEST['type_fichier'];
+	}
+	
+	$form['submit'] = array(
+			'#type' => 'submit',
+			'#value' => t('Rechercher'),
+	);
+	
+	
+	
+	
+	$rows = Null;
+	$i=0;
+			
+    $uid = $user->uid;
+    
+    $limit = 10;
+    if (isset($_REQUEST['page']) && !empty($_REQUEST['page'])) {
+    	$start = $_REQUEST['page'] * $limit;
+    	$page = $_REQUEST['page'];
+    } else {
+    	$page = 0;
+    	$start = 0;
+    }
+	
+	$sqlList = "select imp.id_importation, imp.uid_validation, annee, m.id_mois, 
+		dt_importation, uid_importation, li_mois, li_type_fichier,li_statut,
+		imp.li_fichier, imp.dt_validation, imp.id_type_fichier, imp.id_statut ";
+	$sqlCount = "select count(*) as total ";  
+	
+	$sql = " from siit_importation imp
+                left join siit_mois m on m.id_mois = imp.id_mois
+                left join siit_type_fichier typef on imp.id_type_fichier = typef.id_type_fichier
+                left join siit_statut statut on statut.id_statut=imp.id_statut
+                WHERE 1 = 1 ";
+    
+    
+	 
+	if (isset($_REQUEST['annee']) && !empty($_REQUEST['annee'])) {
+		$sql .= " AND imp.annee = ".$_REQUEST['annee'];
+	}
+	if (isset($_REQUEST['mois']) && !empty($_REQUEST['mois'])) {
+		$sql .= " AND imp.id_mois = ".$_REQUEST['mois'];
+	}
+	if (isset($_REQUEST['type_fichier']) && !empty($_REQUEST['type_fichier'])) {
+		$sql .= " AND imp.id_type_fichier = ".$_REQUEST['type_fichier'];
+	}
+	
+	if (isset($_REQUEST['statut']) && !empty($_REQUEST['statut'])) {
+		$sql .= " AND imp.id_statut = ".$_REQUEST['statut'];
+	}
+	
+	$order = tablesort_get_order($header);
+	$sort = tablesort_get_sort($header);
+	
+	if (isset($order["sql"]) && !empty($order['sql'])) {
+		$sql .= " order by ".$order["sql"]." ".$sort;
+	} else {
+		$sql .= " order by dt_importation desc";
+	}
+	
+	//$results = db_query($sqlList.$sql);
+	$count_result = db_query($sqlCount.$sql)->fetchAssoc();
+	$results = db_query_range($sqlList.$sql,$start,$limit);	
+	$nbTotal = $count_result["total"];
+	
+	pager_default_initialize($count_result["total"], $limit, $element = 0);
+	
+	$nb = 0; 
+	 
+	foreach($results as $result) {
+			$nb++;
+	 	   //user qui fait l'importation
+			 $user_importation = get_user_by_id($result->uid_importation);
+			 //user qui a fait la  validation
+             $user_valide ="";$date_valid="";
+             if($result->uid_validation)
+			     $user_valide = get_user_by_id($result->uid_validation);
+
+			 
+			 $date_imp = $result->dt_importation;
+			 $date_imp=  substr($date_imp,8,2)."/".substr($date_imp,5,2)."/".substr($date_imp,0,4)." ".substr($date_imp,11,8);
+			 if($result->dt_validation){
+			     $date_valid = $result->dt_validation;
+			     $date_valid=  substr($date_valid,8,2)."/".substr($date_valid,5,2)."/".substr($date_valid,0,4)." ".substr($date_valid,11,8);
+			 }
+             $rows[$i] = array('annee' => $result->annee,
+			    				'mois' => $result->li_mois,
+			        			'date_importation' => $date_imp,
+			        			'user' => $user_importation,
+			        			'li_fichier' => $result->li_fichier,
+	      						'user_valide' => $user_valide,
+	      						'dt_validation' => $date_valid,
+	      						'type_fichier' => $result->li_type_fichier,
+	      						'statut' => $result->li_statut,
+			        			);
+			        				  
+			   //TODO champ action
+			   //Determiner le type 
+			   //mettre le detail approprié dans variable
+					switch($result->li_type_fichier)
+					{
+					    case "PAF01":
+					        $type_consult= "paf_01";
+					        break;
+					    case "PAF02":
+					        $type_consult= "paf_02";
+					        break;
+					    case "MNP":
+					        $type_consult= "mnp_01";
+					        break;
+					    case "ONTM01":
+					        $type_consult= "ontm_01";
+					        break;
+					    case "ONTM02":
+					        $type_consult= "ontm_02";
+					        break;
+					    case "CNAPS01":
+					        $type_consult= "cnaps_01";
+					        break;
+					    case "RAVINALA":
+					        $type_consult= "ravinala_01";
+					        break;
+					    case "EDBM":
+					        $type_consult= "edbm_01";
+					        break;
+					    case "BCM":
+					        $type_consult= "bcm_01";
+					        break;
+					    case "ADEMA":
+					        $type_consult= "adema_01";
+					        break;
+					    case "APMF":
+				            $type_consult= "apmf_01";
+				            break;  
+									    
+					}
+				 //	statut 1 à valider mettre les 3 liens consulter/valider/refuser 
+				 // sinon refusé ou deja validé mettre consulter seulement
+				 
+				 if ($result->li_type_fichier == "BCM") {
+				 	$detail = $base_url."/siit_bcm_detail";
+				 } else {
+					$detail = $base_url."/siit_importation_".$type_consult."_detail";
+				 }
+				 
+				if($result->id_statut==1 ){
+			   		$rows[$i]['action'] = "<a href='".$detail."?idImportation=".$result->id_importation."'>Consulter</a>
+			   	- <a href='#' onclick='updateStatut(".$result->id_importation.",2)'>Valider</a>
+				- <a href='#' onclick='updateStatut(".$result->id_importation.",3)'>Refuser</a>";
+			   	
+				}else if($result->id_statut==2){
+			   		$rows[$i]['action'] = "<a href='".$detail."?idImportation=".$result->id_importation."'>Consulter</a>
+						- <a href='#' onclick='devalideStatut(".$result->id_importation.",4)'>Dévalider</a>";
+			   	
+				}else if( $result->id_statut==4){
+			   		$rows[$i]['action'] = "<a href='".$detail."?idImportation=".$result->id_importation."'>Consulter</a>
+			   	- <a href='#' onclick='updateStatut(".$result->id_importation.",2)'>Valider</a>";
+				
+				}else{
+			   	  $rows[$i]['action'] = "<a href='".$detail."?idImportation=".$result->id_importation."'>Consulter</a>";
+				}
+			   
+			        				  
+	     $i++;        				  
+	 }
+ 
+ 	$nbStart = ($page)*$limit +1;
+ 	$nbEnd = ($page+1)*$limit;
+ 	if ($nbTotal < $nbEnd) {
+ 		$nbEnd = $nbTotal;
+ 	}
+ 
+	$form['nb'] = array(
+		    '#markup' => "<br>Résultats affichés : ".$nbStart." à ".$nbEnd. " / ".$nbTotal,
+		  );
+ 
+	$form['table'] = array(
+		    '#theme' => 'table',
+		    '#header' => $header,
+		    '#rows' => $rows,
+		    '#empty' => t('Aucun r&eacute;sultat.')
+		  );
+	$form['pager'] = array('#markup' => theme('pager'));
+	
+	/*$text = getTextType('Contributor','bottom');
+	$form['contributor_bottom'] = array(
+	  '#markup' => str_replace("\n", "<br />",$text['body_value'])
+	);*/
+	
+	return $form;
+	
+}
+function getCellule($row, $col) {
+    $colonnes = array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z');
+    return $colonnes[$col].$row;
+}
+function get_id_classement_etablissement($cd_classement_etablissement) {
+    if ($cd_classement_etablissement == 'R') $cd_classement_etablissement = '1R';
+	if ($cd_classement_etablissement == 'E') $cd_classement_etablissement = '1E';
+	if ($cd_classement_etablissement == '*') $cd_classement_etablissement = '1E';
+	if ($cd_classement_etablissement == '**') $cd_classement_etablissement = '2E';
+	if ($cd_classement_etablissement == '***') $cd_classement_etablissement = '3E';
+	if ($cd_classement_etablissement == '****') $cd_classement_etablissement = '4E';
+	if ($cd_classement_etablissement == '*****') $cd_classement_etablissement = '5E';
+	
+	$id_classement_etablissement = 11; //Non connu
+	
+	$classement_etablissement = db_query("select * from siit_classement_etablissement 
+		where lower(cd_classement_etablissement) = '".(strtolower($cd_classement_etablissement))."'");
+	foreach($classement_etablissement as $p) {
+			$id_classement_etablissement = $p->id_classement_etablissement;
+	}
+	return $id_classement_etablissement;
+}
+function get_id_parc($cd_parc) {
+    $id_parc = 0;
+	$parc = db_query("select * from siit_parc where lower(cd_parc) = '".escape(strtolower($cd_parc))."'");
+	foreach($parc as $p) {
+			$id_parc = $p->id_parc;
+	}
+	return $id_parc;
+}
+
+function get_id_type_etablissement($li_type_etablissement) {
+    $id_type_etablissement = 0;
+	$type_etablissement = db_query("select * from siit_type_etablissement where lower(li_type_etablissement) = '".escape(strtolower($li_type_etablissement))."'");
+	foreach($type_etablissement as $p) {
+			$id_type_etablissement = $p->id_type_etablissement;
+	}
+	return $id_type_etablissement;
+}
+
+function get_id_activite_etablissement($li_activite_etablissement, $origine = '', $li_enseigne = '') {
+
+	$li_activite_etablissement = str_replace("'", "''", $li_activite_etablissement);
+	$id_activite_etablissement = 9; //9 Hotel restaurant par défaut
+	if ($origine == 'CNAPS') {
+		//var_dump('cnaps<br>');
+		//var_dump($li_activite_etablissement.'<br>');
+		//var_dump(strtolower($li_activite_etablissement).'<br>');
+		//var_dump(strtolower($li_enseigne).'<br>');
+		if (strpos(strtolower($li_activite_etablissement), 'hotel') === true) {
+			//var_dump('hotel<br>');
+			//var_dump($li_enseigne.'<br>');
+			$id_activite_etablissement = 8; // HOTEL
+			
+			if (strpos(strtolower($li_enseigne), 'restaurant') !== false &&
+				strpos(strtolower($li_enseigne), 'hotel') !== false) {
+				//var_dump('hotel RESTAURANT<br>');
+				$id_activite_etablissement = 9; // HOTEL RESTAURANT
+			}
+			if (strpos(strtolower($li_enseigne), 'restaurant') !== false &&
+				strpos(strtolower($li_enseigne), 'hotel') === false) {
+				$id_activite_etablissement = 15; // RESTAURANT
+				//var_dump('RESTAURANT<br>');
+			}
+		}
+		
+		
+		
+		
+		if (strpos(strtolower($li_activite_etablissement), 'transport') !== false) {
+			//var_dump('transport<br>');
+			if (strpos(strtolower($li_activite_etablissement), 'aerien') !== false) {
+				$id_activite_etablissement = 20; // AERIEN
+				//var_dump('AERIEN<br>');
+			}
+			if (strpos(strtolower($li_activite_etablissement), 'eau') !== false) {
+				$id_activite_etablissement = 21; // MARITIME
+				//var_dump('MARITIME<br>');
+			}
+			if (strpos(strtolower($li_activite_etablissement), 'maritime') !== false) {
+				$id_activite_etablissement = 21; // MARITIME
+				//var_dump('ROUTIERS<br>');
+			}
+			if (strpos(strtolower($li_activite_etablissement), 'routier') !== false) {
+				$id_activite_etablissement = 19; // ROUTIERS
+				//var_dump('ROUTIERS<br>');
+			}
+		
+		}
+	}
+
+
+
+	$activite_etablissement = db_query("select * from siit_activite_etablissement 
+		WHERE lower(li_activite_etablissement) = '".(strtolower($li_activite_etablissement))."'");
+	foreach($activite_etablissement as $p) {
+			$id_activite_etablissement = $p->id_activite_etablissement;
+	}
+	//var_dump($id_activite_etablissement);die();
+	return $id_activite_etablissement;
+}
+
+function get_id_region($li_region) {
+
+	$li_region = str_replace("'", "''", $li_region);
+    $id_region = 0;
+	$region = db_query("SELECT * FROM siit_region 
+		WHERE lower(li_region) = '".(strtolower($li_region))."'");
+	foreach($region as $p) {
+			$id_region = $p->id_region;
+	}
+	
+	if (empty($id_region)) {
+		$sql = "SELECT id_region FROM {siit_region_entite} p WHERE 
+			 lower(li_region) ='".(trim(strtolower($li_region)))."'"; 
+		$results = db_query($sql);
+		foreach($results as $result) {
+			$id_region = $result->id_region;
+		}
+		
+	}	
+	
+	return $id_region;
+}
+
+
+function checkError($row, $col,$val,$entite,$data,$lastVal) {
+    $ret = "";
+    switch ($entite) {
+        case ENTITE_MNP:
+          if(isset($data['id_categorie_visiteur'])){
+            if(array_key_exists("CAMPEUR",$data)){
+                //$total= $data['ADULTETRG'] + $data['ADULTENAT'] + $data['ENFANTNAT']+ $data['ENFANTETRG'];
+                if (!isset($data['E']) || empty($data['E'])) {
+                	$data['E'] = 0;
+                }
+                if (!isset($data['M']) || empty($data['M'])) {
+                	$data['M'] = 0;
+                }
+                if (!isset($data['KN']) || empty($data['KN'])) {
+                	$data['KN'] = 0;
+                }
+                if (!isset($data['KE']) || empty($data['KE'])) {
+                	$data['KE'] = 0;
+                }
+                $total= $data['E'] + $data['M'] + $data['KN']+ $data['KE'];
+                
+                if (!isset($data['TOTAL']) || empty($data['TOTAL'])) {
+                	$data['TOTAL'] = 0;
+                }
+                if (!isset($data['CAMPEUR']) || empty($data['CAMPEUR'])) {
+                	$data['CAMPEUR'] = 0;
+                }
+                
+                if($total!=$data['TOTAL'])$ret = "La somme des enfants / adultes nationaux et étrangers doit être égale à (".getCellule($row - 7, $col).") = ".$data['TOTAL'];
+                else if($data['CAMPEUR']>$data['TOTAL'])$ret = "Le nombre de campeurs (".getCellule($row, $col).") = ".$data['CAMPEUR']." doit être inférieur ou égal à (".getCellule($row - 7, $col).") = ".$data['TOTAL'];
+            }
+          }
+          else {
+            if($data['TO']>$data['nb_visiteur'])$ret = "La colonne (".getCellule($row, $col-1).") = ".$data['nb_visiteur']." doit être supérieure ou égale à (".getCellule($row, $col).") = ".$data['AVECTO'];
+          }
+          break;
+        case ENTITE_EDBM:
+          
+          break;
+        case ENTITE_PAF:
+          
+          break;
+        default:
+          
+          break;
+    }
+	return $ret;
+}
+function isToInsert($row, $col,$val,$entite,$data) {
+    $ret = false;
+    switch ($entite) {
+        case ENTITE_MNP:
+        	$mois_avecto = array(1,3,5,7,9,11,13,15,17,19,21,23); //Numéros des colonnes du total nationalité, to compris, jto, fto etc
+         	$to = array(2,4,6,8,10,12,14,16,18,20,22,24); ///Numéros des colonnes du total nationalité que pour le to : jto, fto ...
+          
+           if(!empty($data['id_categorie_visiteur'])) {
+	            if(in_array($col, $mois_avecto)) {
+	            	//Colonne mois normal pour visiteur parc
+	                $ret = array_key_exists("nb_visiteur",$data);
+	            }
+          } else {
+          	if(in_array($col, $mois_avecto)){
+            	//Colonne mois normal pour visiteur nationalité
+                $ret = array_key_exists("nb_visiteur",$data);
+            }
+            else {
+            	//Colonne TO
+            	$ret = array_key_exists("nb_visiteur",$data) && array_key_exists("TO",$data);
+            }
+          }
+          
+          /*if(empty($data["id_categorie_visiteur"])) {
+          	//on est sur la table siit_visiteur_parc_nationalite
+          	 $ret = array_key_exists("nb_visiteur",$data);
+          	//if ($col == 1) { print_r($data); var_dump($ret);die("1");}
+          } else {
+             //on est sur la table siit_visiteur_parc_categorie
+             $ret = array_key_exists("nb_visiteur",$data) && array_key_exists("TO",$data);
+          	 //if ($col == 1) {print_r($data);var_dump($ret);die('2');}
+          	 }*/
+          break;
+        case ENTITE_EDBM:
+          
+          break;
+        case ENTITE_PAF:
+          
+          break;
+        default:
+          
+          break;
+    }
+   
+	return $ret;
+}
+function insert_importation($data){
+  global $user; 
+  $query = "INSERT INTO {siit_importation} (annee, id_mois,dt_importation,uid_importation,li_fichier,id_statut,id_type_fichier) VALUES (:arg1, :arg2, now(), :arg3, :arg4, :arg5, :arg6)";
+  $args = array(':arg1' => $data["annee"], ':arg2' => $data["id_mois"], ':arg3' => $user->uid, ':arg4' => $data["li_fichier"], ':arg5' => $data["id_statut"], ':arg6' => $data["id_type_fichier"]);
+  $last_id = db_query($query, $args, array('return' => Database::RETURN_INSERT_ID));
+  return $last_id;
+}
+
+function import_data_edbm_01($value){
+
+    if(!$value['nb_chambres']) $value['nb_chambres'] = 4;
+    $value['nb_lits'] = $value['nb_chambres'];
+    if(!$value['id_nationalite_promoteur']) $value['id_nationalite_promoteur'] = 134; //Malagasy
+    if(!$value['id_classement_etablissement']) $value['id_classement_etablissement'] = 11;
+    $value["is_edbm"] = 1;
+    $sql = "select * from siit_etablissement where li_enseigne = '".escape($value['li_enseigne'])."'";
+    $etabl = db_query($sql);
+	$id_etablissement = 0;
+    
+    foreach($etabl as $u){
+	   $id_etablissement = $u->id_etablissement;
+	}
+    if($id_etablissement){
+        $query = db_update('siit_etablissement')
+        ->condition('id_etablissement', $id_etablissement);
+    }
+    else{
+        $query = db_insert('siit_etablissement');
+    }
+    $query
+      ->fields($value)
+      ->execute();
+}
+function import_data_ontm_01($value){
+    $value['dt_autorisation'] = '2015-01-01';
+    $value['nb_chambres'] = 4;
+    $value['nb_lits'] = 4;
+    $value['id_nationalite_promoteur'] = 134;
+    $value['id_classement_etablissement'] = 11;
+    $value["is_ontm"] = 1;
+    $sql = "select * from siit_etablissement where li_etablissement = '".string_escape($value['li_etablissement'])."'";
+    $etabl = db_query($sql);
+	$id_etablissement = 0;
+    foreach($etabl as $u){
+	   $id_etablissement = $u->id_etablissement;
+	}
+    if($id_etablissement){
+        $query = db_update('siit_etablissement')
+        ->condition('id_etablissement', $id_etablissement);
+    }
+    else{
+        $query = db_insert('siit_etablissement');
+    }
+    $query
+      ->fields($value)
+      ->execute();
+}
+function import_data_mnp($value, $rowType, $iCol=0){
+    //if(empty($value['id_categorie_visiteur'])){
+    	
+	if ($rowType == 'nationalite') {
+		if (isset($value["TO"])) {
+			$to = $value["TO"];
+		} else $to = 0;
+		
+		if ($iCol == 3 && !empty($value["id_parc"])) {
+			//Test $iCol==3 sinon, cela écrit en double
+	        db_insert('siit_visiteur_parc_nationalite')
+						->fields(array('id_parc', 'annee', 'id_mois', 
+							'id_nationalite', 'nb_visiteur', 'tour_operator', 'id_importation'))
+						->values(array(
+					'id_parc' => $value["id_parc"],
+		        	'annee' => $value["annee"],
+		            'id_mois' => $value["id_mois"],
+		        	'id_nationalite' => $value["id_nationalite"],
+		            'nb_visiteur' => $value["nb_visiteur"]? $value["nb_visiteur"]:0,
+	                'tour_operator' => $to,
+					'id_importation' => $value["id_importation"], 
+					))
+				->execute();
+		}
+    }
+    else{
+   		db_insert('siit_visiteur_parc_categorie')
+					->fields(array('id_categorie_visiteur','id_parc', 'annee', 'id_mois', 
+						 'nb_visiteur', 'id_importation'))
+					->values(array(
+				 'id_parc' => $value["id_parc"],
+	        	'annee' => $value["annee"],
+	            'id_mois' => $value["id_mois"],
+	            'id_categorie_visiteur' => $value["id_categorie_visiteur"],
+	            'nb_visiteur' => $value["nb_visiteur"]? $value["nb_visiteur"]:0,
+				'id_importation' => $value["id_importation"],
+				))
+			->execute();
+    }
+    
+}
+function controleDoublonImportation($annee = 0, $id_mois = 0,$entite, $li_fichier='') {
+	$id_importation=0;
+	if ($entite != ENTITE_PAF01) {
+	    $sql = "SELECT * from siit_importation imp,siit_type_fichier t 
+	    	WHERE t.id_type_fichier = imp.id_type_fichier 
+	    	AND id_statut <> 2 AND li_type_fichier = '$entite'";
+	    if($annee > 0) $sql .= " and annee=".$annee;
+	    if($id_mois > 0) $sql .= " and id_mois=".$id_mois;
+	    $user = db_query($sql);
+		
+		foreach($user as $u) {
+		   $id_importation = $u->id_importation;		 
+	       switch ($entite){
+	            case ENTITE_MNP: 
+	               db_delete('siit_visiteur_parc_nationalite')
+				    ->condition('id_importation',  $id_importation)
+				    ->execute();
+	               db_delete('siit_visiteur_parc_categorie')
+	        			    ->condition('id_importation',  $id_importation)
+	        			    ->execute();
+	               break;
+	            case ENTITE_ONTM01:
+	               db_delete('siit_etablissement')
+	        			    ->condition('id_importation',  $id_importation)
+	        			    ->execute();
+	               break;
+	            case ENTITE_EDBM:
+	               db_delete('siit_etablissement')
+	        			    ->condition('id_importation',  $id_importation)
+	        			    ->execute();
+	               break;
+	            case ENTITE_ADEMA:
+				    
+	               db_delete('siit_adema')
+	        			    ->condition('id_importation',  $id_importation)
+	        			    ->execute();
+	               break;
+				case ENTITE_ONTM02:
+	               db_delete('siit_vignette_touristique')
+	        			    ->condition('id_importation',  $id_importation)
+	        			    ->execute();
+	               break; 
+				//case ENTITE_PAF01:
+	            //   db_delete('siit_passager')
+	        	//		    ->condition('id_importation',  $id_importation)
+	        	//		    ->execute();
+	            //   break; 
+	            case ENTITE_PAF02:
+	               db_delete('siit_passager_global')
+	        			    ->condition('id_importation',  $id_importation)
+	        			    ->execute();
+	               break; 
+				case ENTITE_CNAPS01:
+				   db_delete('siit_etablissement')
+	        			    ->condition('id_importation',  $id_importation)
+	        			    ->execute();
+	               db_delete('siit_employes')
+	        			    ->condition('id_importation',  $id_importation)
+	        			    ->execute();
+	               break; 
+				case ENTITE_BCM:					
+					db_delete('siit_recette_touristique')
+	        			    ->condition('id_importation',  $id_importation)
+	        			    ->execute();
+	               break; 
+	            case ENTITE_APMF:
+				   db_delete('siit_apmf_croisiere')
+	        			    ->condition('id_importation',  $id_importation)
+	        			    ->execute();
+	               db_delete('siit_apmf_escale')
+	        			    ->condition('id_importation',  $id_importation)
+	        			    ->execute();
+					db_delete('siit_apmf_passagers')
+	        			    ->condition('id_importation',  $id_importation)
+	        			    ->execute();
+	               break; 
+	       		} //switch ($entite){
+	       } //foreach($user as $u) {
+	       
+	       db_delete('siit_importation')
+				    ->condition('id_importation',  $id_importation)
+				    ->execute();
+	} else { //if ($entite != ENTITE_PAF01) {
+		
+			 $sql = "select * from siit_importation imp,siit_type_fichier t 
+			 	where t.id_type_fichier=imp.id_type_fichier 
+			 	and id_statut=1 
+			 	and li_type_fichier = '$entite'
+			 	and li_fichier = '$li_fichier'
+			    and annee=".$annee."
+			    and id_mois=".$id_mois;
+			 $res = db_query($sql);
+		     if ($res) {
+		     	$id_importation = 0;
+		    	foreach($res as $import) {
+					$id_importation = $import->id_importation;
+				}
+				
+				if (!empty($id_importation)) {
+			    	db_delete('siit_passager')
+	        			    ->condition('id_importation',  $id_importation)
+	        			    ->execute();
+	        		db_delete('siit_importation')
+				    ->condition('id_importation',  $id_importation)
+				    ->execute();
+				 }
+		    } //if ($res)
+	} //} else { et if ($entite != ENTITE_PAF01) {
+		
+}
+
+function setField($row, $col,$val,$entite,$data,$lastVal = '') {
+    switch ($entite) {
+        case ENTITE_MNP:
+        /*var_dump($col."<br>");
+        var_dump($val."<br>");
+        var_dump($lastVal."<br>");
+        var_dump($data['id_categorie_visiteur']."<br>");*/
+        
+          $mois_avecto = array(1,3,5,7,9,11,13,15,17,19,21,23); //Numéros des colonnes du total nationalité, to compris, jto, fto etc
+          $to = array(2,4,6,8,10,12,14,16,18,20,22,24); ///Numéros des colonnes du total nationalité que pour le to : jto, fto ...
+          $id_categorie_visiteur = $data['id_categorie_visiteur'];
+          if(!empty($id_categorie_visiteur)){
+            if(in_array($col, $mois_avecto)) {
+            	//Colonne mois normal pour visiteur parc
+                $data["nb_visiteur"] = $val;
+                $data[$lastVal] = $val;
+            }
+          } else {
+          	if(in_array($col, $mois_avecto)){
+            	//Colonne mois normal pour visiteur nationalité
+                //$data['id_mois'] = array_search($col, $mois_avecto)+1;
+                $data["nb_visiteur"] = $val;
+            }
+            else {
+            	//Colonne TO
+            	if (!$val) $val = 0;
+            	$data["TO"] = $val;
+            	
+            }
+          }
+          
+          break;
+        case ENTITE_EDBM:
+          
+          break;
+        case ENTITE_PAF:
+          
+          break;
+        default:
+          
+          break;
+    }
+	return $data;
+}
+
+/*function get_id_nationalite($libelle,$entite) {
+    switch ($entite) {
+        case ENTITE_MNP:
+          $field = 'li_nationalite_mnp';
+          break;
+        case ENTITE_EDBM:
+          $field = 'li_nationalite_edbm';
+          break;
+        case ENTITE_PAF01:
+          $field = 'li_nationalite_paf';
+          break;
+		case ENTITE_PAF02:
+          $field = 'li_nationalite_paf';
+          break;
+        default:
+          $field = 'li_nationalite';
+          break;
+    }
+	$id_nationalite = 0;
+	$nationalite = db_query("select * from siit_nationalite where lower($field) = '".strtolower(str_replace("'", "''", $libelle))."'");
+	
+	foreach($nationalite as $nat) {
+		$id_nationalite = $nat->id_nationalite;
+	}
+	return $id_nationalite;
+}*/
+
+function get_id_nationalite($libelle,$entite) {
+    $id_nationalite = 0;
+	
+  	$sql = "SELECT id_nationalite FROM {siit_nationalite} p WHERE 
+			lower(li_nationalite) ='".strtolower(str_replace("'", "''", $libelle))."'"; 
+	
+	$results = db_query($sql);
+	foreach($results as $result) {
+		$id_nationalite = $result->id_nationalite;
+	}
+	if (empty($id_nationalite)) {
+		$sql = "SELECT id_nationalite FROM {siit_nationalite_entite} p WHERE 
+			lower(li_nationalite) ='".strtolower(str_replace("'", "''", $libelle))."'"; 
+		$results = db_query($sql);
+		foreach($results as $result) {
+			$id_nationalite = $result->id_nationalite;
+		}
+	}	   
+	return $id_nationalite;	
+}
+
+function get_user_by_id($id) {
+	$user_name="";
+	$user = db_query("select * from {users} where uid=".$id);
+	foreach($user as $u) {
+			$user_name = $u->name;
+	}
+	return $user_name;
+}
+
+function optionStatut($tous = false) {
+	$options = array();
+    if ($tous) {
+    	$options[""] = t("Tous");
+    }
+    $sql = "SELECT id_statut,li_statut FROM siit_statut"; 
+	$results = db_query($sql);
+	
+	
+	foreach($results as $result){
+	  $options[$result->id_statut] = $result->li_statut;
+	}
+	return $options;
+}
+
+function optionTypeFichier($tous = false) {
+	$options = array();
+    if ($tous) {
+    	$options[] = t("Tous");
+    }
+    $sql = "SELECT id_type_fichier,li_type_fichier FROM siit_type_fichier ORDER BY li_type_fichier"; 
+	$results = db_query($sql);
+	
+	
+	foreach($results as $result){
+	  $options[$result->id_type_fichier] = $result->li_type_fichier;
+	}
+	return $options;
+}
+
+function get_type_tichier_by_id($id){
+	$li_type_fichier ="";
+	
+    $sql = "SELECT li_type_fichier FROM siit_type_fichier where id_type_fichier = $id "; 
+	$results = db_query($sql);
+	
+	
+	foreach($results as $result){
+	  $li_type_fichier = $result->li_type_fichier;
+	}
+	return $li_type_fichier;
+}
+
+function optionYear($tous = false) {
+
+	$currentYear = date('Y');
+	$initYear = 2013;
+	$year = $initYear;
+	$option = array();
+	if ($tous) {
+    	$option[] =  t("Tous");
+    }
+    
+	while ($year <= $currentYear) {
+		$option[$year] = t($year);
+		$year++;
+	}
+	
+	
+	return $option;		
+}
+
+function optionMonth($vide=false, $tous = false) {
+	if ($vide) {
+    	$option[""] = t("");
+    }
+    if ($tous) {
+    	$option[""] = t("Tous");
+    }
+    
+	$option["1"] = t("Janvier");
+	$option["2"] = t("Février");
+	$option["3"] = t("Mars");
+	$option["4"] = t("Avril");
+	$option["5"] = t("Mai");
+	$option["6"] = t("Juin");
+	$option["7"] = t("Juillet");
+	$option["8"] = t("Aout");
+	$option["9"] = t("Septembre");
+	$option["10"] = t("Octobre");
+	$option["11"] = t("Novembre");
+	$option["12"] = t("Décembre");
+	
+    return $option;
+    
+}
+function get_id_aeroport($cd_aeroport) {
+    $id_aeroport = 0;
+	$aeroport = db_query("select * from siit_aeroport where lower(cd_aeroport) = '".strtolower(trim($cd_aeroport))."'");
+	foreach($aeroport as $p) {
+			$id_aeroport = $p->id_aeroport;
+	}
+	return $id_aeroport;
+}
+function import_data_adema($value){
+    db_insert('siit_adema')
+					->fields(array('annee', 'id_mois', 'id_aeroport','id_type_vol', 
+						 'nb_vols','nb_passagers','id_arrivee_depart', 'id_importation'))
+					->values(array(
+							'annee' => $value["annee"],
+	            'id_mois' => $value["id_mois"],
+	        		'id_aeroport' => $value["id_aeroport"],
+	            'id_type_vol' => $value["id_type_vol"],
+	        	'nb_vols' => $value["nb_vols"],
+                'nb_passagers' => $value["nb_passagers"],
+                'id_arrivee_depart' => $value["id_arrivee_depart"],
+							'id_importation' => $value["id_importation"],
+							))
+			->execute();
+    
+}
+function escape($value) {
+    $return = '';
+    for($i = 0; $i < strlen($value); ++$i) {
+        $char = $value[$i];
+        $ord = ord($char);		
+		
+        if($char !== "'" && $char !== "\"" && $char !== '\\' && $ord >= 32 && $ord <= 126)
+            $return .= $char;
+        else if($char == "'"){
+			$return .= str_replace( "'", "\'", $char );		
+		}else $return .= '\\x' . dechex($ord);
+    }
+			
+    return $return;
+}
+function string_escape($value) {
+    $return = '';
+    $return = str_replace( "'", "\'", $value );	
+			
+    return $return;
+}
+
+function get_cd_mois($id_mois) {
+	$cd_mois = "01";
+	$ms = db_query("select * from siit_mois where id_mois = $id_mois");
+	
+	foreach($ms as $m) {
+			$cd_mois = $m->cd_mois;
+	}
+	return $cd_mois;
+}
+
+function siit_importation_liste_form_submit($form, &$form_state){
+	
+	$form_state['redirect'] = array(
+		// $path
+		'siit_importation_liste',
+		// $options
+		array('query' => array('statut' => $form_state['values']['statut'],
+							   'annee' => $form_state['values']['annee'],
+							   'mois' => $form_state['values']['mois'],
+							   'type_fichier' => $form_state['values']['type_fichier'],)),
+		// $http_response_code
+		302,
+  );
+}
+
+

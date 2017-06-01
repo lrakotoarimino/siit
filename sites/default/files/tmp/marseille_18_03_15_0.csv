@@ -1,0 +1,89 @@
+Titre_Civilité;Nom;Prénoms;Nom_de_jeune_fille;Date_de_naissance;Lieu_de_naissance;Nationalité;Profession;Numéro_du_passeport;Date_de_délivrance_passeport;Fin_de_validité_passeport;Lieu_d'émission_passeport;Nombre_d'enfants;Enfant_1;Enfant_2;Enfant_3;Enfant_4;Numéro_du_vol;Compagnie;Date_du_vol;Date_de_retour;Numéro_du_visa;Visa_délivré_à;Visa_délivré_le;Autorité_émetteur;Durée_du_séjour(mois);Durée_du_séjour(jours);Aéroport_d'embarquement;Lieu_de_résidence;Adresse;Ville;Pays;En_transit;Lieu_de_destination;Aéroport_de_destination;Date_de_départ;Voyage_en_groupe;Objet_du_voayage;Hébergement
+Madame;;;;05/04/1966 00:00;paris;France;peintre;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;16/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Autre
+Madame;;;;25/11/1967 00:00;vannes;France;;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;13/06/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Autre
+Monsieur;;;;06/07/1948 00:00;paris;France;retraité;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;31/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;21/12/1952 00:00;algérie;France;retraité;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;13/06/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Autre
+Madame;;;;11/05/1950 00:00;rabat;France;retraité;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;13/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;21/05/1946 00:00;sénégal;France;retraité;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;13/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Visite Familiale;Hôtel
+Monsieur;;;;06/02/1956 00:00;chauny;France;préparateur;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;02/07/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;20/05/1977 00:00;nogent sur marne;France;chauffeur;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;18/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;07/10/1955 00:00;majunga;France;;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;20/04/2015 00:00;;;;;0;0;;;;;;;;;;;Autre;Autre
+Monsieur;;;;13/01/1978 00:00;kiev;ukraine;manager;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;02/07/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Mlle;;;;09/05/1978 00:00;Allemagne;Allemagne;graphic designer;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;09/04/2015 00:00;;;;;0;0;;;;;Allemagne;;;;;;Tourisme;Hôtel
+Monsieur;;;;09/11/1964 00:00;ratingen;Allemagne;customer support manager;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;09/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;19/03/1966 00:00;Allemagne;Allemagne;study manager;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;10/04/2015 00:00;;;;;0;0;;;;;Allemagne;;;;;;Tourisme;Hôtel
+Monsieur;;;;02/01/1979 00:00;Allemagne;Allemagne;;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;09/04/2015 00:00;;;;;0;0;;;;;Allemagne;;;;;;Tourisme;Hôtel
+Monsieur;;;;01/04/1981 00:00;Allemagne;Allemagne;cardio;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;09/04/2015 00:00;;;;;0;0;;;;;Allemagne;;;;;;Tourisme;Hôtel
+Madame;;;;14/12/1984 00:00;rostock;Allemagne;nurse;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;09/04/2015 00:00;;;;;0;0;;;;;Allemagne;;;;;;Tourisme;Hôtel
+Monsieur;;;;23/05/1953 00:00;argenteuil;France;retraité;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;;;;;;0;0;;;;;France;;;;;;Visite Familiale;Autre
+Monsieur;;;;08/08/1972 00:00;Allemagne;Allemagne;ingénieur;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;09/04/2015 00:00;;;;;0;0;;;;;Allemagne;;;;;;Tourisme;Hôtel
+Madame;;;;10/07/1968 00:00;Allemagne;Allemagne;it specialiste;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;10/04/2015 00:00;;;;;0;0;;;;;Allemagne;;;;;;Tourisme;Hôtel
+Monsieur;;;;18/09/1961 00:00;Allemagne;Allemagne;software ingénieur;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;09/04/2015 00:00;;;;;0;0;;;;;Allemagne;;;;;;Tourisme;Hôtel
+Monsieur;;;;30/09/1963 00:00;logo;Espagne;carpintero;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;;;;;;0;0;;;;;Espagne;;;;;;Autre;Autre
+Monsieur;;;;19/11/1951 00:00;madrid;Espagne;marino;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;05/05/2015 00:00;;;;;0;0;;;;;Espagne;;;;;;Autre;Autre
+Monsieur;;;;10/05/1968 00:00;Espagne;Espagne;technico;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;;;;;;0;0;;;;;;;;;;;Autre;Autre
+Monsieur;;;;13/06/1966 00:00;munchen;Allemagne;disponent;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;09/04/2015 00:00;;;;;0;0;;;;;Allemagne;;;;;;Tourisme;Hôtel
+Madame;;;;01/06/1969 00:00;munchen;Allemagne;directeur;;;;;0;;;;;md 05;Air Madagascar;18/03/2015 00:00;09/04/2015 00:00;;;;;0;0;;;;;Allemagne;;;;;;Tourisme;Hôtel
+Monsieur;;;;26/11/1971 00:00;neuilly sur seine;France;restaurateur;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;28/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;03/10/1985 00:00;aire sur adour;France;musicien;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;31/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Madame;;;;13/09/1969 00:00;paris;France;styliste;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;28/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;01/11/1948 00:00;France;France;retraité;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;15/06/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;30/01/1972 00:00;abidjan;France;pilote;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;01/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Affaire;Hôtel
+Monsieur;;;;17/10/1951 00:00;pau;France;retraité;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;16/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Autre;Autre
+Monsieur;;;;05/10/1969 00:00;bethume;France;surveillant;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;09/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Madame;;;;26/11/1957 00:00;saumeur;France;architecte;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;04/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;19/06/1949 00:00;ambilobe;France;retraité;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;06/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Visite Familiale;Autre
+Monsieur;;;;28/10/1953 00:00;paris;France;directeur;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;04/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;18/06/1958 00:00;oran;France;infirmier;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;30/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Mlle;;;;13/04/1973 00:00;paris;France;agent;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;30/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;07/10/1957 00:00;algérie;France;retraité;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;17/06/2015 00:00;;;;;0;0;;;;;France;;;;;;Visite Familiale;Autre
+Madame;;;;01/01/1954 00:00;marojala;France;;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;13/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Autre;Autre
+Monsieur;;;;06/07/1952 00:00;fenerive est;France;retraité;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;13/05/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;31/12/1953 00:00;maisons lafitte;France;chargé d'étude electrique;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;11/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Madame;;;;15/12/1961 00:00;montpellier;France;;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;30/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;15/02/1959 00:00;sitropez;France;cuisinier;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;23/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Mlle;;;;07/03/1959 00:00;montlucon;France;inspecteur;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;02/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Autre;Autre
+Madame;;;;02/12/1971 00:00;marseille;France;controleur de gestion;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;21/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Visite Familiale;Autre
+Monsieur;;;;29/01/1964 00:00;chalons sur marne;France;fonctionnaire;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;09/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;06/07/1956 00:00;France;France;plombier;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;13/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Visite Familiale;Autre
+Monsieur;;;;08/05/1959 00:00;toulon;France;ingénieur;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;02/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;06/04/1945 00:00;rennes;France;retraité;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;30/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Visite Familiale;Autre
+Monsieur;;;;18/05/1955 00:00;lambesc;France;technicien aéronautique;;;;;0;;;;;md 57;Air Madagascar;18/03/2015 00:00;31/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Autre;Hôtel
+Monsieur;;;;26/11/1967 00:00;antananarivo;France;informaticien;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;04/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Visite Familiale;Autre
+Madame;;;;23/05/1950 00:00;maroc;France;assistante commerciale;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;30/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Autre;Hôtel
+Mlle;;;;14/05/1982 00:00;nice;France;consultante;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;06/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Visite Familiale;Hôtel
+Madame;;;;30/03/1944 00:00;aix en provence;France;;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;28/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;22/01/1947 00:00;marseille;France;retraité;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;08/06/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;27/02/1953 00:00;la tronche;France;retraité;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;02/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;10/09/1964 00:00;laval;France;ouvrier;;;;;0;;;;;md 57;Air Madagascar;18/03/2015 00:00;06/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;08/09/1984 00:00;l'union;France;éducateur;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;15/07/2015 00:00;;;;;0;0;;;;;France;;;;;;Affaire;Hôtel
+Madame;;;;02/12/1946 00:00;antananarivo;France;retraité;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;17/05/2015 00:00;;;;;0;0;;;;;France;;;;;;Autre;Autre
+Madame;;;;26/05/1955 00:00;nantes;France;;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;04/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Madame;;;;14/10/1962 00:00;antsirabe;France;vendeuse;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;26/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Visite Familiale;Autre
+Monsieur;;;;10/04/1953 00:00;nantes;France;médecin;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;04/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;16/12/1971 00:00;France;France;inspecteur;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;13/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;04/12/1976 00:00;lens;France;employé;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;16/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;27/02/1956 00:00;rabat;France;pre retraité;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;15/06/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Madame;;;;06/07/1956 00:00;nantes;France;;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;04/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;31/10/2013 00:00;aurillac;France;;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;02/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Autre;Autre
+Monsieur;;;;20/03/2010 00:00;France;France;écolier;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;02/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Autre;Autre
+Monsieur;;;;03/12/1955 00:00;nantes;France;médecin;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;04/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;05/01/1968 00:00;France;France;agriculteur;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;02/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Visite Familiale;Autre
+Monsieur;;;;15/06/1946 00:00;France;France;;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;07/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Madame;;;;20/03/1954 00:00;marseille;France;;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;13/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Visite Familiale;Autre
+Monsieur;;;;06/07/1953 00:00;toulouse;France;retraité;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;13/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Visite Familiale;Autre
+Monsieur;;;;01/07/1969 00:00;France;France;bucheron;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;06/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Autre
+Monsieur;;;;25/06/1950 00:00;dijon;France;retraité;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;16/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;20/10/1951 00:00;France;France;retraité;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;16/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;11/07/1958 00:00;seurre;France;retraité;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;16/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Madame;;;;25/05/1968 00:00;morondava;France;aide soignante;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;26/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Visite Familiale;Autre
+Monsieur;;;;22/11/1958 00:00;France;France;commerçant;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;19/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Autre
+Monsieur;;;;11/04/2012 00:00;kiev;France;;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;02/07/2015 00:00;;;;;0;0;;;;;;;;;;;Tourisme;Autre
+Monsieur;;;;10/08/1981 00:00;nogent sur marne;France;employé;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;13/12/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Madame;;;;21/10/1933 00:00;antananarivo;France;retraité;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;02/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Visite Familiale;Autre
+Monsieur;;;;27/08/1968 00:00;France;France;directeur;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;13/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;28/09/1952 00:00;orange;France;retraité;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;13/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;31/01/1945 00:00;cannes;France;retraité;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;13/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Madame;;;;28/10/1952 00:00;France;France;retraité;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;30/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Visite Familiale;Autre
+Monsieur;;;;29/06/1961 00:00;antalaha;France;electricien;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;13/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Autre
+Monsieur;;;;30/12/1949 00:00;France;France;retraité;;;;;0;;;;;md 057;Air Madagascar;18/03/2015 00:00;16/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel

@@ -1,0 +1,157 @@
+<?php
+function siit_manage_profession_menu(){
+ 	$items = array();
+	
+	$items['manage_profession_form/delete/%'] = array(
+		'title' => t('Delete profession'),
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('manage_profession_delete_confirm', 2),
+		'access arguments' => array('access manage_profession'),
+	);
+	$items['manage_profession_form/edit/%'] = array(
+		'title' => t('Edit profession'),
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('manage_profession_edit_confirm', 2),
+	    'access arguments' => array('access manage_profession'),
+    );
+    
+    $items['manage_profession_form/add'] = array(
+		'title' => t('Add profession'),
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('manage_profession_edit_confirm', 2),
+	    'access arguments' => array('access manage_profession'),
+    );
+	
+ return $items;
+}
+
+
+
+function manage_profession_delete_confirm($form ,&$form_state, $id_profession) {
+
+	$li_profession='';
+	$edit = false;
+	
+	if ($id_profession && !empty($id_profession)) {
+		//Edition
+		$edit = true;
+		$results = db_query("SELECT id_profession,id_profession,li_profession 
+			FROM {siit_profession} WHERE 
+			id_profession='{$id_profession}'");
+		
+		foreach($results as $key) {
+			$id_profession = $key->id_profession;
+			$id_profession = $key->id_profession;
+			$li_profession = $key->li_profession;
+		}
+	}
+
+	$form['li_profession'] = array(
+		'#type' => 'value',
+		'#value' => $li_profession,);
+		
+	$form['id_profession'] = array(
+		'#type' => 'hidden',
+		'#value' => $id_profession,);
+		
+		drupal_set_message($li_profession);
+		
+	return confirm_form($form,t('Voulez vous supprimer cette profession '.$li_profession.' ?'),
+    	isset($_GET['destination']) ? $_GET['destination'] : "manage_profession_form",t('This action cannot be undone.'),t('Delete'),t('Cancel'));
+		
+}
+
+
+function manage_profession_delete_confirm_submit($form, &$form_state) {
+	
+	if ($form_state['values']['confirm']) {
+			                        
+	    $result = db_query("DELETE FROM {siit_profession} 
+	    	where id_profession={$form_state['values']['id_profession']}");
+	 	drupal_set_message(t('La profession a été supprimée.'));}
+	 	drupal_goto("siit_profession");
+}
+
+
+function manage_profession_edit_confirm($form ,&$form_state, $id_profession){
+	
+	$id_categorie_professionnelle = '';
+	$li_profession='';
+	$edit = false;
+	
+	if ($id_profession && !empty($id_profession)) {
+		//Edition
+		$edit = true;
+		$results = db_query("SELECT id_profession,id_categorie_professionnelle,li_profession 
+			FROM {siit_profession} WHERE 
+			id_profession='{$id_profession}'");
+		
+		foreach($results as $key) {
+			$id_categorie_professionnelle = $key->id_categorie_professionnelle;
+			$id_profession = $key->id_profession;
+			$li_profession = $key->li_profession;
+		}
+	}
+	
+	$professions = db_query("SELECT id_categorie_professionnelle, li_categorie_professionnelle
+		FROM {siit_categorie_professionnelle} ORDER BY li_categorie_professionnelle");
+	
+	foreach($professions as $key) {
+		$optionNat[$key->id_categorie_professionnelle] = $key->li_categorie_professionnelle;
+	}
+	
+	$form = array();
+
+	$form['id_profession']=array(
+			'#title'=>t('ID'),
+			'#type'=>'textfield',
+			'#attributes' => array('readonly'=>'readonly'),
+			'#value' => $id_profession,);
+	
+	
+	$form["id_categorie_professionnelle"] = array(
+	    "#type" => "select",      
+	    '#title'=>t('Catégorie professionnelle'),
+	    "#options" => $optionNat,
+	    "#required" => TRUE,
+	    '#default_value' => $id_categorie_professionnelle,
+	    );
+			
+	$form['li_profession']=array(
+		'#title'=>t('profession utilisée'),
+		'#type'=>'textfield',
+		'#value' => $li_profession,
+		"#required" => TRUE,
+	);
+			
+
+	return confirm_form($form,t(''),
+			isset($_GET['destination']) ? $_GET['destination'] : "manage_profession_form",
+			t(''),t('Edit'),t('Cancel'));
+}
+
+
+function manage_profession_edit_confirm_submit($form, &$form_state)
+{
+	
+	if ($form_state['values']['confirm']) {
+	    
+		$id_profession = $form_state['input']['id_profession'];
+	    $id_categorie_professionnelle = $form_state['input']['id_categorie_professionnelle'];
+	    $li_profession = $form_state['input']['li_profession'];
+		
+		if ($id_profession && !empty($id_profession)) {
+			$rs = db_query("UPDATE {siit_profession} 
+				SET li_profession= '$li_profession' ,
+				id_categorie_professionnelle= $id_categorie_professionnelle 
+				WHERE  id_profession='{$id_profession}'");
+			 drupal_set_message(t('La profession a été mise à jour.'));
+		 } else {
+		 	$rs = db_query("INSERT INTO {siit_profession} 
+				(id_categorie_professionnelle,li_profession) VALUES ($id_categorie_professionnelle, '$li_profession')");
+			 drupal_set_message(t('Le profession a été inséré.'));
+		 }
+	}
+	drupal_goto("siit_profession");
+}
+ 

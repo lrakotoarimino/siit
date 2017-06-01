@@ -1,0 +1,5 @@
+name = SIIT ADEMA : Formulaire d'importation 01 pour l'ADEMA
+description = SIIT ADEMA : Formulaire d'importation 01 pour l'ADEMA
+core = 7.x
+version = 7.x-0.x-dev
+package = SIIT

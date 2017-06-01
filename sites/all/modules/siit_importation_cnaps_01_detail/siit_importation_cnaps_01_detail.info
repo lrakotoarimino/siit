@@ -1,0 +1,5 @@
+name = SIIT CNAPS : Liste des données pour CNAPS
+description = SIIT CNAPS : Liste des données pour CNAPS
+core = 7.x
+version = 7.x-0.x-dev
+package = SIIT

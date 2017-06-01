@@ -1,0 +1,198 @@
+<?php
+
+/**
+* @file
+* Display a Adema Importation formulaire
+*/
+
+	function siit_importation_mnp_02_menu(){
+    $items = array();
+    $items['siit_importation_mnp_02'] = array(
+        'title'            => t('Importation détaillée des visiteurs du parc'), 
+        'page callback'    => 'drupal_get_form',
+        'page arguments' => array('siit_importation_mnp_02_form'),
+        'access arguments' => array('access siit_importation_mnp_02'),
+        'type'             => MENU_LOCAL_TASK,
+    		//'access callback' => TRUE,
+    );
+    
+    return $items;
+    
+}  
+
+function siit_importation_mnp_02_permission() {
+  return array( 
+    'access siit_importation_mnp_02' => array(
+      'title' => t('siit_importation_mnp_02 : Mnp02 formulaire'),
+      'description' => t('Perform administration tasks for mnp02.'),
+    ),
+  );
+}
+
+function siit_importation_mnp_02_form($form) {
+	
+	drupal_set_title(t('Importation détaillée des visiteurs du parc'));
+	
+	$form['annee'] = array(
+    "#type" => "select",      
+    "#title" => t("Année :"),
+    "#options" => array(
+	    "vide" => t(""),
+      "0" => t("2016"),
+      "1" => t("2017"),
+    ),
+    //"#default_value" => $settings[""],
+    "#required" => FALSE,
+	);
+	
+	
+	$form["mois"] = array(
+    "#type" => "select",      
+    "#title" => t("Mois :"),
+    "#options" => array(
+	    "vide" => t(""),
+      "Janvier" => t("Janvier"),
+      "Fevrier" => t("Février"),
+			"Mars" => t("Mars"),
+      "Avril" => t("Avril"),
+			"Mai" => t("Mai"),
+      "Juin" => t("Juin"),
+			"Juillet" => t("Juillet"),
+      "Aout" => t("Aout"),
+			"Septembre" => t("Septembre"),
+      "Octobre" => t("Octobre"),
+			"Novembre" => t("Novembre"),
+      "Decembre" => t("Décembre"),
+    ),
+    //"#default_value" => $settings[""],
+    "#required" => FALSE,
+    //"#description" => t("La ville de depart de la carte ?"),
+    );
+    
+   $form["parc"] = array(
+    "#type" => "select",      
+    "#title" => t("Parc :"),
+    "#options" => array(
+	    "vide" => t(""),
+      "isalo" => t("Isalo"),
+      "bemaraha" => t("Bemaraha"),
+			"andasibe" => t("Andasibe"),
+    ),
+    //"#default_value" => $settings[""],
+    "#required" => FALSE,
+    //"#description" => t("La ville de depart de la carte ?"),
+    );
+    
+    $form['importation']['csv_file'] = array(
+	        '#title' => 'Importer Fichier', // Titre dans la page d'importation du fichier
+	        '#description' => 'Seuls ces fichiers csv, xlsx sont valides.',
+	        '#type' => 'managed_file',
+	        '#required' => FALSE,
+	        '#upload_validators' => array(
+	            'file_validate_extensions' => array('csv xlsx'),
+	        ),
+	    );
+	    
+	 $form['importation']['submit'] = array(
+	        '#type' => 'submit',
+	        '#value' => t('Process'),
+	        '#attributes' => array('class' => array('button button--primary js-form-submit form-submit btn-success btn'),),
+	    		'#submit' => array('csv_import_mnp_02_submit'),
+	    );
+	    
+	    
+	 $form['importation']['back'] = array('#type' => 'submit', '#value' => t('Back'));
+   // $form['importation']['back']['#limit_validation_errors'] = array();
+   // $form['importation']['back']['#submit'] = array('feve_import_statistiques_back_submit');
+   // $form['importation']['back']['#name'] = 'reset';
+	
+	
+	return $form;
+	
+}
+
+function csv_import_mnp_02_submit($form, &$form_state) {
+	
+// Récupération du fichier
+    $file = file_load($form_state['values']['csv_file']);
+    $uri = $file->uri;
+    $handle = fopen(drupal_realpath($uri), 'r') or die(t('Unable to open the temp file.'));
+    $i = 0;
+    $error = false;
+    
+    
+    $firstData = fgetcsv($handle, 0, ';');
+    
+    if (count($firstData) == 6) {
+    	$delimiterLine = ";";
+    } else {
+	    	$handle = fopen(drupal_realpath($uri), 'r') or die(t('Unable to open the temp file.'));
+	    	//$firstData = fgetcsv($handle, 0, ',', '"');
+	    	$firstData = fgetcsv($handle, 0, ',');
+	    	if (count($firstData) == 6) {
+	    		$delimiterLine = ",";
+			} else {
+			 	//Pour la première ligne, on vérifie que l'en-tête est incorrecte
+			 	drupal_set_message(t("Mauvaise entete"), $type = 'error', $repeat = FALSE);
+			}
+    }
+    
+   /* if ($firstData[4] != 'dt_naissance') {
+    	$error = true;
+    	drupal_set_message(t("Mauvaise entete 'Date_de_naissance'"), $type = 'error', $repeat = FALSE);
+    }*/
+    
+    
+    $data = array();
+    //$i=0;
+   
+	while(($line = fgetcsv($handle, 0, $delimiterLine, '"')) !== FALSE) {
+        // Remplissage de l'array
+        
+		    //TODO si date n'est pas conforme on affiche une erreur
+		   /* if(!checkmydate($line[4]) || !checkmydate($line[16]) || !checkmydate($line[17]) ){
+		    	drupal_set_message(t("Champ de date non conforme!"), $type = 'error', $repeat = FALSE);
+		    	break;
+		    }else {
+		    	  drupal_set_message(t("Test dates ok!"), $type = '', $repeat = FALSE);
+		    }*/		  
+
+		    $data[] = array(
+        	  'id_visiteur_parc_categorie' => $line[0],
+            'id_parc' => $line[1],
+        		'annee' => $line[2],
+            'id_mois' => $line[3],
+        		'id_categorie_visiteur' => $line[4],
+            'nb_visiteur' => $line[5],
+        );
+        //drupal_set_message(t("i=".$i.", valeur data 'li_lieu_destination'".$data[$i]["li_lieu_destination"]), $type = '', $repeat = FALSE);
+        //$i++;
+        
+    }
+    fclose($handle);
+    
+    foreach ($data as $value) {
+    	
+    	//On supprime la consolidation existante pour l'équivalent
+			$res = db_delete('siit_visiteur_parc_categorie')
+			    ->condition('id_visiteur_parc_categorie',  $value["id_visiteur_parc_categorie"])
+			    ->execute();
+
+    	db_insert('siit_visiteur_parc_categorie')
+					->fields(array('id_visiteur_parc_categorie','id_parc', 'annee', 'id_mois', 
+						'id_categorie_visiteur', 'nb_visiteur', 'id_importation'))
+					->values(array(
+							'id_visiteur_parc_categorie' => $value["id_visiteur_parc_categorie"],
+	            'id_parc' => $value["id_parc"],
+	        		'annee' => $value["annee"],
+	            'id_mois' => $value["id_mois"],
+	        		'id_categorie_visiteur' => $value["id_categorie_visiteur"],
+	            'nb_visiteur' => $value["nb_visiteur"],
+							'id_importation' => 2, //TODO mettre le vrai id_importation
+							))
+			->execute();
+		}  
+    
+	
+}
+

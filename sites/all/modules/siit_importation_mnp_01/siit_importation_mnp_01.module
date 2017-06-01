@@ -1,0 +1,414 @@
+<?php
+include_once drupal_get_path('module', 'libraries') . '/PHPExcel.php';
+include_once drupal_get_path('module', 'libraries') . '/PHPExcel/IOFactory.php';
+
+/**
+* @file
+* Display a Adema Importation formulaire
+*/
+
+	function siit_importation_mnp_01_menu(){
+    $items = array();
+    $items['siit_importation_mnp_01'] = array(
+        'title'            => t('Importation des visiteurs du parc'), 
+        'page callback'    => 'drupal_get_form',
+        'page arguments' => array('siit_importation_mnp_01_form'),
+        'access arguments' => array('access siit_importation_mnp_01'),
+        'type'             => MENU_LOCAL_TASK,
+    		//'access callback' => TRUE,
+    );
+    
+    return $items;
+    
+}  
+
+function siit_importation_mnp_01_permission() {
+  return array( 
+    'access siit_importation_mnp_01' => array(
+      'title' => t('siit_importation_mnp_01 : Mnp01 formulaire'),
+      'description' => t('Perform administration tasks for mnp01.'),
+    ),
+  );
+}
+
+function get_siit_importation_mnp_01_form($form, &$form_state){
+    drupal_set_title(t('Formulaire mnp'));
+    $options = optionYear();
+    $form['annee'] = array(
+    "#type" => "select",   
+    '#default_value' => date("Y"),   
+    "#title" => t("Année :"),
+    "#options" => $options,
+    //"#default_value" => $settings[""],
+    "#required" => TRUE,
+	);
+	
+	
+	$form["mois"] = array(
+    "#type" => "select",      
+    "#title" => t("Mois :"),
+    "#options" => optionMonth(false),
+    //"#default_value" => $settings[""],
+    "#required" => TRUE,
+    //"#description" => t("La ville de depart de la carte ?"),
+    );
+    
+   
+    
+    $form['importation']['csv_file'] = array(
+	        '#title' => 'Importer Fichier', // Titre dans la page d'importation du fichier
+	        '#description' => 'Seuls ces fichiers csv, xlsx sont valides.',
+	        '#type' => 'managed_file',
+	        '#upload_validators' => array(
+	            'file_validate_extensions' => array('csv xlsx'),
+	        ),
+            '#required' => TRUE,
+	    );
+	    
+	 $form['importation']['submit'] = array(
+	        '#type' => 'submit',
+	        '#value' => t('Process'),
+	        '#attributes' => array('class' => array('button button--primary js-form-submit form-submit btn-success btn'),),
+	    		'#validate' => array('csv_import_mnp_01_validate'),
+                '#submit' => array('csv_import_mnp_01_submit'),
+	    );
+	    
+	    
+	 $form['importation']['back'] = array('#type' => 'submit', '#value' => t('Back'));
+   
+	$form['#attributes']['class'][] = 'import-form';
+	return $form;
+}
+
+function siit_importation_mnp_01_form($form, &$form_state) {
+	    global $libMois;
+        
+        if(!isset($form_state['storage']['confirm'])){
+	        return get_siit_importation_mnp_01_form($form, $form_state);
+	    }
+        else{
+              $user = db_query("select * from siit_importation imp,siit_type_fichier t where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee']." and id_statut!=2 and li_type_fichier = '".ENTITE_MNP."' and id_mois=".$_POST['mois'] );
+              $id_importation = 0;
+              foreach($user as $u) {
+            	   $id_importation = $u->id_importation;
+              }
+              if($id_importation){
+                  $question = "Il existe déjà des données en attente de validation, refusées ou dévalidées pour le mois de ".$libMois[$_POST['mois']]." - ".$_POST['annee'].". Souhaitez vous remplacer les données avec celles de ce fichier ?";
+                  $path = 'siit_importation_mnp_01';
+                  $description = '';
+                  $yes = 'Oui';
+                  $no = 'Non';
+                  $form = confirm_form($form, $question, $path, $description, $yes, $no);
+                  $form['annee'] = array('#type' => 'hidden', '#value' => $_POST['annee']);
+                  $form['mois'] = array('#type' => 'hidden', '#value' => $_POST['mois']);
+                  $form['csv_file'] = array('#type' => 'hidden', '#value' => $_POST['csv_file']);
+                  $form['chemin'] = array('#type' => 'hidden', '#value' => $form_state['storage']['uri']);
+                  $form['actions']['submit'] = array(
+                    '#type' => 'submit',
+                    '#value' => $yes,
+                    '#attributes' => array('class' => array('button button--primary js-form-submit form-submit btn-success btn'),),
+            	    '#submit' => array('csv_import_mnp_01_submit'),
+                  );  
+                  $form['#attached']['css'] = array(
+                      drupal_get_path('module', 'siit_importation_mnp_01') . '/css/mnp.css'
+                  );
+                  return $form;
+              }
+              else csv_import_mnp_01_submit($form, $form_state);
+        }
+}
+
+function csv_import_mnp_01_validate($form, &$form_state){
+    global $libMois;
+    if($form_state['values']['csv_file']){
+        $libTotals = json_decode(LIBTOTALS);
+        $categorie_visiteur = json_decode(CATEGORIE_VISITEUR);
+        $file = file_load($form_state['values']['csv_file']);
+        $uri = $file->uri;
+        $path = drupal_realpath($uri);
+        try {
+            $inputFileType = PHPExcel_IOFactory::identify($path);
+            
+            //initialize cache, so the phpExcel will not throw memory overflow
+		    $cacheMethod = PHPExcel_CachedObjectStorageFactory::cache_to_phpTemp;
+		    $cacheSettings = array(' memoryCacheSize ' => '8MB');
+		    PHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);
+            
+            $objReader = PHPExcel_IOFactory::createReader($inputFileType);
+            
+            //read only data (without formating) for memory and time performance
+            $objReader->setReadDataOnly(true);
+            $objPHPExcel = $objReader->load($path);
+        } catch (Exception $e) {
+            
+        }
+        $annee = $_POST['annee'];
+        $mois = $_POST['mois'];
+        if($annee && $mois){
+            $user = db_query("select * from siit_importation imp,siit_type_fichier t where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee']." and id_statut=2 and li_type_fichier = '".ENTITE_MNP."' and id_mois=".$_POST['mois'] );
+            $id_importation = 0;
+            foreach($user as $u) {
+        	   $id_importation = $u->id_importation;
+            }
+            if($id_importation){
+                form_set_error('edit-annee', t("Un import a été déjà validé pour le mois de ".$libMois[$_POST['mois']]." ".$_POST['annee']));
+            } 
+            $error = false;$data = array();
+            foreach ($objPHPExcel->getWorksheetIterator() as $worksheet) {
+                $parc    = $worksheet->getTitle();
+                $id_parc = get_id_parc($parc);
+                if(!$id_parc){
+                    form_set_error('edit-parc'.rand(), t("Le parc ".$parc." est introuvable dans la base."));
+                    $error = true;
+                    break;
+                }
+                $highestRow         = $worksheet->getHighestRow(); 
+                $highestColumn      = $worksheet->getHighestColumn(); 
+                $highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
+                for ($row = 1; $row <= $highestRow; ++ $row) {
+                    if($error)break;
+                    for ($col = 0; $col < $highestColumnIndex; ++ $col) {
+                        $cell = $worksheet->getCellByColumnAndRow($col, $row);
+                        $val = $cell->getValue();
+                        if($row==5 && $col==1){//B5
+                            if($annee!=$val){
+                                form_set_error('edit-annee-saisi'.rand(), t("Onglet ".$parc." - l'année sélectionnée ".$annee." est différente de ".getCellule($row, $col)."=".$val));
+                                $error = true;
+                                break;
+                            }
+                        }
+                        else if($row>=8){
+                        	if ($val == '-') {
+                        		$val = false;
+                        	}
+                            if($col==0 || ($col == ($mois - 1) * 2 + 1 ) || ($col == ($mois - 1) * 2 + 2 )){
+                                if($val){
+                                	
+                                    if($col==0){
+                                        if(!in_array(strtolower($val), array_map('strtolower', $libTotals))){
+                                            $data = array();$data['id_categorie_visiteur'] = 0;
+                                            $id_nationalite = get_id_nationalite($val,ENTITE_MNP);
+                                            if(!$id_nationalite){
+                                                form_set_error('edit-nat'.rand(), t("Onglet ".$parc." - La nationalité ".$val." (".getCellule($row, $col).") est introuvable dans la base."));
+                                            } 
+                                        }
+                                        else if(in_array(strtolower($val), array_map('strtolower', $categorie_visiteur))){
+                                            $data['id_categorie_visiteur'] = array_search($val, $categorie_visiteur)+1;
+                                        }
+                                        else if(strtolower($val)==strtolower('total')){
+                                            $data = array();
+                                            $cell = $worksheet->getCellByColumnAndRow(($mois - 1) * 2 + 1, $row);
+                                            $val = $cell->getValue();
+											if(!is_numeric($val)){
+                                                form_set_error('edit-total'.rand(), t("Onglet ".$parc." - ".$val." n'est pas un entier (".getCellule($row, $col).") ."));
+                                            }else $data['TOTAL'] = $val;
+											
+                                            break;
+                                        }
+                                        else break;
+                                    }
+                                    else{
+                                        if(!filter_var($val, FILTER_VALIDATE_INT) ){
+                                            form_set_error('edit-parc-val'.rand(), t("Onglet ".$parc." - ".$val." n'est pas un entier (".getCellule($row, $col).") ."));
+                                        }
+                                        else $data = setField($row, $col,$val,ENTITE_MNP,$data,$lastVal);
+                                    }
+                                    if(isToInsert($row, $col,$val,ENTITE_MNP,$data)){
+                                        $msg = checkError($row, $col,$val,ENTITE_MNP,$data,$lastVal);
+                                        if($msg){
+                                            form_set_error('edit-msg'.$row, t("Onglet ".$parc." - ".$msg));
+                                        }
+                                    }
+                                }
+                                else{
+                                    if(array_key_exists("id_categorie_visiteur",$data) && !$data['id_categorie_visiteur']){
+                                        if(array_key_exists("nb_visiteur",$data)){
+                                            $data = setField($row, $col,$val,ENTITE_MNP,$data,$lastVal);
+                                            if(isToInsert($row, $col,$val,ENTITE_MNP,$data)){
+                                                $msg = checkError($row, $col,$val,ENTITE_MNP,$data,$lastVal);
+                                                if($msg){
+                                                    form_set_error('edit-msg2'.rand(), t("Onglet ".$parc." - ".$msg));
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        $lastVal = $val;
+                    }
+                }
+            }
+        }
+        
+        // Free up some of the memory 
+    	$objPHPExcel->disconnectWorksheets(); 
+    	unset($objPHPExcel);
+        
+    }
+}
+
+function doTraitement($chemin, &$form_state){
+    $libTotals = json_decode(LIBTOTALS);
+    $categorie_visiteur = json_decode(CATEGORIE_VISITEUR);
+    
+    $path = drupal_realpath($chemin);
+    try {
+        $inputFileType = PHPExcel_IOFactory::identify($path);
+        
+         //initialize cache, so the phpExcel will not throw memory overflow
+	    $cacheMethod = PHPExcel_CachedObjectStorageFactory::cache_to_phpTemp;
+	    $cacheSettings = array(' memoryCacheSize ' => '8MB');
+	    PHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);
+	    
+        $objReader = PHPExcel_IOFactory::createReader($inputFileType);
+        
+        //read only data (without formating) for memory and time performance
+        $objReader->setReadDataOnly(true);
+        $objPHPExcel = $objReader->load($path);
+    } catch (Exception $e) {
+        
+    }
+    
+    $annee = $_POST['annee'];
+    $mois = $_POST['mois'];
+    controleDoublonImportation($annee, $mois,ENTITE_MNP);
+    $data = array();
+    $data['annee'] = $annee;
+    $data['id_mois'] = $mois;
+    $data["li_fichier"] = basename($path);
+    $data["id_statut"] = STATUT_AVALIDER;
+    $data["id_type_fichier"] = TYPE_FICHIER_MNP;
+    $id_importation = insert_importation($data);
+    $data = array();
+    foreach ($objPHPExcel->getWorksheetIterator() as $worksheet) {
+        $parc    = $worksheet->getTitle();
+        $id_parc = get_id_parc($parc);
+        
+        $highestRow         = $worksheet->getHighestRow(); 
+        $highestColumn      = $worksheet->getHighestColumn(); 
+        $highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
+        
+        for ($row = 1; $row <= $highestRow; ++ $row) {
+        $iCol = 0;
+        $rowType='';
+        	//on boucle sur les colonnes
+            for ($col = 0; $col < $highestColumnIndex; ++ $col) {
+                if($col == MNP_NB_COL - 1) break;
+                //S'il s'agit de la première colonne ou du mois séléctionné dans le form d'import
+                if($col==0 || ($col == ($mois - 1) * 2 + 1 ) || ($col == ($mois - 1) * 2 + 2 )){
+                    $cell = $worksheet->getCellByColumnAndRow($col, $row);
+                    $iCol++;
+                   
+                    $val = $cell->getValue();
+                    if($row>=8){
+                    	//Avant la 8eme ligne, on a les entetes
+                    	if ($val == '-') {
+                    		$val = false;
+                    	}
+                        if($val){
+                        //$libTotals = array('TOTAL','AVECTO','INDIVIDUEL','KE','E','KN','M','CAMPEUR');
+						//$categorie_visiteur = array('E','M','KN','KE','AVECTO','CAMPEUR');
+                            if($col==0){ //Libéllé : Nationalité, etc ... de la 1ere colonne
+                                if(!in_array(strtolower($val), array_map('strtolower', $libTotals))){
+                                	$rowType = 'nationalite';
+                                	//On est sur les lignes nationalités
+                                    $data = array();
+                                    $data['id_categorie_visiteur'] = 0;
+                                    $id_nationalite = get_id_nationalite($val,ENTITE_MNP);
+                                    $data['id_nationalite'] = $id_nationalite;
+                                } elseif(in_array(strtolower($val), array_map('strtolower', $categorie_visiteur))){
+                                	$rowType = 'groupe';
+                                	//On est sur le dernier bloc AVECTO, CAMPEUR etc
+                                    $data = array();
+                                    $data["id_categorie_visiteur"] = array_search($val, $categorie_visiteur)+1;
+                                    /*var_dump($val);
+                                    var_dump('<br>');
+                                    var_dump($data);
+                                    var_dump('<br>');*/
+                                }
+                                else break;
+                            }
+                            else {
+                            	/*var_dump('<br>TOTO<br>');
+                            	var_dump($val);var_dump('<br>');*/
+                            	$data = setField($row, $col,$val,ENTITE_MNP,$data);
+                            	/*var_dump($data);var_dump('<br>');
+                            	var_dump('<br>FIN TOTO<br>');*/
+                            }
+                            
+                           /*var_dump($row);var_dump('<br>');
+                           var_dump($col);var_dump('<br>');
+                           var_dump($val);var_dump('<br>');
+                           var_dump($data);
+                           var_dump(isToInsert($row, $col,$val,ENTITE_MNP,$data));
+                           die();*/
+                           
+                           
+                            if(isToInsert($row, $col,$val,ENTITE_MNP,$data)){
+                                $data['id_parc'] = $id_parc;
+                                $data['annee'] = $annee;
+                                $data['id_mois'] = $mois;
+                                $data['id_importation'] = $id_importation;
+                                //var_dump($data);die('ici');
+                                import_data_mnp($data, $rowType, $iCol);
+                            }
+                        }
+                        else{
+                            if(array_key_exists("id_categorie_visiteur",$data) && !$data['id_categorie_visiteur']){
+                                if(array_key_exists("nb_visiteur",$data)){
+                                    $data = setField($row, $col,$val,ENTITE_MNP,$data);
+                                    if(isToInsert($row, $col,$val,ENTITE_MNP,$data)){
+                                        $data['id_parc'] = $id_parc;
+                                        $data['annee'] = $annee;$data['id_mois'] = $mois;
+                                        $data['id_importation'] = $id_importation;
+                                        import_data_mnp($data, $rowType,$iCol);
+                                        
+                                    }
+                                }
+                            }
+                        }
+                   }
+                }
+            }
+        }
+        //die();
+    }
+    
+    // Free up some of the memory 
+    $objPHPExcel->disconnectWorksheets(); 
+    unset($objPHPExcel);
+    
+    drupal_set_message("L'import a été effectué avec succès.", $type = 'status');
+    $form_state['redirect'] ="siit_importation_liste";
+}
+
+function csv_import_mnp_01_submit($form, &$form_state) {
+     
+     if(!isset($form_state['storage']['confirm'])) {
+        $user = db_query("select * from siit_importation imp,siit_type_fichier t where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee']." 
+							and id_statut <> 2 and li_type_fichier = '".ENTITE_MNP."' and id_mois=".$_POST['mois'] );
+        $id_importation = 0;
+        foreach($user as $u) {
+    	   $id_importation = $u->id_importation;
+        }
+        if($id_importation){
+            $form_state['storage']['confirm'] = TRUE;
+            $form_state['rebuild'] = TRUE;
+            $form_state['storage']['csv_file'] = $form_state['values']['csv_file'];
+            $file = file_load($form_state['values']['csv_file']);
+            $form_state['storage']['uri'] = $file->uri;
+        } else {
+            $file = file_load($form_state['values']['csv_file']);
+            doTraitement($file->uri,$form_state);
+        }
+     } else {
+        if(isset($_POST["chemin"]))$chemin = $_POST["chemin"];
+        else{
+            $file = file_load($form_state['values']['csv_file']);
+            $chemin = $file->uri;
+        }
+        doTraitement($chemin,$form_state);
+     }
+	
+}

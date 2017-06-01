@@ -1,0 +1,395 @@
+<?php
+
+/**
+* @file
+* Display a EDBM Importation formulaire
+*/
+
+	function siit_importation_edbm_01_menu(){
+    $items = array();
+    $items['siit_importation_edbm_01'] = array(
+        'title'            => t('Formulaire importation'), 
+        'page callback'    => 'drupal_get_form',
+        'page arguments' => array('siit_importation_edbm_01_form'),
+        'access arguments' => array('access siit_importation_edbm_01'),
+        'type'             => MENU_LOCAL_TASK,
+    		//'access callback' => TRUE,
+    );
+    
+    return $items;
+    
+}  
+
+function siit_importation_edbm_01_permission() {
+  return array( 
+    'access siit_importation_edbm_01' => array(
+      'title' => t('siit_importation_edbm_01 : edbm importation formulaire'),
+      'description' => t('Perform administration tasks for EDBM importation formulaire.'),
+    ),
+  );
+}
+
+function siit_importation_edbm_01_form($form, &$form_state) {
+
+		
+        if(!isset($form_state['storage']['confirm'])){			 
+	        return get_siit_importation_edbm_01_form($form, $form_state);
+	    }
+        else{
+            $user = db_query("select * from siit_importation imp,siit_type_fichier t where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee']." and id_statut!=2 and li_type_fichier = '".ENTITE_EDBM."'");
+             $id_importation = 0;
+             foreach($user as $u) {
+            	   $id_importation = $u->id_importation;
+            }
+			
+            if($id_importation){
+                  $question = "Il existe déjà des données en attente de validation, refusées ou dévalidées pour l'année ".$_POST['annee'].". Souhaitez vous remplacer les données avec celles de ce fichier ?";
+                  $path = 'siit_importation_edbm_01';
+                  $description = '';
+                  $yes = 'Oui';
+                  $no = 'Non';
+                  $form = confirm_form($form, $question, $path, $description, $yes, $no);
+                  $form['annee'] = array('#type' => 'hidden', '#value' => $_POST['annee']);
+                  $form['csv_file'] = array('#type' => 'hidden', '#value' => $_POST['csv_file']);
+                  $form['chemin'] = array('#type' => 'hidden', '#value' => $form_state['storage']['uri']);
+                  $form['actions']['submit'] = array(
+                    '#type' => 'submit',
+                    '#value' => $yes,
+                    '#attributes' => array('class' => array('button button--primary js-form-submit form-submit btn-success btn'),),
+            	    '#submit' => array('csv_import_edbm_01_submit'),
+                  );  
+                  $form['#attached']['css'] = array(
+                      drupal_get_path('module', 'siit_importation_edbm_01') . '/css/edbm.css'
+                  );
+                  return $form;
+            }
+            else csv_import_edbm_01_submit($form, $form_state);
+        }
+	
+	
+	
+	
+}
+
+function get_siit_importation_edbm_01_form($form, &$form_state){
+
+drupal_set_title(t('Formulaire EDBM'));
+	
+	$options = optionYear();
+	$form['annee'] = array(
+    "#type" => "select",   
+    '#default_value' => date("Y"),   
+    "#title" => t("Année :"),
+    "#options" => $options,
+    //"#default_value" => $settings[""],
+    "#required" => TRUE,
+	);
+	
+	
+	$form['importation']['csv_file'] = array(
+	        '#title' => 'Importer Fichier :', // Titre dans la page d'importation du fichier
+	        '#description' => 'Seuls ces fichiers csv, xlsx sont valides.',
+	        '#type' => 'managed_file',
+	        '#required' => true,
+	        '#upload_validators' => array(
+	            'file_validate_extensions' => array("csv xlsx"),
+	        ),
+	    );
+	    
+	 $form['importation']['submit'] = array(
+	        '#type' => 'submit',
+	        '#value' => t('Process'),
+	        '#attributes' => array('class' => array('button button--primary js-form-submit form-submit btn-success btn'),),
+	    	'#validate' => array('csv_import_edbm_01_validate'),
+	    		'#submit' => array('csv_import_edbm_01_submit'),
+	    );
+	    
+	    
+	$form['importation']['back'] = array('#type' => 'submit', '#value' => t('Retour'));
+    $form['importation']['back']['#submit'] = array('siit_back_submit');
+    $form['importation']['back']['#limit_validation_errors'] = array();
+    $form['importation']['back']['#name'] = 'back';
+
+	$form['#attributes']['class'][] = 'import-form';
+	
+	return $form;
+}
+
+function csv_import_edbm_01_validate($form, &$form_state){
+   
+   if($form_state['values']['csv_file']){
+        $file = file_load($form_state['values']['csv_file']);
+        $uri = $file->uri;
+        $path = drupal_realpath($uri);
+        try {
+            $inputFileType = PHPExcel_IOFactory::identify($path);
+            $objReader = PHPExcel_IOFactory::createReader($inputFileType);
+            $objPHPExcel = $objReader->load($path);
+        } catch (Exception $e) {
+            
+        }
+        $annee = $_POST['annee'];
+        $user = db_query("select * from siit_importation imp,siit_type_fichier t where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee']." and id_statut=2 and li_type_fichier = '".ENTITE_EDBM."'");
+        $id_importation = 0;
+        foreach($user as $u) {
+    	   $id_importation = $u->id_importation;
+        }
+        if($id_importation){
+            form_set_error('edit-annee', t("Un import a été déjà validé pour l'annéé ".$_POST['annee']));
+        }
+		
+        foreach ($objPHPExcel->getWorksheetIterator() as $worksheet) {
+            $highestRow         = $worksheet->getHighestRow(); 
+            $highestColumn      = $worksheet->getHighestColumn(); 
+            $highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
+
+            for ($row = 2; $row <= $highestRow; ++ $row) {
+				$is_nom_etablissement = true;				
+				$data_arret = array();
+                for ($col = 0; $col < $highestColumnIndex; ++ $col) {
+					$cell = $worksheet->getCellByColumnAndRow($col, $row);
+					$val = $cell->getValue();
+					
+					//Condition d'arret 
+					condition_arret($col, $val, $data_arret );
+					
+					$val_nom_etab = $worksheet->getCellByColumnAndRow(0, $row)->getValue();
+					$val_enseigne = $worksheet->getCellByColumnAndRow(1, $row)->getValue();
+                    $val_region = $worksheet->getCellByColumnAndRow(3, $row)->getValue();
+					
+					//Champ obligatoire autre que nom etablissement, enseigne , region à voir
+					if($col == 3){
+					        if(empty($val) && !empty($val_enseigne)){
+								form_set_error('edit-region1'.$row, t("La region est vide. (".getCellule($row, $col).")"));
+							}else if(!empty($val)){
+								$id_region = get_id_region($val);
+								if($id_region == 0){
+									form_set_error('edit-region2'.$row, t("La region '$val' n'existe pas en base. (".getCellule($row, $col).")"));
+								} 
+								$val_region = "tmp";		
+							}
+					}
+					
+					if(empty($val_nom_etab) && empty($val_enseigne) && !empty($val_region)){						
+						form_set_error('edit-etab'.$row , t("Nom d'établissement et enseigne sont vides. (".getCellule($row, $col).")."));						
+					}
+					
+                    if($val){											
+                        if($col==7 ){
+							controle_error_nombre('edit-nb-nat'.$row,$val,$row,$col);
+						}else if($col==8 ){
+							controle_error_nombre('edit-nb-etr'.$row,$val,$row,$col);
+						}elseif($col==9 ){
+							controle_error_nombre('edit-invest'.$row,$val,$row,$col);
+						}elseif($col==14 ){
+							controle_error_nombre('edit-nb-ch'.$row,$val,$row,$col);
+						}else if($col==15 ){
+							controle_error_nombre('edit-nb-place'.$row,$val,$row,$col);
+						}else if($col == 12){
+							$id_nat = get_id_nationalite($val,ENTITE_EDBM);
+							if($id_nat == 0){
+							    form_set_error('edit-nat'.$row, t("La nationalité '$val' n'existe pas en base. (".getCellule($row, $col).")"));
+							} 
+						}
+                    }
+					 
+					if($col == 10){
+							$PHPTimeStamp = PHPExcel_Shared_Date::ExcelToPHP($val);														
+							if(($PHPTimeStamp < 0 || empty($val) || date('Y-m-d',$PHPTimeStamp) === date('Y-m-d') ) && !empty($val_region)){
+							    form_set_error('edit-date'.$row, t("Format de date d'autorisation '$val' non conforme. (".getCellule($row, $col).")"));
+							} 
+					}									
+                }
+				
+				//Sortir du boucle si toute la ligne est vide
+				$i = 0;
+				foreach($data_arret as $key=>$val){
+					if($val == ""){
+						$i = $i + 1;
+					}
+				}
+				if($i == sizeof($data_arret)){
+				   return;
+				}
+				
+					
+            }
+        }
+    }
+}
+
+ function controle_error_nombre($code,$val,$row,$col){
+	 
+	if(!filter_var($val, FILTER_VALIDATE_FLOAT)){
+        form_set_error($code , t($val." n'est pas un nombre (".getCellule($row, $col).") ."));
+    }   
+ }
+
+function condition_arret($col,$val,&$data_arret){
+		
+	switch ($col) {
+		case 0:
+			$data_arret[] = $val;
+			break;
+		case 1:
+			$data_arret[] = $val;
+			break;  
+		case 2:
+			$data_arret[] = $val;
+			break;
+		case 3:
+			$data_arret[] = $val;
+			break;
+		case 6:
+			$data_arret[] = $val;
+			break;
+		case 7:
+			$data_arret[] = $val;
+			break;
+		case 8:
+			$data_arret[] = $val;
+			break;
+		case 9:
+			$data_arret[] = $val;
+			break;		
+		case 11:
+			$data_arret[] = $val;
+			break;
+		case 12:
+			$data_arret[] = $val;
+			break;
+		case 13:
+			$data_arret[] = $val;
+			break;
+		case 14:
+			$data_arret[] = $val;
+			break;
+		case 15:
+			$data_arret[] = $val;
+			break;
+	}
+}
+
+function csv_import_edbm_01_submit($form, &$form_state) {
+
+	if(!isset($form_state['storage']['confirm'])) {
+			
+        $user = db_query("select * from siit_importation imp,siit_type_fichier t where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee']." 
+						and id_statut <> 2 and li_type_fichier = '".ENTITE_EDBM."'");
+        $id_importation = 0;
+        foreach($user as $u) {
+    	   $id_importation = $u->id_importation;
+        }		
+		//drupal_set_message(t("csv_import_edbm_01_submit : $id_importation "), $type = '', $repeat = true);	
+		
+        if($id_importation){
+            $form_state['storage']['confirm'] = TRUE;
+            $form_state['rebuild'] = TRUE;
+            $form_state['storage']['csv_file'] = $form_state['values']['csv_file'];
+            $file = file_load($form_state['values']['csv_file']);
+            $form_state['storage']['uri'] = $file->uri;
+        } else {
+            $file = file_load($form_state['values']['csv_file']);
+            traitement_edbm01($file->uri,$form_state);
+        }
+    } else {
+        if(isset($_POST["chemin"])) $chemin = $_POST["chemin"];
+        else{
+            $file = file_load($form_state['values']['csv_file']);
+            $chemin = $file->uri;
+        }
+        traitement_edbm01($chemin,$form_state);
+    }
+
+
+}
+
+function traitement_edbm01($chemin, &$form_state){
+
+     
+     if($form_state['values']['csv_file']){
+        $villes = json_decode(VILLES);
+
+        $path = drupal_realpath($chemin);
+        try {
+            $inputFileType = PHPExcel_IOFactory::identify($path);
+            $objReader = PHPExcel_IOFactory::createReader($inputFileType);
+            $objPHPExcel = $objReader->load($path);
+        } catch (Exception $e) {
+            
+        }
+        $annee = $_POST['annee'];
+        controleDoublonImportation($annee, 0,ENTITE_EDBM);
+        $data = array();
+        $data['annee'] = $annee;$data['id_mois'] = 0;
+        $data["li_fichier"] = basename($path);$data["id_statut"] = STATUT_AVALIDER;$data["id_type_fichier"] = TYPE_FICHIER_EDBM;
+        $id_importation = insert_importation($data);
+        $data = array();
+        foreach ($objPHPExcel->getWorksheetIterator() as $worksheet) {
+            $highestRow         = $worksheet->getHighestRow(); 
+            $highestColumn      = $worksheet->getHighestColumn(); 
+            $highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
+            for ($row = 2; $row <= $highestRow; ++ $row) {
+                $data = array();$data['id_importation'] = $id_importation;$data['annee'] = $annee;
+                for ($col = 0; $col < $highestColumnIndex; ++ $col) {
+                    if($col == EDBM01_NB_COL) break;
+                    $cell = $worksheet->getCellByColumnAndRow($col, $row);
+                    $val = $cell->getValue();
+                    switch ($col) {
+                        case 0:
+                          $data['li_etablissement'] = $val;
+                          break;
+                        case 1:
+                          $data['li_enseigne'] = $val;
+                          break;  
+                        case 2:
+                          $data['li_adresse'] = $val;
+                          break;
+                        case 3:
+                          $data['id_region'] = get_id_region($val);
+                          break;
+                        case 6:
+                          $data['id_activite_etablissement'] = get_id_activite_etablissement($val);
+                          break;
+                        case 7:
+                          $data['nb_emplois_nationaux'] = $val;
+                          break;
+                        case 8:
+                          $data['nb_emplois_etrangers'] = $val;
+                          break;
+                        case 9:
+                          $data['mt_investissement'] = $val;
+                          break;
+                        case 10:
+                          $PHPTimeStamp = PHPExcel_Shared_Date::ExcelToPHP($val);
+                          $data['dt_autorisation'] = $val ? date('Y-m-d',$PHPTimeStamp) : '2015-01-01';
+                          break;
+                        case 11:
+                          $data['num_autorisation'] = $val;
+                          break;
+                        case 12:
+                          $data['id_nationalite_promoteur'] = get_id_nationalite($val,ENTITE_EDBM);
+                          break;
+                        case 13:
+                          $data['id_classement_etablissement'] = get_id_classement_etablissement($val);
+                          break;
+                        case 14:
+                          $data['nb_chambres'] = $val;
+                          break;
+                        case 15:
+                          $data['nb_places_repas'] = $val;
+                          break;
+                    }
+                }
+                if(array_key_exists("li_enseigne",$data) && $data['li_enseigne']){
+                    import_data_edbm_01($data);
+                }
+                
+            }
+        }
+        drupal_set_message("L'import a été effectué avec succès.", $type = 'status');
+        $form_state['redirect'] ="siit_importation_fusion_etablissement";
+    }
+	
+}
+

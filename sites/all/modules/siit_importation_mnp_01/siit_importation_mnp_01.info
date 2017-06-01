@@ -1,0 +1,5 @@
+name = SIIT : Formulaire d'importation pour le MNP
+description = SIIT : Formulaire d'importation pour le MNP
+core = 7.x
+version = 7.x-0.x-dev
+package = SIIT

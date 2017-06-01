@@ -1,0 +1,5 @@
+name = SIIT ONTM : Liste des données des Etablissement ONTM02
+description = SIIT ONTM : Liste des données des Etablissement ONTM02
+core = 7.x
+version = 7.x-0.x-dev
+package = SIIT

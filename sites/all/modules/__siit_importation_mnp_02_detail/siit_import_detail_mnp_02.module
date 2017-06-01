@@ -1,0 +1,108 @@
+<?php
+
+/**
+* @file
+* Display a Adema Importation
+*/
+
+function siit_import_detail_mnp_02_menu(){
+    $items = array();
+    $items['siit_import_detail_mnp_02'] = array(
+        'title'            => t('Detail importation Mnp02'), 
+        'page callback'    => 'drupal_get_form',
+        'page arguments' => array('siit_import_detail_mnp_02_form'),
+        'access arguments' => array('access siit_import_detail_mnp_02'),
+        'type'             => MENU_LOCAL_TASK,
+    		//'access callback' => TRUE,
+    );
+    
+    return $items;
+    
+}  
+
+function siit_import_detail_mnp_02_permission() {
+  return array( 
+    'access siit_import_detail_mnp_02' => array(
+      'title' => t('siit_import_detail_mnp_02 : Detail importation Mnp02'),
+      'description' => t('Perform administration tasks for Detail importation Mnp02.'),
+    ),
+  );
+}
+
+function siit_import_detail_mnp_02_form($form) {
+
+	/*if (!isset($_REQUEST['secteur']) || empty($_REQUEST['secteur'])) {
+    	// a cause de feve_dashboard_contributor_food_and_drink où on n'a plus le feve_publication_data?secteur=c
+    	$_REQUEST['secteur'] = 'c';
+    }
+    
+	drupal_set_title(t('Food & Drink Statistics'));
+	if (isset($_REQUEST['secteur']) && ($_REQUEST['secteur'] == 'f' || $_REQUEST['secteur'] == SECTEUR_ID_FLACONNAGE)) {
+    	$secteur = SECTEUR_ID_FLACONNAGE; 
+    	drupal_set_title(t('Flaconnage Contribution'));
+    }
+    if (isset($_REQUEST['secteur']) && ($_REQUEST['secteur'] == 'c' || $_REQUEST['secteur'] == SECTEUR_ID_CONTENANT)) {
+    	$secteur = SECTEUR_ID_CONTENANT; 
+    	drupal_set_title(t('Food & Drink Contribution'));
+    }
+
+	$idSurveyCompany = arg(2);
+	$errorOrSuccess = arg(3);
+	if (isset($idSurveyCompany) && $idSurveyCompany && $errorOrSuccess == 'error') {
+		$form['back'] = array('#type' => 'submit', '#value' => t('Back to the importation'));
+	    $form['back']['#limit_validation_errors'] = array();
+	    $form['back']['#submit'] = array('feve_dashboard_contributor_back_submit');
+	    $form['back']['#name'] = 'reset';
+	    
+	    $form['back_markup'] = array(
+		  '#markup' => '<br>'
+		);
+	}
+	*/
+	
+	
+	$header = array(
+		array('data' => t('Parc'), 'field' => 'id_parc', 'sort' => 'desc'),
+			array('data' => t('Annee'), 'field' => 'annee'),
+	    array('data' => t('Mois'), 'field' => 'id_mois'),
+	    array('data' => t('Categorie visiteur'), 'field' => 'id_categorie_visiteur'/*, 'sort' => 'desc'*/),
+	    array('data' => t('Nombre de visiteur'), 'field' => 'nb_visiteur'/*, 'sort' => 'desc'*/),
+	);
+	
+	
+	$rows = Null;
+	$i=0;
+	
+	global $user;
+    $uid = $user->uid;
+	
+	$results = db_query("select * from {siit_visiteur_parc_categorie} where id_importation=".$_GET["idImportation"]); //TODO where id_importation 
+	 foreach($results as $result) {
+	 			
+	       
+	      $rows[$i] = array('id_parc' => $result->id_parc,
+			    							'annee' => $result->annee,
+			        					'id_mois' => $result->id_mois,
+			        				  'id_categorie_visiteur' => $result->id_categorie_visiteur,
+			        				  'nb_visiteur' => $result->nb_visiteur,
+			        				  );
+	     $i++;        				  
+	 }
+ 
+	$form['table'] = array(
+		    '#theme' => 'table',
+		    '#header' => $header,
+		    '#rows' => $rows,
+		    '#empty' => t('Aucun r&eacute;sultat.')
+		  );
+	$form['pager'] = array('#markup' => theme('pager'));
+	
+	/*$text = getTextType('Contributor','bottom');
+	$form['contributor_bottom'] = array(
+	  '#markup' => str_replace("\n", "<br />",$text['body_value'])
+	);*/
+	
+	return $form;
+	
+}
+

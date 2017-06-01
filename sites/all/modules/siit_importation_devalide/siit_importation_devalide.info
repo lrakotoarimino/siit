@@ -1,0 +1,5 @@
+name = SIIT Importation liste : devalider
+description = SIIT Importation liste : devalider
+core = 7.x
+version = 7.x-0.x-dev
+package = SIIT

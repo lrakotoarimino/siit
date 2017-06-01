@@ -1,0 +1,200 @@
+<?php
+function siit_manage_pays_menu(){
+ 	$items = array();
+	
+	$items['manage_pays_form/delete/%'] = array(
+		'title' => t('Delete Pays'),
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('manage_pays_delete_confirm', 2),
+		'access arguments' => array('access manage_pays'),
+	);
+	$items['manage_pays_form/edit/%'] = array(
+		'title' => t('Edit Pays'),
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('manage_pays_edit_confirm', 2),
+	    'access arguments' => array('access manage_pays'),
+    );
+    
+    $items['manage_pays_form/add'] = array(
+		'title' => t('Add Pays'),
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('manage_pays_edit_confirm', 2),
+	    'access arguments' => array('access manage_pays'),
+    );
+	
+ return $items;
+}
+
+
+
+function manage_pays_delete_confirm($form ,&$form_state, $id_pays_entite) {
+
+	$id_pays='';
+	$li_pays='';
+	$edit = false;
+	
+	if ($id_pays_entite && !empty($id_pays_entite)) {
+		//Edition
+		$edit = true;
+		$results = db_query("SELECT id_pays_entite,id_pays,li_pays 
+			FROM {siit_pays_entite} WHERE 
+			id_pays_entite='{$id_pays_entite}'");
+		
+		foreach($results as $key) {
+			$id_pays_entite = $key->id_pays_entite;
+			$id_pays = $key->id_pays;
+			$li_pays = $key->li_pays;
+		}
+	}
+
+	$form['li_pays'] = array(
+		'#type' => 'value',
+		'#value' => $li_pays,
+		'#required' => true);
+		
+	$form['id_pays_entite'] = array(
+		'#type' => 'hidden',
+		'#value' => $id_pays_entite,);
+		
+		drupal_set_message($li_pays);
+		
+	return confirm_form($form,t('Voulez vous supprimer cette Pays '.$li_pays.' ?'),
+    	isset($_GET['destination']) ? $_GET['destination'] : "manage_pays_form",t('This action cannot be undone.'),t('Delete'),t('Cancel'));
+		
+}
+
+
+function manage_pays_delete_confirm_submit($form, &$form_state) {
+	
+	if ($form_state['values']['confirm']) {
+			                        
+	    $result = db_query("DELETE FROM {siit_pays_entite} 
+	    	where id_pays_entite={$form_state['values']['id_pays_entite']}");
+	 	drupal_set_message(t('La Pays a été supprimée.'));}
+	 	drupal_goto("siit_pays_entite");
+}
+
+
+function manage_pays_edit_confirm($form ,&$form_state, $id_pays_entite){
+	
+	$id_pays='';
+	$li_pays='';
+	$edit = false;
+	
+	if ($id_pays_entite && !empty($id_pays_entite)) {
+		//Edition
+		$edit = true;
+		$results = db_query("SELECT id_pays_entite,id_pays,li_pays 
+			FROM {siit_pays_entite} WHERE 
+			id_pays_entite='{$id_pays_entite}'");
+		
+		foreach($results as $key) {
+			$id_pays_entite = $key->id_pays_entite;
+			$id_pays = $key->id_pays;
+			$li_pays = $key->li_pays;
+		}
+	}
+	
+	$payss = db_query("SELECT id_pays, li_pays
+		FROM {siit_pays} ORDER BY li_pays");
+	
+	foreach($payss as $key) {
+		$optionNat[$key->id_pays] = $key->li_pays;
+	}
+	
+	$form = array();
+
+	$form['id_pays_entite']=array(
+			'#title'=>t('ID'),
+			'#type'=>'textfield',
+			'#attributes' => array('readonly'=>'readonly'),
+			'#value' => $id_pays_entite,);
+	
+	
+	/*$form['id_pays']=array(
+			'#title'=>t('Pays unique'),
+			'#type'=>'textfield',
+			'#value' => $id_pays,);*/
+			
+	$form["id_pays"] = array(
+	    "#type" => "select",      
+	    '#title'=>t('Pays unique'),
+	    "#options" => $optionNat,
+	    "#required" => TRUE,
+	    '#default_value' => $id_pays,
+	    );
+			
+	$form['li_pays']=array(
+		'#title'=>t('Pays utilisée'),
+		'#type'=>'textfield',
+		'#value' => $li_pays,
+		"#required" => TRUE,
+	);
+			
+
+	return confirm_form($form,t(''),
+			isset($_GET['destination']) ? $_GET['destination'] : "manage_pays_form",
+			t(''),t('Edit'),t('Cancel'));
+}
+
+
+function manage_pays_edit_confirm_submit($form, &$form_state)
+{
+	
+	if ($form_state['values']['confirm']) {
+	    
+		$id_pays_entite = $form_state['input']['id_pays_entite'];
+	    $id_pays = $form_state['input']['id_pays'];
+	    $li_pays = $form_state['input']['li_pays'];
+	    
+	    if (empty($li_pays)) {
+	    	drupal_set_message(t('Le libellé ne peut être vide.'), 'error');
+	    	drupal_goto("siit_pays_entite");
+	    }
+		
+		if ($id_pays_entite && !empty($id_pays_entite)) {
+			//On vérifie que le libellé n'existe pas déjà pour un autre pays
+			$results = db_query("SELECT n.li_pays FROM siit_pays n
+				INNER JOIN siit_pays_entite ne ON ne.id_pays = n.id_pays
+				WHERE (n.li_pays = '".$li_pays."'
+					OR ne.li_pays = '".$li_pays."')
+					AND ne.id_pays_entite <> $id_pays_entite");
+			$existeDeja = false;
+			foreach($results as $key) {
+				$li_pays_prev = $key->li_pays;
+				$existeDeja = true;
+			}
+			if ($existeDeja) {
+				drupal_set_message(t("Ce pays est déjà affecté à ".$li_pays_prev), $type = 'error', $repeat = FALSE);
+			} else {
+		
+				$rs = db_query("UPDATE {siit_pays_entite} 
+					SET li_pays= '".str_replace("'", "''", $li_pays)."' , , id_pays = $id_pays
+					WHERE  id_pays_entite='{$id_pays_entite}'");
+			 	drupal_set_message(t('La Pays a été mise à jour.'));
+			 }
+		 } else {
+		 
+		 	//On vérifie que le libellé n'existe pas déjà pour un autre pays
+			$results = db_query("SELECT n.li_pays FROM siit_pays n
+				INNER JOIN siit_pays_entite ne ON ne.id_pays = n.id_pays
+				WHERE (n.li_pays = '".$li_pays."'
+					OR ne.li_pays = '".$li_pays."')");
+			$existeDeja = false;
+			foreach($results as $key) {
+				$li_pays_prev = $key->li_pays;
+				$existeDeja = true;
+			}
+			if ($existeDeja) {
+				drupal_set_message(t("Ce pays est déjà affecté à ".$li_pays_prev), $type = 'error', $repeat = FALSE);
+			} else {
+		 
+		 		$rs = db_query("INSERT INTO {siit_pays_entite} 
+					(id_pays,li_pays) VALUES ($id_pays, '".str_replace("'", "''", $li_pays)."')");
+			 	drupal_set_message(t('Le pays a été inséré.'));
+			 }
+		 }
+	}
+	drupal_goto("siit_pays_entite");
+}
+ 

@@ -1,0 +1,133 @@
+<?php
+
+/**
+* @file
+* DÃ©tail des vignettes touristiques (ONTM)
+*/
+
+function siit_importation_ontm_02_detail_menu(){
+    $items = array();
+    $items['siit_importation_ontm_02_detail'] = array(
+        'title'            => t('Détail des vignettes touristiques (ONTM)'), 
+        'page callback'    => 'drupal_get_form',
+        'page arguments' => array('siit_importation_ontm_02_detail_form'),
+        'access arguments' => array('access siit_importation_ontm_02_detail'),
+        'type'             => MENU_LOCAL_TASK,
+    	//'access callback' => TRUE,
+    );
+    
+    return $items;
+    
+}  
+
+function siit_importation_ontm_02_detail_permission() {
+  return array( 
+    'access siit_importation_ontm_02_detail' => array(
+      'title' => t('siit_importation_ontm_02_detail : Detail importation Ontm02'),
+      'description' => t('Perform administration tasks for Detail importation Ontm02.'),
+    ),
+  );
+}
+
+function siit_importation_ontm_02_detail_form($form) {
+
+	
+	drupal_set_title(t('Détail des vignettes touristiques (ONTM)'));
+	$header = array(
+			array('data' => t('Nom établissement'), 'field' => 'li_enseigne', 'sort' => 'asc'),
+			array('data' => t('Région'), 'field' => 'li_region'),
+			array('data' => t('Classement établissement'), 'field' => 'li_classement_etablissement'/*, 'sort' => 'desc'*/),
+			array('data' => t('Nombre de chambres'), 'field' => 'etab.nb_chambres'/*, 'sort' => 'desc'*/),
+			array('data' => t('Mois'), 'field' => 'li_mois'),
+			array('data' => t('Année'), 'field' => 'etab.annee'),
+			array('data' => t('Montant'), 'field' => 'mt_vignette_touristique'/*, 'sort' => 'desc'*/),
+	);
+	
+	
+	$rows = Null;
+	$i=0;
+	
+	global $user;
+    $uid = $user->uid;
+	
+    $limit = 10;
+    if (isset($_REQUEST['page']) && !empty($_REQUEST['page'])) {
+    	$start = $_REQUEST['page'] * $limit;
+    	$page = $_REQUEST['page'];
+    } else {
+    	$page = 0;
+    	$start = 0;
+    }
+    $sqlList = "select  * ";
+    $sqlCount = "select count(*) as total ";  
+    $sql = "from siit_etablissement etab
+						   left join siit_region region on region.id_region = etab.id_region
+						   left join siit_vignette_touristique tr on tr.id_etablissement = etab.id_etablissement
+						   left join siit_mois m  on m.id_mois = tr.id_mois  
+						   left join siit_classement_etablissement cl  on cl.id_classement_etablissement = etab.id_classement_etablissement  
+						   
+							where tr.id_importation=".$_GET["idImportation"];
+    
+ 
+    $order = tablesort_get_order($header);
+	$sort = tablesort_get_sort($header);
+	
+	if (isset($order["sql"]) && !empty($order['sql'])) {
+		$sql .= " order by ".$order["sql"]." ".$sort;
+	} else {
+		$sql .= " order by li_etablissement";
+	}
+	
+	//$results = db_query($sqlList.$sql);
+	$count_result = db_query($sqlCount.$sql)->fetchAssoc();;
+	$results = db_query_range($sqlList.$sql,$start,$limit);
+	$nbTotal = $count_result["total"];
+	pager_default_initialize($count_result["total"], $limit, $element = 0);	
+	foreach($results as $result) {
+	 			
+	 		$nom_etab = !empty($result->li_etablissement)?$result->li_etablissement:$result->li_enseigne; 
+			
+			$rows[$i] = array('li_etablissement' => $nom_etab,
+	      								'li_region' => $result->li_region,
+			        				    'li_classement_etablissement' => $result->li_classement_etablissement,
+										'etab.nb_chambres' => $result->nb_chambres,
+							      		'li_mois' => $result->li_mois,
+							      		'etab.annee' => $result->annee,
+							      		'mt_vignette_touristique' => $result->mt_vignette_touristique,
+			        				  );
+	     $i++;        				  
+	 }
+     
+    $nbStart = ($page)*$limit +1;
+ 	$nbEnd = ($page+1)*$limit;
+ 	if ($nbTotal < $nbEnd) {
+ 		$nbEnd = $nbTotal;
+ 	}
+ 
+	$form['nb'] = array(
+		    '#markup' => "<br>Résultats affichés : ".$nbStart." à ".$nbEnd. " / ".$nbTotal,
+	);
+ 
+	$form['table'] = array(
+		    '#theme' => 'table',
+		    '#header' => $header,
+		    '#rows' => $rows,
+		    '#empty' => t('Aucun r&eacute;sultat.')
+		  );
+	$form['pager'] = array('#markup' => theme('pager'));
+	
+	/*$text = getTextType('Contributor','bottom');
+	$form['contributor_bottom'] = array(
+	  '#markup' => str_replace("\n", "<br />",$text['body_value'])
+	);*/
+	
+	$form['importation']['back'] = array('#type' => 'submit', '#value' => t('Back'));
+   // $form['importation']['back']['#limit_validation_errors'] = array();
+  $form['importation']['back']['#submit'] = array('siit_importation_liste_back_submit');
+   // $form['importation']['back']['#name'] = 'reset';
+
+	return $form;
+	
+}
+
+

@@ -1,0 +1,50 @@
+Titre_Civilité;Nom;Prénoms;Nom_de_jeune_fille;Date_de_naissance;Lieu_de_naissance;Nationalité;Profession;Numéro_du_passeport;Date_de_délivrance_passeport;Fin_de_validité_passeport;Lieu_d'émission_passeport;Nombre_d'enfants;Enfant_1;Enfant_2;Enfant_3;Enfant_4;Numéro_du_vol;Compagnie;Date_du_vol;Date_de_retour;Numéro_du_visa;Visa_délivré_à;Visa_délivré_le;Autorité_émetteur;Durée_du_séjour(mois);Durée_du_séjour(jours);Aéroport_d'embarquement;Lieu_de_résidence;Adresse;Ville;Pays;En_transit;Lieu_de_destination;Aéroport_de_destination;Date_de_départ;Voyage_en_groupe;Objet_du_voayage;Hébergement
+Monsieur;;;;29/11/1974 00:00;ouganda;ouganda;sales;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;02/03/2015 00:00;;;;;0;0;;;;;ouganda;;;;;;Autre;Autre
+Monsieur;;;;30/06/1958 00:00;rwandaise;rwandaise;assistant;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;07/03/2015 00:00;;;;;0;0;;;;;;;;;;;Autre;Hôtel
+Mlle;;;;28/04/1958 00:00;netherland;netherland;bank employe;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;11/03/2015 00:00;;;;;0;0;;;;;amsterdam;;;;;;Tourisme;Hôtel
+Madame;;;;30/06/1969 00:00;antananarivo;netherland;social worker;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;11/03/2015 00:00;;;;;0;0;;;;;netherland;;;;;;Tourisme;Hôtel
+Monsieur;;;;05/10/1982 00:00;suède;suède;business;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;07/03/2015 00:00;;;;;0;0;;;;;;;;;;;Autre;Hôtel
+Monsieur;;;;26/02/1958 00:00;dakar;France;retraité;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;26/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;10/04/1959 00:00;japon;japon;photographer;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;05/03/2015 00:00;;;;;0;0;;;;;kenya;;;;;;Tourisme;Hôtel
+Monsieur;;;;28/08/1978 00:00;ethiopie;usa;;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;07/03/2015 00:00;;;;;0;0;;;;;rwanda;;;;;;Autre;Hôtel
+Madame;;;;26/05/1983 00:00;spain;spain;fisheries;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;28/02/2015 00:00;;;;;0;0;;;;;;;;;;;Affaire;Hôtel
+Monsieur;;;;19/08/1979 00:00;colombo;sri lanka;business;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;;;;;;0;0;;;;;;;;;;;Autre;Hôtel
+Monsieur;;;;10/11/1971 00:00;kenya;kenya;football;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;02/03/2015 00:00;;;;;0;0;;;;;kenya;;;;;;Autre;Hôtel
+Monsieur;;;;12/04/1967 00:00;sri lanka;sri lanka;;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;18/04/2015 00:00;;;;;0;0;;;;;sri lanka;;;;;;Autre;Autre
+Mlle;;;;30/12/1992 00:00;Allemagne;Allemagne;student;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;26/06/2015 00:00;;;;;0;0;;;;;Allemagne;;;;;;Autre;Autre
+Mlle;;;;16/07/1993 00:00;berlin;Allemagne;student;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;05/04/2015 00:00;;;;;0;0;;;;;Allemagne;;;;;;Tourisme;Hôtel
+Monsieur;;;;13/05/1954 00:00;caen;France;infirmier;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;21/05/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;11/12/1991 00:00;st priest;France;gestionnaire;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;24/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Autre;Autre
+Monsieur;;;;29/11/1960 00:00;usa;usa;banque;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;26/02/2015 00:00;;;;;0;0;;;;;;;;;;;Affaire;Autre
+Monsieur;;;;05/08/1945 00:00;pays bas;pays bas;;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;23/03/2015 00:00;;;;;0;0;;;;;;;;;;;Visite Familiale;Hôtel
+Monsieur;;;;09/03/1986 00:00;kenya;kenya;finance;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;08/03/2015 00:00;;;;;0;0;;;;;;;;;;;Affaire;Hôtel
+Madame;;;;11/11/1962 00:00;rwanda;rwanda;bibliothèque;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;07/03/2015 00:00;;;;;0;0;;;;;rwanda;;;;;;Autre;Hôtel
+Mlle;;;;03/07/1972 00:00;rwanda;rwanda;uneca staff;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;08/03/2015 00:00;;;;;0;0;;;;;rwanda;;;;;;Autre;Hôtel
+Monsieur;;;;30/10/1954 00:00;burundi;burundi;consultant;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;28/02/2015 00:00;;;;;0;0;;;;;burundi;;;;;;Autre;Autre
+Monsieur;;;;18/01/1988 00:00;nigéria;nigéria;business;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;25/04/2015 00:00;;;;;0;0;;;;;nigéria;;;;;;Autre;Autre
+Monsieur;;;;20/07/1994 00:00;caméroune;caméroune;étudiant;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;;;;;;0;0;;;;;;;;;;;Autre;Autre
+Madame;;;;14/05/1957 00:00;benin;benin;chargé de programme;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;30/07/2015 00:00;;;;;0;0;;;;;benin;;;;;;Autre;Autre
+Monsieur;;;;25/05/1992 00:00;sri lanka;sri lanka;business;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;;;;;;0;0;;;;;;;;;;;Affaire;Hôtel
+Monsieur;;;;03/02/1961 00:00;kenya;kenya;airline;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;27/02/2015 00:00;;;;;0;0;;;;;kenya;;;;;;Affaire;Hôtel
+Mlle;;;;14/05/1987 00:00;lome;togo;;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;24/05/2015 00:00;;;;;0;0;;;;;togo;;;;;;Visite Familiale;Autre
+Monsieur;;;;28/01/1978 00:00;avignon;France;conseiller onu;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;01/02/2029 00:00;;;;;0;0;;;;;kenya;;;;;;Affaire;Hôtel
+Monsieur;;;;28/02/1986 00:00;nancy;France;;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;02/04/2015 00:00;;;;;0;0;;;;;kenya;;;;;;Tourisme;Hôtel
+Monsieur;;;;13/12/1968 00:00;reggio;Italie;mecanique;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;25/05/2015 00:00;;;;;0;0;;;;;Italie;;;;;;Tourisme;Hôtel
+Monsieur;;;;02/12/1959 00:00;France;France;retraité;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;21/05/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Autre
+Monsieur;;;;25/07/1979 00:00;montpellier;France;geomètre;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;23/03/2015 00:00;;;;;0;0;;;;;congo;;;;;;Tourisme;Hôtel
+Monsieur;;;;14/06/1970 00:00;india;india;service;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;01/03/2015 00:00;;;;;0;0;;;;;india;;;;;;Autre;Hôtel
+Monsieur;;;;09/06/1965 00:00;norway;norway;manager;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;07/03/2015 00:00;;;;;0;0;;;;;norway;;;;;;Tourisme;Hôtel
+Mlle;;;;23/11/2014 00:00;usa;usa;;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;26/05/2015 00:00;;;;;0;0;;;;;;;;;;;Tourisme;Hôtel
+Monsieur;;;;15/02/1970 00:00;pakistan;usa;;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;26/05/2015 00:00;;;;;0;0;;;;;usa;;;;;;Autre;Autre
+Mlle;;;;23/11/2014 00:00;usa;usa;;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;26/03/2015 00:00;;;;;0;0;;;;;;;;;;;Tourisme;Autre
+Monsieur;;;;14/02/1961 00:00;sri lanka;sri lanka;business;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;25/03/2015 00:00;;;;;0;0;;;;;sri lanka;;;;;;Tourisme;Hôtel
+Monsieur;;;;17/05/1989 00:00;new delhi;india;business;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;10/05/2015 00:00;;;;;0;0;;;;;india;;;;;;Affaire;Hôtel
+Monsieur;;;;30/07/1957 00:00;india;india;job;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;03/03/2015 00:00;;;;;0;0;;;;;;;;;;;Autre;Hôtel
+Mlle;;;;04/02/1987 00:00;rouen;France;;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;24/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Mlle;;;;02/02/1989 00:00;usa;usa;consultant;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;08/03/2015 00:00;;;;;0;0;;;;;usa;;;;;;Tourisme;Hôtel
+Monsieur;;;;05/03/1985 00:00;india;india;;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;28/07/2015 00:00;;;;;0;0;;;;;india;;;;;;Tourisme;Hôtel
+Mlle;;;;06/02/1984 00:00;usa;usa;consultant;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;06/03/2015 00:00;;;;;0;0;;;;;usa;;;;;;Tourisme;Hôtel
+Monsieur;;;;01/02/1973 00:00;australie;australie;programmeur;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;02/03/2015 00:00;;;;;0;0;;;;;australie;;;;;;Autre;Hôtel
+Monsieur;;;;03/08/1989 00:00;nairobi;kenya;analyst;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;05/03/2015 00:00;;;;;0;0;;;;;kenya;;;;;;Tourisme;Hôtel
+Monsieur;;;;04/10/1985 00:00;vienne;Autriche;finance;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;05/03/2015 00:00;;;;;0;0;;;;;kenya;;;;;;Tourisme;Hôtel
+Monsieur;;;;24/05/1985 00:00;pologne;pologne;seaman;;;;;0;;;;;kq 756;Kenya Airways;26/02/2015 00:00;18/03/2015 00:00;;;;;0;0;;;;;pologne;;;;;;Autre;Hôtel

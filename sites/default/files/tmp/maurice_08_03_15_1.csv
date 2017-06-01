@@ -1,0 +1,47 @@
+Titre_Civilité;Nom;Prénoms;Nom_de_jeune_fille;Date_de_naissance;Lieu_de_naissance;Nationalité;Profession;Numéro_du_passeport;Date_de_délivrance_passeport;Fin_de_validité_passeport;Lieu_d'émission_passeport;Nombre_d'enfants;Enfant_1;Enfant_2;Enfant_3;Enfant_4;Numéro_du_vol;Compagnie;Date_du_vol;Date_de_retour;Numéro_du_visa;Visa_délivré_à;Visa_délivré_le;Autorité_émetteur;Durée_du_séjour(mois);Durée_du_séjour(jours);Aéroport_d'embarquement;Lieu_de_résidence;Adresse;Ville;Pays;En_transit;Lieu_de_destination;Aéroport_de_destination;Date_de_départ;Voyage_en_groupe;Objet_du_voayage;Hébergement
+Monsieur;;;;06/08/1964 00:00;Allemagne;Allemagne;ingénieur;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;13/03/2015 00:00;;;;;0;0;;;;;Allemagne;;;;;;Autre;Hôtel
+Monsieur;;;;22/06/1970 00:00;tunis;tunis;gérant de sté;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;22/03/2015 00:00;;;;;0;0;;;;;tunis;;;;;;Affaire;Hôtel
+Monsieur;;;;12/12/1983 00:00;coré du sud;corée du sud;batiment;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;20/03/2015 00:00;;;;;0;0;;;;;;;;;;;Autre;Hôtel
+Monsieur;;;;24/06/1987 00:00;korea;korea;manager;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;10/03/2015 00:00;;;;;0;0;;;;;;;;;;;Affaire;Hôtel
+Mlle;;;;13/11/1979 00:00;paris;France;coiffeuse;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;15/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Madame;;;;12/06/1962 00:00;maurice;maurice;enseignante;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;15/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Tourisme;Hôtel
+Monsieur;;;;13/03/1958 00:00;maurice;maurice;informaticien;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;15/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Tourisme;Hôtel
+Monsieur;;;;30/12/1973 00:00;maurice;maurice;teacher pastor;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;12/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Tourisme;Autre
+Monsieur;;;;21/11/1982 00:00;maurice;maurice;business;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;10/03/2015 00:00;;;;;0;0;;;;;;;;;;;Autre;Hôtel
+Madame;;;;18/04/1948 00:00;France;France;retraité;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;12/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Visite Familiale;Autre
+Monsieur;;;;28/02/1983 00:00;chine;chine;it;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;15/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Tourisme;Hôtel
+Monsieur;;;;11/07/1980 00:00;poland;maurice;manager;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;10/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Autre;Hôtel
+Mlle;;;;19/08/1975 00:00;maurice;maurice;translator;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;14/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Affaire;Hôtel
+Monsieur;;;;26/04/1973 00:00;maurice;maurice;bank officer;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;15/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Affaire;Hôtel
+Monsieur;;;;14/06/1977 00:00;maurice;maurice;it;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;11/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Affaire;Hôtel
+Monsieur;;;;03/08/1950 00:00;maurice;maurice;enterprete;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;15/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Affaire;Hôtel
+Monsieur;;;;19/06/1959 00:00;maurice;maurice;civil servant;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;17/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Affaire;Hôtel
+Monsieur;;;;11/06/1973 00:00;caval;France;retraité;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;08/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Tourisme;Hôtel
+Madame;;;;20/09/1974 00:00;port louis;maurice;marketing manager;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;12/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Affaire;Hôtel
+Madame;;;;30/03/1976 00:00;maurice;maurice;auditrice;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;22/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Affaire;Hôtel
+Monsieur;;;;12/04/1971 00:00;maurice;maurice;employé au banque;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;15/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Visite Familiale;Hôtel
+Monsieur;;;;19/05/1966 00:00;maurice;maurice;sales executive;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;15/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Affaire;Hôtel
+Monsieur;;;;27/10/1987 00:00;chine;chine;it;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;11/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Tourisme;Hôtel
+Monsieur;;;;24/05/1969 00:00;chine;chine;ingénieur;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;04/06/2015 00:00;;;;;0;0;;;;;chine;;;;;;Tourisme;Hôtel
+Monsieur;;;;24/04/1960 00:00;maurice;maurice;directeur;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;15/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Autre;Hôtel
+Monsieur;;;;29/03/1982 00:00;maurice;maurice;pastor;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;01/04/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Affaire;Autre
+Monsieur;;;;19/09/1965 00:00;maurice;maurice;employé;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;15/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Affaire;Hôtel
+Monsieur;;;;24/01/1959 00:00;tunis;tunis;médecin;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;13/03/2015 00:00;;;;;0;0;;;;;tunis;;;;;;Autre;Hôtel
+Monsieur;;;;28/04/1975 00:00;fujian;chine;directeur;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;11/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Tourisme;Hôtel
+Monsieur;;;;22/02/1945 00:00;maurice;maurice;retraité;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;15/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Affaire;Hôtel
+Monsieur;;;;27/01/1958 00:00;maurice;maurice;technico commercial;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;18/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Autre;Autre
+Monsieur;;;;21/06/1956 00:00;maurice;maurice;manager;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;12/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Affaire;Hôtel
+Monsieur;;;;02/10/1961 00:00;nice;France;directeur;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;18/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Affaire;Hôtel
+Monsieur;;;;13/07/1959 00:00;maurice;maurice;consultant;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;26/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Affaire;Hôtel
+Madame;;;;25/10/1955 00:00;neuilly sur seine;France;professeur;;;;;0;;;;;mk 288;Air Mauritius;06/02/2015 00:00;17/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Visite Familiale;Autre
+Madame;;;;23/10/1965 00:00;annaba;algérie;expert;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;24/03/2015 00:00;;;;;0;0;;;;;algérie;;;;;;Autre;Hôtel
+Madame;;;;02/02/1972 00:00;maurice;maurice;textile planning officer;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;12/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Affaire;Hôtel
+Monsieur;;;;20/09/1945 00:00;maurice;maurice;retraité;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;09/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Tourisme;Hôtel
+Madame;;;;12/07/1945 00:00;marseille;France;retraité;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;07/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Tourisme;Hôtel
+Monsieur;;;;10/11/1977 00:00;maurice;maurice;controlleur de gestion;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;15/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Autre;Hôtel
+Monsieur;;;;02/11/1968 00:00;maurice;maurice;directeur;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;03/08/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Affaire;Hôtel
+Mlle;;;;25/02/1982 00:00;maurice;maurice;comptable;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;12/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Affaire;Hôtel
+Madame;;;;07/04/1965 00:00;maurice;maurice;directrice;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;12/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Affaire;Hôtel
+Monsieur;;;;03/04/1980 00:00;maurice;maurice;employé;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;11/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Tourisme;Hôtel
+Monsieur;;;;15/06/1943 00:00;France;France;telecom;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;12/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Affaire;Hôtel
+Monsieur;;;;19/11/1956 00:00;maurice;maurice;diplomate;;;;;0;;;;;mk 288;Air Mauritius;06/03/2015 00:00;12/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Affaire;Hôtel

@@ -1,0 +1,21 @@
+Titre_Civilité;Nom;Prénoms;Nom_de_jeune_fille;Date_de_naissance;Lieu_de_naissance;Nationalité;Profession;Numéro_du_passeport;Date_de_délivrance_passeport;Fin_de_validité_passeport;Lieu_d'émission_passeport;Nombre_d'enfants;Enfant_1;Enfant_2;Enfant_3;Enfant_4;Numéro_du_vol;Compagnie;Date_du_vol;Date_de_retour;Numéro_du_visa;Visa_délivré_à;Visa_délivré_le;Autorité_émetteur;Durée_du_séjour(mois);Durée_du_séjour(jours);Aéroport_d'embarquement;Lieu_de_résidence;Adresse;Ville;Pays;En_transit;Lieu_de_destination;Aéroport_de_destination;Date_de_départ;Voyage_en_groupe;Objet_du_voayage;Hébergement
+Monsieur;;;;17/06/1997 00:00;kenya;kenya;student;;;;;0;;;;;;;;03/01/2017 00:00;;;;;0;0;;;;;kenya;;;;;;Tourisme;Hôtel
+Monsieur;;;;13/12/1987 00:00;chine;chine;manager;;;;;0;;;;;;;;16/01/2017 00:00;;;;;0;0;;;;;chine;;;;;;Tourisme;Autre
+Madame;;;;27/11/1981 00:00;chine;chine;manager;;;;;0;;;;;;;;16/01/2017 00:00;;;;;0;0;;;;;chine;;;;;;Tourisme;Autre
+Madame;;;;09/10/1944 00:00;usa;usa;retired;;;;;0;;;;;;;;12/01/2017 00:00;;;;;0;0;;;;;usa;;;;;;Tourisme;Hôtel
+Madame;;;;16/09/1949 00:00;usa;usa;retired;;;;;0;;;;;;;13/01/2017 00:00;13/01/2017 00:00;;;;;0;0;;;;;usa;;;;;;Tourisme;Hôtel
+Monsieur;;;;14/12/1966 00:00;chine;chine;ingénieur;;;;;0;;;;;;;;28/01/2017 00:00;;;;;0;0;;;;;chine;;;;;;Affaire;Hôtel
+Madame;;;;06/03/1985 00:00;chine;chine;;;;;;0;;;;;;;02/01/2017 00:00;02/01/2017 00:00;;;;;0;0;;;;;chine;;;;;;Autre;Hôtel
+Monsieur;;;;20/11/1988 00:00;chine;chine;ingénieur;;;;;0;;;;;;;;28/01/2017 00:00;;;;;0;0;;;;;chine;;;;;;Affaire;Hôtel
+Monsieur;;;;21/09/1975 00:00;chine;chine;ingénieur;;;;;0;;;;;;;;28/01/2017 00:00;;;;;0;0;;;;;chine;;;;;;Affaire;Autre
+Monsieur;;;;29/01/1971 00:00;kenya;kenya;marketing;;;;;0;;;;;;;;03/01/2017 00:00;;;;;0;0;;;;;kenya;;;;;;Tourisme;Hôtel
+Monsieur;;;;21/05/1980 00:00;uk;uk;économiste;;;;;0;;;;;;;;03/02/2017 00:00;;;;;0;0;;;;;kenya;;;;;;Tourisme;Hôtel
+Mlle;;;;04/06/1993 00:00;new zealand;new zealand;student;;;;;0;;;;;;;;29/01/2017 00:00;;;;;0;0;;;;;new zealand;;;;;;Autre;Hôtel
+Mlle;;;;10/11/1993 00:00;new zealand;new zealand;student;;;;;0;;;;;;;;29/01/2017 00:00;;;;;0;0;;;;;new zealand;;;;;;Tourisme;Hôtel
+Monsieur;;;;02/08/1951 00:00;rennes;France;retraité;;;;;0;;;;;;;;20/02/2017 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;03/03/1987 00:00;comores;comores;business;;;;;0;;;;;kq 260;;;29/01/2017 00:00;;;;;0;0;;;;;comores;;;;;;Affaire;Hôtel
+Monsieur;;;;17/11/1983 00:00;ireland;ireland;marine;;;;;0;;;;;;;;03/01/2017 00:00;;;;;0;0;;;;;ireland;;;;;;Autre;Autre
+Madame;;;;12/07/1959 00:00;germany;germany;employé;;;;;0;;;;;;;;20/01/2017 00:00;;;;;0;0;;;;;germany;;;;;;Tourisme;Hôtel
+Monsieur;;;;10/11/1954 00:00;germany;germany;employé;;;;;0;;;;;;;;20/01/2017 00:00;;;;;0;0;;;;;germany;;;;;;Tourisme;Hôtel
+Monsieur;;;;29/11/1963 00:00;tanzanie;tanzanie;ingénieur;;;;;0;;;;;;;;;;;;;0;0;;;;;;Oui;;;;;Autre;Autre
+Monsieur;;;;30/04/2008 00:00;kenya;kenya;student;;;;;0;;;;;kq 256;Kenya Airways;30/12/2017 00:00;03/01/2017 00:00;;;;;0;0;;;;;kenya;;;;;;Tourisme;Hôtel

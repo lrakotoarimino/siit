@@ -1,0 +1,197 @@
+<?php
+
+/**
+* @file
+* Détail des données des entrées dans les parcs de MNP (fichier MNP01)
+*/
+
+function siit_importation_mnp_01_detail_menu(){
+    $items = array();
+    $items['siit_importation_mnp_01_detail'] = array(
+        'title'            => t('Détail des données des entrées dans les parcs'), 
+        'page callback'    => 'drupal_get_form',
+        'page arguments' => array('siit_importation_mnp_01_detail_form'),
+        'access arguments' => array('access siit_importation_mnp_01_detail'),
+        'type'             => MENU_LOCAL_TASK,
+    	//'access callback' => TRUE,
+    );
+    
+    return $items;
+    
+}  
+
+function siit_importation_mnp_01_detail_permission() {
+  return array( 
+    'access siit_importation_mnp_01_detail' => array(
+      'title' => t('siit_importation_mnp_01_detail : Detail importation Mnp01'),
+      'description' => t('Perform administration tasks for Detail importation Mnp01.'),
+    ),
+  );
+}
+
+function siit_importation_mnp_01_detail_form($form) {
+	
+	$header = array(
+			array('data' => t('Parc'), 'field' => 'li_parc'/*, 'sort' => 'asc'*/),
+			array('data' => t('Annee'), 'field' => 'annee'),
+	    	array('data' => t('Mois'), 'field' => 'li_mois'),
+	    	array('data' => t('Nationalité'), 'field' => 'li_nationalite'/*, 'sort' => 'desc'*/),
+	    	array('data' => t('Nombre de visiteurs'), 'field' => 'nb_visiteur'/*, 'sort' => 'desc'*/),
+			array('data' => t('Tour opérateur'), 'field' => 'TO'/*, 'sort' => 'desc'*/),
+			array('data' => t('Enfants étrangers'), 'field' => 'enfant_etrg'/*, 'sort' => 'desc'*/),
+			array('data' => t('Adultes étrangers'), 'field' => 'adulte_etrg'/*, 'sort' => 'desc'*/),
+			array('data' => t('Enfants nationaux'), 'field' => 'enfant_nat'/*, 'sort' => 'desc'*/),
+			array('data' => t('Adultes nationaux'), 'field' => 'adulte_nat'/*, 'sort' => 'desc'*/),
+			array('data' => t('Campeurs'), 'field' => 'campeur'/*, 'sort' => 'desc'*/),
+			
+		);
+	
+	
+	$rows = Null;
+	$i=0;
+	
+	global $user;
+    $uid = $user->uid;
+    
+    $limit = 10;
+    if (isset($_REQUEST['page']) && !empty($_REQUEST['page'])) {
+    	$start = $_REQUEST['page'] * $limit;
+    	$page = $_REQUEST['page'];
+    } else {
+    	$page = 0;
+    	$start = 0;
+    }
+    $sqlList = "SELECT p.id_parc, concat(cd_parc, ' - ' , li_parc) as li_parc ,
+   			annee,li_mois, nb_visiteur, li_nationalite, tour_operator ";
+    $sqlCount = "select count(*) as total ";  
+    $sql = "FROM {siit_visiteur_parc_nationalite} pn
+			LEFT JOIN {siit_nationalite} n ON pn.id_nationalite = n.id_nationalite
+			LEFT JOIN {siit_parc} p ON pn.id_parc = p.id_parc
+			LEFT JOIN {siit_mois} m ON pn.id_mois = m.id_mois
+			WHERE 
+			id_importation=".$_GET["idImportation"];
+	
+	
+	/*$sql = "SELECT * FROM {siit_visiteur_parc_nationalite} pn
+			LEFT JOIN {siit_nationalite} n ON pn.id_nationalite = n.id_nationalite
+			LEFT JOIN {siit_parc} p ON pn.id_parc = p.id_parc
+			LEFT JOIN {siit_mois} m ON pn.id_mois = m.id_mois
+			WHERE 
+			id_importation=".$_GET["idImportation"]; 
+			
+	$sql .= " ORDER BY pn.id_parc,pn.annee desc, m.li_mois desc";*/	
+	
+    $order = tablesort_get_order($header);
+	$sort = tablesort_get_sort($header);
+	
+	if (isset($order["sql"]) && !empty($order['sql'])) {
+		$sql .= " order by ".$order["sql"]." ".$sort. " , li_nationalite";
+	} else {
+		$sql .= " ORDER BY pn.id_parc,pn.annee desc, m.li_mois desc, li_nationalite ";
+	}
+	
+	//$results = db_query($sqlList.$sql);
+	$count_result = db_query($sqlCount.$sql)->fetchAssoc();;
+	$results = db_query_range($sqlList.$sql,$start,$limit);
+	$nbTotal = $count_result["total"];
+	pager_default_initialize($count_result["total"], $limit, $element = 0);	
+    
+	//$results = db_query($sql);
+	$last_id_parc = 0;
+	foreach($results as $result) {
+	   if($last_id_parc != 0 && $last_id_parc != $result->id_parc){
+	        $donnees = get_siit_visiteur_parc_categorie($_GET["idImportation"],$last_id_parc);
+            if($donnees) $rows[$i] = $donnees;
+            $i++;
+	   }
+	   $rows[$i] = array('li_parc' => $result->li_parc,
+                          'annee' => $result->annee,
+			        	  'li_mois' => $result->li_mois,
+			        	  'li_nationalite' => $result->li_nationalite,
+			        	  'nb_visiteur' => $result->nb_visiteur,
+						  'TO' =>$result->tour_operator,
+						  'enfant_etrg' => "",
+						  'adulte_etrg' => "",
+						  'enfant_nat' => "" ,
+						  'adulte_nat' => "",
+						  'campeur' => "",
+	   );
+       $last_id_parc = $result->id_parc;
+	   $i++;        				  
+	}
+     
+    $donnees = get_siit_visiteur_parc_categorie($_GET["idImportation"],$last_id_parc);
+    
+    if($donnees) $rows[$i] = $donnees;
+    
+    $nbStart = ($page)*$limit +1;
+ 	$nbEnd = ($page+1)*$limit;
+ 	if ($nbTotal < $nbEnd) {
+ 		$nbEnd = $nbTotal;
+ 	}
+ 
+	$form['nb'] = array(
+		    '#markup' => "<br>Résultats affichés : ".$nbStart." à ".$nbEnd. " / ".$nbTotal,
+	);
+    
+	$form['table'] = array(
+		    '#theme' => 'table',
+		    '#header' => $header,
+		    '#rows' => $rows,
+		    '#empty' => t('Aucun r&eacute;sultat.')
+		  );
+	$form['pager'] = array('#markup' => theme('pager'));
+	
+	/*$text = getTextType('Contributor','bottom');
+	$form['contributor_bottom'] = array(
+	  '#markup' => str_replace("\n", "<br />",$text['body_value'])
+	);*/
+	
+	$form['importation']['back'] = array('#type' => 'submit', '#value' => t('Back'));
+	// $form['importation']['back']['#limit_validation_errors'] = array();
+	$form['importation']['back']['#submit'] = array('siit_importation_liste_back_submit');
+	// $form['importation']['back']['#name'] = 'reset';
+	
+	return $form;
+	
+}
+
+function get_siit_visiteur_parc_categorie($id_importation,$id_parc){
+    $categorie_visiteur = array('adulte_etrg','adulte_nat','enfant_nat','enfant_etrg','TO','campeur');
+	$total = array('adulte_etrg' => 0,
+	                          'adulte_nat' => 0,
+			        	      'enfant_nat' => 0,'enfant_etrg' =>0,'TO' => 0,'campeur' =>0);
+   $sql = "SELECT p.id_parc, concat(cd_parc, ' - ' , li_parc) as li_parc ,
+   			annee,li_mois,id_categorie_visiteur-1 as id_categorie_visiteur,nb_visiteur 
+   			FROM {siit_visiteur_parc_categorie} pn 
+            LEFT JOIN {siit_parc} p ON pn.id_parc = p.id_parc
+            LEFT JOIN {siit_mois} m ON pn.id_mois = m.id_mois
+            WHERE id_importation=".$id_importation." and pn.id_parc = ".$id_parc; 
+    
+    $resultats = db_query($sql);
+    $nb_visiteur = 0;
+    
+    foreach($resultats as $res){
+        if($nb_visiteur == 0) $ret = array('li_parc' => $res->li_parc,
+                      'annee' => $res->annee,
+	        	      'li_mois' => $res->li_mois,
+	        	      'li_nationalite' =>'');
+	    //var_dump($res->nb_visiteur);var_dump('ici');
+        $total[$categorie_visiteur[$res->id_categorie_visiteur]] = $res->nb_visiteur;              
+        if($res->id_categorie_visiteur<4) $nb_visiteur += $res->nb_visiteur;  
+    }        
+    
+    $ret['nb_visiteur'] = $nb_visiteur;
+    $ret['TO'] = $total['TO'];
+    $ret['enfant_etrg'] = $total['enfant_etrg'];
+    $ret['adulte_etrg'] = $total['adulte_etrg'];
+    $ret['enfant_nat'] = $total['enfant_nat'];
+    $ret['adulte_nat'] = $total['adulte_nat'];
+    $ret['campeur'] = $total['campeur'];
+    return $ret;
+}
+
+function format_nb($nb){
+	return $nb  == 0 ? "" :$nb; 
+}
+

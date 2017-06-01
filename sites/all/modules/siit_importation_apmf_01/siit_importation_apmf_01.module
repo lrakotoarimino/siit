@@ -1,0 +1,639 @@
+﻿<?php
+
+include_once drupal_get_path('module', 'libraries') . '/PHPExcel.php';
+include_once drupal_get_path('module', 'libraries') . '/PHPExcel/IOFactory.php';
+
+/**
+* @file
+* Display a Apmf Importation formulaire
+*/
+
+	function siit_importation_apmf_01_menu(){
+    $items = array();
+    $items['siit_importation_apmf_01'] = array(
+        'title'            => t('Formulaire Apmf 01'), 
+        'page callback'    => 'drupal_get_form',
+        'page arguments' => array('siit_importation_apmf_01_form'),
+        'access arguments' => array('access siit_importation_apmf_01'),
+        'type'             => MENU_LOCAL_TASK,
+    		//'access callback' => TRUE,
+    );
+    
+    return $items;
+    
+}  
+
+function siit_importation_apmf_01_permission() {
+  return array( 
+    'access siit_importation_apmf_01' => array(
+      'title' => t('siit_importation_apmf_01 : Apmf formulaire'),
+      'description' => t('Perform administration tasks for apmf.'),
+    ),
+  );
+}
+
+function siit_importation_apmf_01_form($form, &$form_state) {
+	
+	 if(!isset($form_state['storage']['confirm'])){			 
+	        return get_siit_importation_apmf_01_form($form, $form_state);
+	    }
+        else{
+            $user = db_query("select * from siit_importation imp,siit_type_fichier t where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee']." and id_mois = ".$_POST['mois']." and id_statut!=2 and li_type_fichier = '".ENTITE_APMF."'");
+             $id_importation = 0;
+             foreach($user as $u) {
+            	   $id_importation = $u->id_importation;
+            }
+			
+            if($id_importation){
+                  $question = "Il existe déjà des données en attente de validation, refusées ou dévalidées pour la période ".get_lib_mois($_POST['mois'])." ".$_POST['annee'].". Souhaitez vous remplacer les données avec celles de ce fichier ?";
+                  $path = 'siit_importation_apmf_01';
+                  $description = '';
+                  $yes = 'Oui';
+                  $no = 'Non';
+                  $form = confirm_form($form, $question, $path, $description, $yes, $no);
+                  $form['annee'] = array('#type' => 'hidden', '#value' => $_POST['annee']);
+				  $form['mois'] = array('#type' => 'hidden', '#value' => $_POST['mois']);
+                  $form['csv_file'] = array('#type' => 'hidden', '#value' => $_POST['csv_file']);
+                  $form['chemin'] = array('#type' => 'hidden', '#value' => $form_state['storage']['uri']);
+                  $form['actions']['submit'] = array(
+                    '#type' => 'submit',
+                    '#value' => $yes,
+                    '#attributes' => array('class' => array('button button--primary js-form-submit form-submit btn-success btn'),),
+            	    '#submit' => array('csv_import_apmf_01_submit'),
+                  );  
+                  $form['#attached']['css'] = array(
+                      drupal_get_path('module', 'siit_importation_apmf_01') . '/css/apmf.css'
+                  );
+                  return $form;
+            }
+            else csv_import_apmf_01_submit($form, $form_state);
+        }
+}
+
+function get_siit_importation_apmf_01_form($form,&$form_state){
+	
+	drupal_set_title(t('Formulaire APMF'));
+	
+	$options = optionYear();
+	$form['annee'] = array(
+	    "#type" => "select",      
+	    "#title" => t("Année :"),
+	    "#options" => $options,
+	    //"#default_value" => $settings[""],
+	    "#required" => TRUE,
+		);
+		
+	$form["mois"] = array(
+	    "#type" => "select",      
+	    "#title" => t("Mois :"),
+	    "#options" => optionMonth(false),
+	    "#required" => TRUE,
+	    );	
+		
+	$form['importation']['csv_file'] = array(
+	        '#title' => 'Importer Fichier :', // Titre dans la page d'importation du fichier
+	        '#description' => 'Seuls ces fichiers csv, xlsx sont valides.',
+	        '#type' => 'managed_file',
+	        '#required' => TRUE,
+	        '#upload_validators' => array(
+	         'file_validate_extensions' => array("csv xlsx"),
+	        ),
+	    );
+	    
+	 $form['importation']['submit'] = array(
+	        '#type' => 'submit',
+	        '#value' => t('Process'),
+	        '#attributes' => array('class' => array('button button--primary js-form-submit form-submit btn-success btn'),),
+			'#validate' => array('csv_import_apmf_01_validate'),
+	    	'#submit' => array('csv_import_apmf_01_submit'),
+	    );
+
+	    
+	    
+	$form['importation']['back'] = array('#type' => 'submit', '#value' => t('Retour'));
+    $form['importation']['back']['#submit'] = array('siit_back_submit');
+    $form['importation']['back']['#limit_validation_errors'] = array();
+    $form['importation']['back']['#name'] = 'back';
+
+	$form['#attributes']['class'][] = 'import-form';
+	
+	return $form;
+}
+
+function csv_import_apmf_01_validate($form, &$form_state){
+	
+	if($form_state['values']['csv_file']){
+        $file = file_load($form_state['values']['csv_file']);
+        $uri = $file->uri;
+        $path = drupal_realpath($uri);
+        try {
+            $inputFileType = PHPExcel_IOFactory::identify($path);
+            $objReader = PHPExcel_IOFactory::createReader($inputFileType);
+            $objPHPExcel = $objReader->load($path);
+        } catch (Exception $e) {
+            
+        }
+        $annee = $_POST['annee'];
+		$id_mois = $_POST['mois'];
+        $user = db_query("select * from siit_importation imp,siit_type_fichier t where t.id_type_fichier=imp.id_type_fichier and annee = ".$_POST['annee']." and id_mois = ".$_POST['mois']." and id_statut=2 and li_type_fichier = '".ENTITE_APMF."'" );
+        $id_importation = 0;
+        foreach($user as $u) {
+    	   $id_importation = $u->id_importation;
+        }
+        if($id_importation){
+            form_set_error('edit-annee', t("Un import a été déjà validé pour la période ".get_lib_mois($_POST['mois'])." ".$_POST['annee']));
+        } 
+		
+		$annee_tmp = 0;
+		$id_mois_tmp = 0;
+		$annee_dt_escale = 0;
+		$is_annee = false;
+        
+        foreach ($objPHPExcel->getWorksheetIterator() as $worksheet) {
+            $highestRow         = $worksheet->getHighestRow(); 
+            $highestColumn      = $worksheet->getHighestColumn(); 
+            $highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
+			
+            for ($row = 1; $row <= $highestRow; ++ $row) {
+                for ($col = 0; $col < $highestColumnIndex; ++ $col) {
+                    $cell = $worksheet->getCellByColumnAndRow($col, $row);
+                    $val = $cell->getValue();
+					if($row==1 && !empty($val)){//A6
+                        if(trim(strtolower($val))!==trim(strtolower("ANNEE")) && $col==0){
+                            form_set_error('edit-conforme'.$row, t("Fichier non conforme."));
+							return;
+                        }
+						
+						if(trim(strtolower($val)) !== trim(strtolower("Date")) && $col==1){
+                            form_set_error('edit-conforme'.$row, t("Fichier non conforme."));
+							return;
+                        }
+                    }
+					
+					if($col==0 && $row > 1 && !empty($val)){
+						if(!is_numeric($val)){
+							form_set_error('edit-id_esc'.$row, t("L'année de l'escale '$val' n'est pas un chiffre. (".getCellule($row, $col).")"));				
+						}else{
+							$annee_tmp = $val;
+						}
+					}
+										
+					//ne pas Tester si une ligne correspond à l'année et le mois
+					if(/*$annee == $annee_tmp &&*/ $row > 1 && !empty($val)){
+							//Prendre les valeurs correspondants
+							// id_croisiere, num_toucher??, id_port, navire??, typeologie_transport??, provenance, nationalite, nb_passages_nationalite
+							switch ($col) {	
+								case 1:
+								    //A ameliorer								
+									$PHPTimeStamp = PHPExcel_Shared_Date::ExcelToPHP($val);
+									if($PHPTimeStamp < 0 || empty($val) || date('Y-m-d',$PHPTimeStamp) === date('Y-m-d') ){
+									    form_set_error('edit-esc'.$row, t("Format de date d'escale '$val' non conforme. (".getCellule($row, $col).")"));
+									}else{ 										
+										$dt_escale =  date('Y-m-d',$PHPTimeStamp) ; 	//yyyy-mm-dd											
+										$annee_dt_escale = intVal(substr($dt_escale,0,4));
+										$mois_dt_escale = intVal(substr($dt_escale,5,2));
+										
+										$col_annee = intVal($worksheet->getCellByColumnAndRow(0, $row)->getValue());
+										if($col_annee !== $annee_dt_escale){
+											form_set_error('edit-col_annee'.$row, t("L'année de la colonne 'Date' et de la colonne 'Année' sont différentes. (".getCellule($row, $col).")"));				
+										}
+									}	
+									
+									break;
+								case 2:
+									if(!is_numeric($val)){
+										form_set_error('edit-idescale'.$row, t("L'identifiant de l'escale '$val' n'est pas un chiffre. (".getCellule($row, $col).")"));				
+														
+									}
+									break;
+								case 3:
+									if( trim($val) !== "O" && trim($val) !== "N"){
+										form_set_error('edit-toucher'.$row, t("La valeur du premier toucher '$val' n'est pas O ou N. (".getCellule($row, $col).")"));				
+											
+									}
+									break;
+								case 4:
+									$id_port = get_id_port($val); //esc
+									if($id_port == 0){
+										form_set_error('edit-port'.$row, t("Le Port '$val' n'existe pas en base. (".getCellule($row, $col).")"));				
+														
+									}
+								   break;
+								case 6:
+								    $id_type_transport_maritime = get_id_type_transport($val); //croi
+								    if($id_type_transport_maritime == 0){
+										form_set_error('edit-type'.$row, t("Le Type de transport maritime '$val' n'existe pas en base. (".getCellule($row, $col).")"));				
+														
+									}
+								    break;
+								case 7:
+									$id_pays_provenance = get_id_pays($val,""); //croi
+									if($id_pays_provenance == 0){
+										form_set_error('edit-pays'.$row, t("Le Pays '$val' n'existe pas en base. (".getCellule($row, $col).")"));				
+														
+									}
+									break;
+								case 8:
+									$id_nationalite = get_id_nationalite($val,""); //passager
+									if($id_nationalite == 0){
+										form_set_error('edit-id_port'.$row, t("La nationalité '$val' n'existe pas en base. (".getCellule($row, $col).")"));				
+									}
+									break;
+								case 9:
+								    if(!is_numeric($val)){
+										form_set_error('edit-pax'.$row, t("Le nombre de passagers '$val' n'est pas un chiffre. (".getCellule($row, $col).")"));				
+														
+									}
+								    break;
+							}
+					}
+                }
+				
+				if($annee == $annee_dt_escale && $id_mois == $mois_dt_escale){
+					$is_annee = true;
+				}		
+            }
+			break;
+        }
+				
+		if(!$is_annee){		
+			form_set_error('edit-no-annee', t("Aucune donnée correspondante à l'année '$annee' ou le mois de '".get_lib_mois($id_mois)."' saisi dans le fichier."));	
+		}
+    }
+}
+
+function csv_import_apmf_01_submit($form, &$form_state){
+
+	if(!isset($form_state['storage']['confirm'])) {
+			
+        $user = db_query("select * from siit_importation imp,siit_type_fichier t where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee']." and id_mois=".$_POST['mois']." 
+							and id_statut <> 2 and li_type_fichier = '".ENTITE_APMF."'");
+        $id_importation = 0;
+        foreach($user as $u) {
+    	   $id_importation = $u->id_importation;
+        }		
+		//drupal_set_message(t("csv_import_cnaps_01_submit : $id_importation "), $type = '', $repeat = true);	
+		
+        if($id_importation){
+            $form_state['storage']['confirm'] = TRUE;
+            $form_state['rebuild'] = TRUE;
+            $form_state['storage']['csv_file'] = $form_state['values']['csv_file'];
+            $file = file_load($form_state['values']['csv_file']);
+            $form_state['storage']['uri'] = $file->uri;
+        } else {
+            $file = file_load($form_state['values']['csv_file']);
+            traitement_apmf01($file->uri,$form_state);
+        }
+    } else {
+        if(isset($_POST["chemin"])) $chemin = $_POST["chemin"];
+        else{
+            $file = file_load($form_state['values']['csv_file']);
+            $chemin = $file->uri;
+        }
+        traitement_apmf01($chemin,$form_state);
+    }
+
+}
+
+function traitement_apmf01($chemin, &$form_state){
+	
+	if($form_state['values']['csv_file']){
+
+		$is_annee = false;
+		
+		$path = drupal_realpath($chemin);
+		try {
+			$inputFileType = PHPExcel_IOFactory::identify($path);
+			$objReader = PHPExcel_IOFactory::createReader($inputFileType);
+			$objPHPExcel = $objReader->load($path);
+		} catch (Exception $e) {
+			
+		}
+		$annee = $_POST['annee'];
+		$id_mois = $_POST['mois'];
+		controleDoublonImportation($annee, $id_mois,ENTITE_APMF);
+		$data = array();
+		$data['annee'] = $annee;
+		$data['id_mois'] =  $id_mois;
+		$data["li_fichier"] = basename($path);
+		$data["id_statut"] = STATUT_AVALIDER;
+		$data["id_type_fichier"] = TYPE_FICHIER_APMF;
+		$id_importation = insert_importation($data);
+		
+		$data['id_importation'] = $id_importation;
+		foreach ($objPHPExcel->getWorksheetIterator() as $worksheet) {
+				$highestRow         = $worksheet->getHighestRow(); 
+				$highestColumn      = $worksheet->getHighestColumn(); 
+				$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
+				for ($row = 1; $row <= $highestRow; ++ $row) {
+					for ($col = 0; $col < $highestColumnIndex; ++ $col) {
+						$cell = $worksheet->getCellByColumnAndRow($col, $row);
+						$val = $cell->getValue();
+						
+						//TRaitement date année et mois 
+						/*if($col==0){
+							//$annee_tmp = $val;
+							$data['annee'] = $val;
+						}*/
+						
+						if($col==1){
+							$PHPTimeStamp = PHPExcel_Shared_Date::ExcelToPHP($val);
+							$data['dt_escale'] = $val ? date('Y-m-d',$PHPTimeStamp) : '2015-01-01'; //esc									
+							$data['annee'] = intVal(substr($data['dt_escale'],0,4));
+							$data['id_mois'] = intVal(substr($data['dt_escale'],5,2));
+						}
+						//Tester si une ligne correspond à l'année et le mois
+						if($annee == $data['annee'] && $id_mois == $data['id_mois']){
+							//Prendre les valeurs correspondants
+							switch ($col) {	
+								case 2:
+									$data['id_croisiere'] = $val; //croi
+									break;  
+								case 3:
+									$data['is_premier_toucher'] = $val; //esc
+									break;
+								case 4:
+									$data['id_port'] = get_id_port($val); //esc
+									break;
+								case 5:
+									$id_navire  = get_id_navire($val); //croi
+									if($id_navire==0){
+										$id_navire = import_data_apmf_navire($val);
+									}
+									$data['id_navire'] = $id_navire;
+									break;
+								case 6:
+									$data['id_type_transport_maritime'] = get_id_type_transport($val); //croi
+									break;
+								case 7:
+									$data['id_pays_provenance'] = get_id_pays($val,""); //croi
+									break;
+								case 8:
+									$data['id_nationalite'] = get_id_nationalite($val,""); //passager
+									break;
+								case 9:
+									$data['nb_passagers'] = $val; //passager
+									break;
+							}
+								
+						}
+						
+					}
+					
+					if($annee == $data['annee'] && $id_mois == $data['id_mois']){
+					
+						$id_croisiere = get_id_croisiere($data);
+						if($id_croisiere==0){
+							$id_croisiere = import_data_apmf_croisiere($data);
+							$data['id_croisiere'] = $id_croisiere;
+						}else{
+							$data['id_croisiere'] = $id_croisiere;
+						}
+								
+						$id_escale  = get_id_escale($data);
+						if($id_escale==0){
+							$id_escale = import_data_apmf_escale($data);
+							$data['id_apmf_escale'] = $id_escale;
+
+							if($data['is_premier_toucher'] == "O"){
+								//mettre à jour annee et mois croisere
+								update_croisiere($data);
+							}
+						}
+						
+						import_data_apmf_passagers($data);
+						
+						manage_annee_mois_croisiere($data);
+						
+						$is_annee = true;
+	
+					}		
+					
+				}
+				break;
+		}
+		
+		//année saisie pas dans le fichier 
+		if(!$is_annee){
+			delete_importation($id_importation);
+			form_set_error('edit-no-annee', t("Aucune donnée correspondante à l'année '$annee' ou le mois de '".get_lib_mois($id_mois)."' saisi dans le fichier."));	
+		}else{				
+			drupal_set_message("L'import a été effectué avec succès.", $type = 'status');
+			$form_state['redirect'] ="siit_importation_liste";
+		}
+			
+	
+	}
+	
+}
+
+function import_data_apmf_croisiere($value){
+	
+    db_insert('siit_apmf_croisiere')
+			->fields(array('id_croisiere', 'id_navire','id_pays_provenance', 
+						 'id_type_transport_maritime','annee','id_mois' ,'id_importation'))
+			->values(array(
+							'id_croisiere' => $value["id_croisiere"],
+							'id_navire' => $value["id_navire"],
+							'id_pays_provenance' => $value["id_pays_provenance"],
+							'annee' => $value["annee"],
+							'id_mois' => $value["id_mois"],
+							'id_type_transport_maritime' => $value["id_type_transport_maritime"],
+                			'id_importation' => $value["id_importation"],
+							))
+			->execute();		
+			
+    return get_id_croisiere($value) ;
+}
+
+function import_data_apmf_passagers($value){
+	
+    db_insert('siit_apmf_passagers')
+					->fields(array('id_nationalite','nb_passagers', 'id_apmf_escale', 'id_importation'))
+					->values(array(							
+							'id_nationalite' => $value["id_nationalite"],
+							'nb_passagers' => $value["nb_passagers"],
+							'id_apmf_escale' => $value["id_apmf_escale"],
+							'id_importation' => $value["id_importation"],
+							))
+			->execute();
+    
+}
+
+function import_data_apmf_escale($value){
+	
+    $id_escale = db_insert('siit_apmf_escale')
+					->fields(array('dt_escale', 'id_port', 'is_premier_toucher','id_mois', 
+						 'annee','id_apmf_croisiere','id_importation'))
+					->values(array(
+							'dt_escale' => $value["dt_escale"],
+							'id_port' => $value["id_port"],
+							'is_premier_toucher' => set_premier_toucher_value($value['is_premier_toucher']),
+							'id_mois' =>  $value["id_mois"],
+							'annee' => $value["annee"],
+							'id_apmf_croisiere' => $value["id_croisiere"],
+							'id_importation' => $value["id_importation"],
+							))
+			->execute();
+    return  $id_escale ;
+}
+
+function import_data_apmf_navire($value){
+    $id_navire = db_insert('siit_apmf_navire')
+					->fields(array('li_navire'))
+					->values(array(
+							'li_navire' => $value,
+							))
+			->execute();
+			
+	return $id_navire;
+    
+}
+
+
+function update_croisiere($data){
+	
+	$num_updated = db_update('siit_apmf_croisiere') // Table name no longer needs {}
+	  ->fields(array(
+		'annee' => $data['annee'],
+		'id_mois' => $data['id_mois'],
+	  ))
+	  ->condition('id_croisiere', $data['id_croisiere'], '=')
+	  ->execute(); 
+	
+}
+
+function get_id_port($value){
+	
+	$id_port = 0;
+	
+	$sql = "SELECT id_port FROM {siit_port} p WHERE p.li_port = '".escape($value)."'" ; 
+			
+	$results = db_query($sql);
+	foreach($results as $result) {
+			$id_port = $result->id_port;
+	}	   
+	return $id_port;	
+	
+}
+
+function get_id_type_transport($value){
+	$id_type_transport = 0;
+	
+	$sql = "SELECT id_type_transport_maritime FROM {siit_type_transport_maritime} p WHERE 
+			p.li_type_transport_maritime = '".strtolower($value)."'" ; 
+			
+	$results = db_query($sql);
+	foreach($results as $result) {
+			$id_type_transport = $result->id_type_transport_maritime;
+	}	   
+	return $id_type_transport;
+}
+
+function get_id_navire($value){
+	
+	$id_navire = 0;
+	
+	$sql = "SELECT id_apmf_navire FROM {siit_apmf_navire} p WHERE 
+			p.li_navire = '".escape($value)."'" ; 
+			
+	$results = db_query($sql);
+	foreach($results as $result) {
+			$id_navire = $result->id_apmf_navire;
+	}	   
+	return $id_navire;	
+	
+}
+
+function get_id_croisiere($data){
+	
+	$id_croisiere = 0;
+	$sql = "SELECT id_croisiere FROM {siit_apmf_croisiere} p WHERE 
+			p.id_croisiere =".$data['id_croisiere'];/*." and p.id_type_transport_maritime = ".$data['id_type_transport_maritime'].
+			" and p.id_pays_provenance =".$data['id_pays_provenance']." and p.id_navire = ".$data['id_navire']."";*/
+			
+	$results = db_query($sql);
+	foreach($results as $result) {
+			$id_croisiere = $result->id_croisiere;			
+	}	
+	
+	return $id_croisiere;	
+	
+}
+
+function get_id_escale($data){
+	
+	$id_apmf_escale = 0;
+	
+	$sql = "SELECT id_apmf_escale FROM {siit_apmf_escale} p 
+		WHERE p.id_apmf_croisiere =".$data['id_croisiere']." 
+			and p.id_importation =".$data['id_importation']." 
+			 and p.id_port =".$data['id_port'];
+		/*p.dt_escale =".$data['dt_escale']." and p.is_premier_toucher =".set_premier_toucher_value($data['is_premier_toucher']).
+			" and p.id_port =".$data['id_port']." and p.id_croisiere =".$data['id_croisiere'].
+			" and p.id_mois =".$data['id_mois']." and p.annee =".$data['annee']." and p.id_importation =".$data['id_importation'];*/
+			
+	$results = db_query($sql);
+	foreach($results as $result) {
+		$id_apmf_escale = $result->id_apmf_escale;		
+	}	   
+	
+	return $id_apmf_escale;	
+	
+}
+
+function get_id_passagers($data){
+	
+	$id_apmf_pax = 0;
+	
+	$sql = "SELECT id_apmf_passagers FROM {siit_apmf_passagers} p WHERE 
+			p.annee =".$data['annee']." and p.id_nationalite =".$data['id_nationalite'].
+			" and p.nb_passagers =".$data['nb_passagers'];
+			
+	$results = db_query($sql);
+	foreach($results as $result) {
+			$id_apmf_pax = $result->id_apmf_passagers;
+	}	   
+	return $id_apmf_pax;	
+	
+}
+
+function manage_annee_mois_croisiere($data){
+	$id_croisiere = 0;
+	$annee = 0 ;
+	$id_mois = 0;
+	//determiner si il y a des données 1er toucher dans escale
+	$sql = "SELECT id_apmf_croisiere, is_premier_toucher, annee, id_mois FROM {siit_apmf_escale} p WHERE 
+				p.id_apmf_croisiere =".$data['id_croisiere']." and p.is_premier_toucher = 1";
+								
+	$results = db_query($sql);
+	foreach($results as $result) {
+		$id_croisiere = $result->id_apmf_croisiere;
+		$annee = $result->annee;
+		$id_mois = $result->id_mois;
+		break;
+	}	   
+	
+	//mettre l'annee et mois du 1er toucher	
+	if($id_croisiere !== 0 && $annee !== 0 &&  $id_mois !== 0){
+		
+		$data_update['id_croisiere'] = $id_croisiere;
+		$data_update['annee']	= 	$annee;
+		$data_update['id_mois'] = $id_mois;
+		
+		update_croisiere($data_update);
+	}
+}
+
+function delete_importation($id_importation){
+	db_delete('siit_importation')
+				    ->condition('id_importation',  $id_importation)
+				    ->execute();	
+}
+
+function set_premier_toucher_value($val){
+	$ret = 0;
+	if($val ==="O") $ret = 1;
+	return $ret;
+	
+}

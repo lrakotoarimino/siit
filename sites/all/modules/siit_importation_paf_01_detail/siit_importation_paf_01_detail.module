@@ -1,0 +1,170 @@
+<?php
+
+/**
+* @file
+* Display a Adema Importation
+*/
+
+function siit_importation_paf_01_detail_menu(){
+    $items = array();
+    //var_dump($_REQUEST["idImportation"]);
+    $items['siit_importation_paf_01_detail'] = array(
+        'title'            => t('Detail importation Paf01'), 
+        'page callback'    => 'drupal_get_form',
+        'page arguments' => array('siit_importation_paf_01_detail_form'),
+        'access arguments' => array('access siit_importation_paf_01_detail'),
+        'type'             => MENU_LOCAL_TASK,
+    		//'access callback' => TRUE,
+    );
+    
+    return $items;
+    
+}  
+
+function siit_importation_paf_01_detail_permission() {
+  return array( 
+    'access siit_importation_paf_01_detail' => array(
+      'title' => t('siit_importation_paf_01_detail : Detail importation Paf01'),
+      'description' => t('Perform administration tasks for Detail importation Paf01.'),
+    ),
+  );
+}
+
+function siit_importation_paf_01_detail_form($form) {
+
+	$header = array(
+			array('data' => t('Civilite'), 'field' => 'li_civilite'),
+	    	array('data' => t('Resident'), 'field' => 'is_resident'),
+	    	array('data' => t('Nationalite'), 'field' => 'li_nationalite', 'sort' => 'asc'),
+			array('data' => t('Date de naissance'), 'field' => 'dt_naissance'),
+			array('data' => t('Pays'), 'field' => 'li_pays'),
+			//array('data' => t('Lieu de residence'), 'field' => 'lieu_residence'),
+			array('data' => t('Profession'), 'field' => 'li_profession'/*, 'sort' => 'desc'*/),
+			array('data' => t('Voyage en groupe'), 'field' => 'is_voyage_groupe'),
+			array('data' => t('Transit'), 'field' => 'is_transit'),
+			array('data' => t('Lieu de destination'), 'field' => 'li_lieu_destination'/*, 'sort' => 'desc'*/),
+			array('data' => t('Date de retour'), 'field' => 'dt_retour'),
+			array('data' => t('Hebergement'), 'field' => 'li_hebergement'/*, 'sort' => 'desc'*/),
+			array('data' => t('Objet du voyage'), 'field' => 'li_objet_voyage'),
+			array('data' => t("Pays d'embarquement"), 'field' => 'li_pays_embarquement'),
+	   
+	);
+	
+	
+	$rows = Null;
+	$i=0;
+			
+	global $user;
+    $uid = $user->uid;
+	
+    $limit = 10;
+    if (isset($_REQUEST['page']) && !empty($_REQUEST['page'])) {
+    	$start = $_REQUEST['page'] * $limit;
+    	$page = $_REQUEST['page'];
+    } else {
+    	$page = 0;
+    	$start = 0;
+    }
+    $sqlList = "select li_civilite,is_resident,li_nationalite,dt_naissance,
+			pays.li_pays,lieu_residence,li_profession,is_voyage_groupe,is_transit,
+			li_lieu_destination,dt_retour,li_hebergement,li_objet_voyage,
+			pays_emb.li_pays as li_pays_embarquement ";
+    $sqlCount = "select count(*) as total ";  
+    $sql = "FROM siit_passager pass 
+			LEFT JOIN siit_nationalite nat ON nat.id_nationalite = pass.id_nationalite
+			LEFT JOIN siit_civilite civ ON civ.id_civilite = pass.id_civilite 
+			LEFT JOIN siit_pays pays ON pays.id_pays = pass.id_pays 
+			LEFT JOIN siit_hebergement heb ON heb.id_hebergement = pass.id_hebergement 
+			LEFT JOIN siit_objet_voyage ov ON ov.id_objet_voyage = pass.id_objet_voyage
+			LEFT JOIN siit_profession pro ON pro.id_profession = pass.id_profession
+			LEFT JOIN siit_pays pays_emb ON pays_emb.id_pays = pass.id_pays_embarquement 
+			where pass.id_importation=".$_GET["idImportation"];
+    
+	/*$results = db_query("select li_civilite,is_resident,li_nationalite,dt_naissance,
+			pays.li_pays,lieu_residence,li_profession,is_voyage_groupe,is_transit,
+			li_lieu_destination,dt_retour,li_hebergement,li_objet_voyage,
+			pays_emb.li_pays as li_pays_embarquement
+			FROM siit_passager pass 
+			LEFT JOIN siit_nationalite nat ON nat.id_nationalite = pass.id_nationalite
+			LEFT JOIN siit_civilite civ ON civ.id_civilite = pass.id_civilite 
+			LEFT JOIN siit_pays pays ON pays.id_pays = pass.id_pays 
+			LEFT JOIN siit_hebergement heb ON heb.id_hebergement = pass.id_hebergement 
+			LEFT JOIN siit_objet_voyage ov ON ov.id_objet_voyage = pass.id_objet_voyage
+			LEFT JOIN siit_profession pro ON pro.id_profession = pass.id_profession
+			LEFT JOIN siit_pays pays_emb ON pays_emb.id_pays = pass.id_pays_embarquement 
+			where pass.id_importation=".$_GET["idImportation"]); */
+    $order = tablesort_get_order($header);
+	$sort = tablesort_get_sort($header);
+	
+	if (isset($order["sql"]) && !empty($order['sql'])) {
+		$sql .= " order by ".$order["sql"]." ".$sort;
+	} else {
+		$sql .= " order by li_enseigne";
+	}
+	
+	//$results = db_query($sqlList.$sql);
+	$count_result = db_query($sqlCount.$sql)->fetchAssoc();;
+	$results = db_query_range($sqlList.$sql,$start,$limit);
+	$nbTotal = $count_result["total"];
+	pager_default_initialize($count_result["total"], $limit, $element = 0);	
+	foreach($results as $result) {
+	 			
+	 	//DAT format
+	 	$date_naiss = $result->dt_naissance;
+	 	$date_naiss=  substr($date_naiss,8,2)."/".substr($date_naiss,5,2)."/".substr($date_naiss,0,4)." ".substr($date_naiss,11,8);
+	 	
+	 	 
+	 	$dt_retour = $result->dt_retour;
+	 	$dt_retour=  substr($dt_retour,8,2)."/".substr($dt_retour,5,2)."/".substr($dt_retour,0,4)." ".substr($dt_retour,11,8);
+	 	
+	 	//Oui/Non
+	 	$resident =  $result->is_resident == 1  ? "Oui"  : "Non";
+	 	$voyage_gp =  $result->is_voyage_groupe == 1  ? "Oui"  : "Non";
+	 	$transit =  $result->is_transit == 1  ? "Oui"  : "Non";
+	 	
+	 	
+	      $rows[$i] = array('li_civilite' => $result->li_civilite,
+			        					'is_resident' => $resident,
+			        				    'li_nationalite' => $result->li_nationalite,
+	      								'dt_naissance' => $date_naiss,
+			        				    'li_pays' => $result->li_pays,
+							      		//'lieu_residence' => $result->lieu_residence,
+							      		'li_profession' => $result->li_profession,
+							      		'is_voyage_groupe' => $voyage_gp,
+							      		'is_transit' => $transit,
+							      		'li_lieu_destination' => $result->li_lieu_destination,
+							      		'dt_retour' => $dt_retour,
+							      		'li_hebergement' => $result->li_hebergement,
+							      		'li_objet_voyage' => $result->li_objet_voyage,
+							      		'li_pays_embarquement' => $result->li_pays_embarquement,
+			        				  );
+	     $i++;        				  
+	 }
+ 
+    $nbStart = ($page)*$limit +1;
+ 	$nbEnd = ($page+1)*$limit;
+ 	if ($nbTotal < $nbEnd) {
+ 		$nbEnd = $nbTotal;
+ 	}
+ 
+	$form['nb'] = array(
+		    '#markup' => "<br>Résultats affichés : ".$nbStart." à ".$nbEnd. " / ".$nbTotal,
+	);
+	$form['table'] = array(
+		    '#theme' => 'table',
+		    '#header' => $header,
+		    '#rows' => $rows,
+		    '#empty' => t('Aucun r&eacute;sultat.')
+		  );
+	$form['pager'] = array('#markup' => theme('pager'));
+
+	
+	$form['importation']['back'] = array('#type' => 'submit', '#value' => t('Back'));
+	// $form['importation']['back']['#limit_validation_errors'] = array();
+	$form['importation']['back']['#submit'] = array('siit_importation_liste_back_submit');
+	// $form['importation']['back']['#name'] = 'reset';
+	
+	return $form;
+	
+}
+

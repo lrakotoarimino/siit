@@ -1,0 +1,5 @@
+name = SIIT BCM  : Liste des recettes touristiques pour la BCM
+description = SIIT BCM : Liste des recettes touristiques pour la BCM
+core = 7.x
+version = 7.x-0.x-dev
+package = SIIT

@@ -1,0 +1,5 @@
+name = SIIT FUSION ETABLISSEMENT : Fusionne les données des Etablissements
+description = SIIT EDBM : Fusionne les données des Etablissements
+core = 7.x
+version = 7.x-0.x-dev
+package = SIIT

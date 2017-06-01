@@ -1,0 +1,340 @@
+/**
+ * Place your custom styles here.
+ */
+
+/* --> Si on ne veut pas afficher My account
+#block-system-user-menu .first.leaf {
+  display:none;
+}
+*/
+
+/*Uniquement pour FF */
+/*@-moz-document url-prefix() {
+  .main-container #main-section {
+    margin-top: -380px!important;
+  }
+}*/
+
+.select-very-small, .input-very-small {
+  width: 100px; 
+}
+
+.select-small, .input-small {
+  width: 200px; 
+}
+
+.select-medium, .input-medium {
+  width: 400px; 
+}
+
+.select-medium, .input-medium {
+  width: 600px; 
+}
+
+.main-container #main-section {
+    margin-top: -120px !important;
+}
+
+.display_none {
+  display:none!important;
+}
+
+.form-item-empty-subsector {
+  display:none; 
+  
+}
+
+.field-name-field-print .field-label {
+    display: none;
+}
+
+div#edit-field-tags {
+  display: none;
+}
+
+fieldset#edit-relations {
+    display: none;
+}
+
+#article-node-form fieldset#edit-body-und-0-format, 
+#article-node-form div#edit-field-image {
+    display: none;
+}
+
+#taxonomy-form-term .form-item.form-item-description-value.form-type-textarea.form-group,
+#taxonomy-form-term #edit-description-format {
+    display: none;
+}
+
+
+/* pour cacher la phrase registration-who-msg */
+.registration-who-msg {
+  display: none;
+}
+
+
+.node-event-form .field-name-field-nombre-de-places-restantes {
+  display:none;
+}
+.title_homepage {
+  font-size: 21px;
+  font-family: 'Ubuntu', Arial, Helvetica, sans-serif;
+}
+
+.view-id-news,
+.view-id-news .views-row, 
+.view-id-documents .views-row, 
+.view-id-events .views-row, 
+.view-id-user_content .views-row {
+    margin-bottom: 25px;
+    padding-left: 25px;
+    font-size: 18px!important;
+    background: url(/sites/all/themes/bootstrapfeveextranet/images/li_more.png) left 4px no-repeat;
+}
+
+fieldset#edit-timezone {
+    display: none;
+}
+
+/*input#edit-mail {
+    width: 250px;
+}*/
+
+
+
+.panel-2col .panel-col-first {
+  width:100%;
+  }
+.dropdown-menu .leaf.active-trail.active a, .dropdown-menu li.first.last.leaf.active a {
+    color: #fff!important;
+}
+
+
+.region.region-navigation {
+    clear: both;
+}
+
+/* permet de cacher les onglet view / edit en mode edit */
+.nav-tabs > li > a {
+  /*display:none;*/
+}
+
+/* pour cacher l'ex de saisie de date */
+.help-block {
+  display:none;
+}
+/* pour cacher le fieldset d'une date */
+.date-form-element-content-multiline {
+  padding: 0px!important;
+    border: 0px!important;
+}
+
+#block-menu-menu-feve-menu-administrateur {
+  width:130px;
+  color:#fff;
+}
+#block-menu-menu-feve-menu-lci {
+  width:200px;
+  color:#fff;
+}
+
+#block-menu-menu-feve-menu-member {
+  width:110px;
+  color:#fff;
+}
+
+/* div#edit-field-event-registration*/
+.node-form .field-type-registration {
+  /* pour cacher le type registration - laisser cacher pour éviter des pb de manip 
+  dans le form de maj d'un event */
+  display: none;
+}
+
+
+/*.block-menu {
+  color:#777!important;
+    background-color: #e7e7e7;
+    border-top: #777 solid 0.5px;
+    border-bottom: #777 solid 0.5px;
+}*/
+
+.navbar-nav > li > a {
+    padding-top: 1px!important;
+    padding-bottom: 0px!important;
+}
+
+ul li.collapsed, ul li.expanded, ul li.leaf {
+  float: left;
+}
+ul.menu.nav.navbar-nav:not(.secondary) {
+    display: none;
+}
+
+h1.page-header {
+    color: #009ca7;
+    text-transform: uppercase;
+    border-bottom: none;
+    font-size:20px
+}
+
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+    font-family: inherit;
+    font-weight: 500;
+    line-height: 1.1;
+    color: inherit;
+}
+
+h1 {
+    font-size: 27px;
+    font-weight: normal;
+}
+
+/*.secondary .first.leaf {
+  background-color: #bed906!important;
+  border:none;
+}*/
+
+
+ #navbar {
+    /*background-color: #bed906;*/
+    margin-bottom: 0px !important;
+}
+
+.navbar-default .navbar-brand {
+    color: #fff;
+}
+
+.views-field-field_date,
+.views-field-field_date_news, 
+.views-field-field_date_event,
+.views-field.views-field-field-date,
+.views-field.views-field-field-date-news, 
+.view-events-for-panel .views-field.views-field-field-date-event {
+  font-weight: 700;
+    color: #97d700;
+}
+
+.pane-documents-for-panel .view-content,
+.pane-news-for-panel .view-content  {
+    border-right: #337ab7 solid 1px!important;
+    height:200px;
+}
+
+.css_top .field-label {
+  width:150px;
+}
+.css_top .field-items {
+  width:300px;
+}
+.panel-default > .panel-heading {
+    color: #fff;
+    background-color: #009ca7;
+    border-color: #ddd;
+}
+
+.page-header {
+    padding-top: 10px;
+    padding-bottom: 0px;
+    border-bottom: 1px solid #eee;
+}
+
+#page-header {
+    height: 46px;
+    background-color: #f39a9c;
+    color: #FFF!important;
+}
+
+#page-header a {
+  color: #FFF!important;
+}
+.breadcrumb {
+  display:none;
+}
+
+.page-import-contact-import .row li:not(active) {
+  /*display:none;*/
+}
+
+#navbar img.img-responsive, .row.img-responsive{
+    margin-left: auto!important;
+    margin-right: auto!important;
+    width:750px!important;
+}
+
+/*
+.logo_nav {
+    display: block;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    width: 65px;
+}
+
+.logo_nav img {
+    width: 100%;
+}
+
+#navbar{
+  background-color: #f39a9c;
+  border: none;
+}
+#navbar a {
+  color: #ffffff;
+  font-weight: bold;
+}
+#navbar li:hover  {
+  background-color: #f2b8bb;
+  opacity: 0.8; 
+}
+.bannier > img {
+  width: 100%;
+}
+*/
+
+select#edit-mois, 
+select#edit-annee,
+select#edit-statut   {
+    width: 110px;
+}
+
+select#edit-type-fichier   {
+    width: 130px;
+}
+
+
+select#edit-aeroport,
+select#edit-paysembarquement,
+select#edit-parc   {
+    width: 300px;
+}
+
+input#edit-numvol, 
+input#edit-datevol, 
+input#edit-annee {
+    width: 110px;
+}
+
+
+input#edit-recettedollars,
+input#edit-recetteeuro,
+input#edit-recetteariary,
+input#edit-recettedts {
+    width: 300px;
+}
+
+/*.bannier > img {
+    width: 60%;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}*/
+
+/* pour webform cacher les comment dans ladmin */
+.page-admin-content-webform ul.tabs--primary.nav.nav-tabs {
+    display: none;
+}
+#siit-importation-liste-form label.control-label, #siit-importation-fusion-etablissement-form label.control-label{
+    margin: 0px 10px;
+}
+.import-form button.btn-default {
+    margin-top: 10px;
+}

@@ -1,0 +1,5 @@
+name = SIIT MNP : Liste des données des parcs pour le MNP
+description = SIIT MNP : Liste des données des parcs pour le MNP
+core = 7.x
+version = 7.x-0.x-dev
+package = SIIT

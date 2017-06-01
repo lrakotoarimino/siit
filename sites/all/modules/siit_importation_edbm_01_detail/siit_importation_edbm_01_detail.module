@@ -1,0 +1,178 @@
+<?php
+
+/**
+* @file
+* DÃ©tail des donnÃ©es des entrÃ©es pour Etablissements (EDBM01)
+*/
+
+function siit_importation_edbm_01_detail_menu(){
+    $items = array();
+    $items['siit_importation_edbm_01_detail'] = array(
+        'title'            => t('Détail des données EDBM'), 
+        'page callback'    => 'drupal_get_form',
+        'page arguments' => array('siit_importation_edbm_01_detail_form'),
+        'access arguments' => array('access siit_importation_edbm_01_detail'),
+        'type'             => MENU_LOCAL_TASK,
+    	//'access callback' => TRUE,
+    );
+    
+    return $items;
+    
+}  
+
+function siit_importation_edbm_01_detail_permission() {
+  return array( 
+    'access siit_importation_edbm_01_detail' => array(
+      'title' => t('siit_importation_edbm_01_detail : Detail importation Edbm01'),
+      'description' => t('Perform administration tasks for Detail importation Edbm01.'),
+    ),
+  );
+}
+
+function siit_importation_edbm_01_detail_form($form) {
+
+	
+	
+	$header = array(
+			array('data' => t('Nom établissement'), 'field' => 'li_etablissement'),
+	    array('data' => t('Enseigne'), 'field' => 'li_enseigne', 'sort' => 'asc'),
+	    array('data' => t('Adresse'), 'field' => 'li_adresse'),
+			array('data' => t('Région'), 'field' => 'li_region'),
+			//array('data' => t('Forme Juridique'), 'field' => 'li_forme_juridique'),
+			//array('data' => t('Type Ã©tablissement'), 'field' => 'li_type_etablissement'/*, 'sort' => 'desc'*/),
+			array('data' => t('Activités'), 'field' => 'li_activite_etablissement'),
+			array('data' => t('Nombre emplois nationaux'), 'field' => 'nb_emplois_nationaux'),
+			array('data' => t('Nombre emplois étrangers'), 'field' => 'nb_emplois_etrangers'/*, 'sort' => 'desc'*/),
+			array('data' => t('Cout investissement (en Ariary)'), 'field' => 'mt_investissement'),
+			array('data' => t('Date autorisation'), 'field' => 'dt_autorisation'),
+			array('data' => t('Numéro autorisation'), 'field' => 'num_autorisation'/*, 'sort' => 'desc'*/),
+			array('data' => t('Nationalité du Promoteur'), 'field' => 'li_nationalite'/*, 'sort' => 'desc'*/),
+			array('data' => t('Classement'), 'field' => 'li_classement_etablissement'/*, 'sort' => 'desc'*/),
+			array('data' => t('Nombre Total Chambre'), 'field' => 'nb_chambres'),
+			array('data' => t('Nombre Total Place (couvert)'), 'field' => 'nb_places_repas'),
+	);
+	
+	
+	$rows = Null;
+	$i=0;
+	
+	global $user;
+    $uid = $user->uid;
+	
+    $limit = 10;
+    if (isset($_REQUEST['page']) && !empty($_REQUEST['page'])) {
+    	$start = $_REQUEST['page'] * $limit;
+    	$page = $_REQUEST['page'];
+    } else {
+    	$page = 0;
+    	$start = 0;
+    }
+    $sqlList = "select li_etablissement,li_enseigne,li_adresse,li_region,   
+   li_activite_etablissement,nb_emplois_nationaux,
+   nb_emplois_etrangers,mt_investissement,dt_autorisation,
+   num_autorisation,li_nationalite,li_classement_etablissement,nb_chambres,nb_places_repas,fixe,mobile,email,website ";
+    $sqlCount = "select count(*) as total ";  
+    $sql = "from siit_etablissement etab
+   left join siit_region region on region.id_region = etab.id_region
+   
+   left join siit_nationalite nat on nat.id_nationalite = etab.id_nationalite_promoteur
+   left join siit_activite_etablissement actetab on actetab.id_activite_etablissement = etab.id_activite_etablissement  
+   left join siit_classement_etablissement classetab on classetab.id_classement_etablissement = etab.id_classement_etablissement
+    
+   where id_importation=".$_GET["idImportation"];
+    
+	/*$results = db_query("select li_etablissement,li_enseigne,li_adresse,li_region,
+   
+   li_activite_etablissement,nb_emplois_nationaux,
+   nb_emplois_etrangers,mt_investissement,dt_autorisation,
+   num_autorisation,li_nationalite,li_classement_etablissement,nb_chambres,nb_places_repas,fixe,mobile,email,website
+   
+   from siit_etablissement etab
+   left join siit_region region on region.id_region = etab.id_region
+   
+   left join siit_nationalite nat on nat.id_nationalite = etab.id_nationalite_promoteur
+   left join siit_activite_etablissement actetab on actetab.id_activite_etablissement = etab.id_activite_etablissement  
+   left join siit_classement_etablissement classetab on classetab.id_classement_etablissement = etab.id_classement_etablissement
+    
+   where id_importation=".$_GET["idImportation"]);*/ 
+    $order = tablesort_get_order($header);
+	$sort = tablesort_get_sort($header);
+	
+	if (isset($order["sql"]) && !empty($order['sql'])) {
+		$sql .= " order by ".$order["sql"]." ".$sort;
+	} else {
+		$sql .= " order by li_enseigne";
+	}
+	
+	//$results = db_query($sqlList.$sql);
+	$count_result = db_query($sqlCount.$sql)->fetchAssoc();;
+	$results = db_query_range($sqlList.$sql,$start,$limit);
+	$nbTotal = $count_result["total"];
+	pager_default_initialize($count_result["total"], $limit, $element = 0);	
+
+	 foreach($results as $result) {
+	 			
+	 	//DAT format
+	 	$dt_autorisation = $result->dt_autorisation;
+	 	$dt_autorisation=  substr($dt_autorisation,8,2)."/".substr($dt_autorisation,5,2)."/".substr($dt_autorisation,0,4);//." ".substr($dt_autorisation,11,8);
+	 	
+	 	
+	 	//Oui/Non
+	 	/*$resident =  $result->is_resident == 1  ? "Oui"  : "Non";
+	 	$voyage_gp =  $result->is_voyage_groupe == 1  ? "Oui"  : "Non";
+	 	$transit =  $result->is_transit == 1  ? "Oui"  : "Non";*/
+	 	
+	 	
+	      $rows[$i] = array('li_etablissement' => $result->li_etablissement,
+			        					'li_enseigne' => $result->li_enseigne,
+			        				  'li_adresse' => $result->li_adresse,
+	      								'li_region' => $result->li_region,
+			        				  //'li_forme_juridique' => $result->li_forme_juridique,
+							      		//'li_type_etablissement' => $result->li_type_etablissement,
+	      								'li_activite_etablissement' => $result->li_activite_etablissement,
+							      		'nb_emplois_nationaux' => $result->nb_emplois_nationaux,
+							      		'nb_emplois_etrangers' => $result->nb_emplois_etrangers,
+							      		'mt_investissement' => $result->mt_investissement,
+							      		'dt_autorisation' => $dt_autorisation,
+							      		'num_autorisation' => $result->num_autorisation,
+							      		'li_nationalite' => $result->li_nationalite,
+							      		'li_classement_etablissement' => $result->li_classement_etablissement,
+							      		'nb_chambres' => $result->nb_chambres,
+							      		'nb_places_repas' => $result->nb_places_repas,
+			        				  );
+	     $i++;        				  
+	 }
+     
+    $nbStart = ($page)*$limit +1;
+ 	$nbEnd = ($page+1)*$limit;
+ 	if ($nbTotal < $nbEnd) {
+ 		$nbEnd = $nbTotal;
+ 	}
+ 
+	$form['nb'] = array(
+		    '#markup' => "<br>Résultats affichés : ".$nbStart." à ".$nbEnd. " / ".$nbTotal,
+	);
+ 
+	$form['table'] = array(
+		    '#theme' => 'table',
+		    '#header' => $header,
+		    '#rows' => $rows,
+		    '#empty' => t('Aucun r&eacute;sultat.')
+		  );
+	$form['pager'] = array('#markup' => theme('pager'));
+	
+	/*$text = getTextType('Contributor','bottom');
+	$form['contributor_bottom'] = array(
+	  '#markup' => str_replace("\n", "<br />",$text['body_value'])
+	);*/
+	
+	$form['importation']['back'] = array('#type' => 'submit', '#value' => t('Back'));
+   // $form['importation']['back']['#limit_validation_errors'] = array();
+  $form['importation']['back']['#submit'] = array('siit_importation_liste_back_submit');
+   // $form['importation']['back']['#name'] = 'reset';
+
+	return $form;
+	
+}
+
+

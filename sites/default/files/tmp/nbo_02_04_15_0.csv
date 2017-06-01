@@ -1,0 +1,31 @@
+Titre_Civilité;Nom;Prénoms;Nom_de_jeune_fille;Date_de_naissance;Lieu_de_naissance;Nationalité;Profession;Numéro_du_passeport;Date_de_délivrance_passeport;Fin_de_validité_passeport;Lieu_d'émission_passeport;Nombre_d'enfants;Enfant_1;Enfant_2;Enfant_3;Enfant_4;Numéro_du_vol;Compagnie;Date_du_vol;Date_de_retour;Numéro_du_visa;Visa_délivré_à;Visa_délivré_le;Autorité_émetteur;Durée_du_séjour(mois);Durée_du_séjour(jours);Aéroport_d'embarquement;Lieu_de_résidence;Adresse;Ville;Pays;En_transit;Lieu_de_destination;Aéroport_de_destination;Date_de_départ;Voyage_en_groupe;Objet_du_voayage;Hébergement
+Monsieur;;;;07/09/1967 00:00;Italie;Italie;manager;;;;;0;;;;;kq 262;Kenya Airways;02/04/2015 00:00;25/04/2015 00:00;;;;;0;0;;;;;Italie;;;;;;Tourisme;Hôtel
+Mlle;;;;18/07/1981 00:00;wales;royaume uni;manager;;;;;0;;;;;kq 262;Kenya Airways;02/04/2015 00:00;30/04/2015 00:00;;;;;0;0;;;;;england;;;;;;Tourisme;Hôtel
+Monsieur;;;;07/05/1979 00:00;uk;royaume uni;business;;;;;0;;;;;kq 262;Kenya Airways;02/04/2015 00:00;30/04/2015 00:00;;;;;0;0;;;;;england;;;;;;Tourisme;Hôtel
+Monsieur;;;;02/12/1983 00:00;sa;sa;strategy;;;;;0;;;;;kq 262;Kenya Airways;02/04/2015 00:00;06/04/2015 00:00;;;;;0;0;;;;;sa;;;;;;Tourisme;Hôtel
+Monsieur;;;;12/12/1989 00:00;brésil;brésil;urban;;;;;0;;;;;kq 262;Kenya Airways;02/04/2015 00:00;12/04/2015 00:00;;;;;0;0;;;;;mozambique;;;;;;Tourisme;Hôtel
+Monsieur;;;;22/07/1976 00:00;analalava;France;ingénieur;;;;;0;;;;;kq 262;Kenya Airways;02/04/2015 00:00;06/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Autre;Hôtel
+Monsieur;;;;28/09/1971 00:00;France;France;praticien médecine;;;;;0;;;;;kq 262;Kenya Airways;02/04/2015 00:00;30/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Madame;;;;21/04/1954 00:00;wiesbaden;Allemagne;sociologie;;;;;0;;;;;kq 262;Kenya Airways;02/04/2015 00:00;07/05/2015 00:00;;;;;0;0;;;;;Allemagne;;;;;;Tourisme;Hôtel
+Monsieur;;;;22/07/1983 00:00;st etienne;France;banquier;;;;;0;;;;;kq 262;Kenya Airways;02/04/2015 00:00;06/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;01/01/1963 00:00;kenya;kenya;ingénieur;;;;;0;;;;;kq 262;Kenya Airways;02/04/2015 00:00;04/04/2015 00:00;;;;;0;0;;;;;kenya;;;;;;Visite Familiale;Hôtel
+Monsieur;;;;23/11/1948 00:00;paris;France;directeur;;;;;0;;;;;kq 262;Kenya Airways;02/04/2015 00:00;29/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Autre
+Mlle;;;;28/05/1980 00:00;kinshasa;congo;éducateur;;;;;0;;;;;kq 262;Kenya Airways;02/04/2015 00:00;18/04/2015 00:00;;;;;0;0;;;;;congo;;;;;;Visite Familiale;Autre
+Monsieur;;;;16/10/1980 00:00;mayotte;France;atrf;;;;;0;;;;;kq 262;Kenya Airways;02/04/2015 00:00;29/06/2015 00:00;;;;;0;0;;;;;;;;;;;Visite Familiale;Autre
+Monsieur;;;;25/08/1974 00:00;india;india;service;;;;;0;;;;;kq 262;Kenya Airways;02/04/2015 00:00;06/04/2015 00:00;;;;;0;0;;;;;;;;;;;Autre;Autre
+Monsieur;;;;12/10/1984 00:00;uk;kabul;student;;;;;0;;;;;kq 262;Kenya Airways;02/04/2015 00:00;02/05/2015 00:00;;;;;0;0;;;;;;;;;;;Tourisme;Autre
+Monsieur;;;;29/03/1991 00:00;anjouan;comores;étudiant;;;;;0;;;;;kq 262;Kenya Airways;02/04/2015 00:00;27/04/2015 00:00;;;;;0;0;;;;;comores;;;;;;Autre;Autre
+Monsieur;;;;26/02/1964 00:00;bauge;France;;;;;;0;;;;;kq 262;Kenya Airways;02/04/2015 00:00;29/06/2015 00:00;;;;;0;0;;;;;France;;;;;;Autre;Autre
+Monsieur;;;;06/01/1966 00:00;india;india;business;;;;;0;;;;;kq 262;Kenya Airways;02/04/2015 00:00;05/04/2015 00:00;;;;;0;0;;;;;india;;;;;;Affaire;Hôtel
+Monsieur;;;;24/07/1989 00:00;brésil;spain;stagiaire;;;;;0;;;;;kq 262;Kenya Airways;02/04/2015 00:00;04/07/2015 00:00;;;;;0;0;;;;;;;;;;;Autre;Autre
+Monsieur;;;;04/09/1948 00:00;lille;France;retraité;;;;;0;;;;;kq 262;Kenya Airways;02/04/2015 00:00;22/07/2015 00:00;;;;;0;0;;;;;France;;;;;;Autre;Autre
+Monsieur;;;;16/07/1993 00:00;st remy;France;étudiant;;;;;0;;;;;kq 262;Kenya Airways;02/04/2015 00:00;17/08/2015 00:00;;;;;0;0;;;;;France;;;;;;Autre;Autre
+Monsieur;;;;24/06/1951 00:00;France;France;retraité;;;;;0;;;;;kq 262;Kenya Airways;02/04/2015 00:00;29/06/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Madame;;;;30/09/1949 00:00;France;France;retraité;;;;;0;;;;;kq 262;Kenya Airways;02/04/2015 00:00;22/07/2015 00:00;;;;;0;0;;;;;France;;;;;;Autre;Autre
+Monsieur;;;;06/10/1968 00:00;india;india;teacher;;;;;0;;;;;kq 262;Kenya Airways;02/04/2015 00:00;29/06/2015 00:00;;;;;0;0;;;;;india;;;;;;Autre;Autre
+Monsieur;;;;07/01/1988 00:00;india;india;;;;;;0;;;;;kq 262;Kenya Airways;02/04/2015 00:00;29/06/2015 00:00;;;;;0;0;;;;;india;;;;;;Autre;Autre
+Monsieur;;;;16/07/1958 00:00;india;india;business;;;;;0;;;;;kq 262;Kenya Airways;02/04/2015 00:00;;;;;;0;0;;;;;;;;;;;Autre;Autre
+Monsieur;;;;01/02/1984 00:00;india;india;business;;;;;0;;;;;kq 262;Kenya Airways;02/04/2015 00:00;29/06/2015 00:00;;;;;0;0;;;;;india;;;;;;Autre;Autre
+Monsieur;;;;06/10/1968 00:00;india;india;;;;;;0;;;;;kq 262;Kenya Airways;02/04/2015 00:00;;;;;;0;0;;;;;;;;;;;Autre;Autre
+Monsieur;;;;19/01/1984 00:00;india;india;;;;;;0;;;;;kq 262;Kenya Airways;02/04/2015 00:00;29/06/2015 00:00;;;;;0;0;;;;;;;;;;;Autre;Autre
+Monsieur;;;;28/07/1940 00:00;india;india;business;;;;;0;;;;;kq 262;Kenya Airways;02/04/2015 00:00;29/06/2015 00:00;;;;;0;0;;;;;india;;;;;;Autre;Autre

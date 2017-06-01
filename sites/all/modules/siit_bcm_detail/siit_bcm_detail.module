@@ -1,0 +1,91 @@
+<?php
+
+/**
+* @file
+* Display a Adema Importation formulaire
+*/
+
+function siit_bcm_detail_menu(){
+    $items = array();
+    $items['siit_bcm_detail'] = array(
+        'title'            => t('LISTE DES RECETTES TOURISTIQUES'), 
+        'page callback'    => 'drupal_get_form',
+        'page arguments' => array('siit_bcm_detail_form'),
+        'access arguments' => array('access siit_bcm_detail'),
+        'type'             => MENU_LOCAL_TASK,
+    		//'access callback' => TRUE,
+    );
+    
+    return $items;
+    
+}  
+
+function siit_bcm_detail_permission() {
+  return array( 
+    'access siit_bcm_detail' => array(
+      'title' => t('siit_bcm_detail : bcm Liste'),
+      'description' => t('Perform administration tasks for bcm.'),
+    ),
+  );
+}
+
+function siit_bcm_detail_form($form) {
+	
+	drupal_set_title(t('Liste de Recettes Touristiques'));
+	
+	$header = array(
+			array('data' => t('Annee'), 'field' => 'annee'),
+			array('data' => t('Mois'), 'field' => 'li_mois'),
+			array('data' => t('Nombre de touristes'), 'field' => 'nb_touristes'),
+			array('data' => t('Recette en Euro'), 'field' => 'recette_euro'),
+			array('data' => t('Recette en Dollar'), 'field' => 'recette_dollar'),
+			array('data' => t("Recette en millions d'Ariary"), 'field' => 'recette_ariary'),
+			array('data' => t('Recette DTS'), 'field' => 'recette_dts')
+		);
+		
+		
+		$rows = Null;
+		$i=0;
+		
+		global $user;
+		$uid = $user->uid;
+		$results = db_query("select * from siit_recette_touristique rt
+							 inner join siit_mois m  on m.id_mois = rt.id_mois  
+							where  id_importation=".$_GET["idImportation"]."");  							
+							
+		 foreach($results as $result) {
+
+			$rows[$i] = array(		
+								'annee' => $result->annee,
+								'li_mois' => $result->li_mois,
+								'nb_touristes' => number_format($result->nb_touristes, 0, ',', ' '),
+								'recette_euro' => number_format($result->recette_euro, 0, ',', ' '),
+								'recette_dollar' => number_format($result->recette_dollar, 0, ',', ' '),
+								'recette_ariary' => number_format($result->recette_ariary, 0, ',', ' '),
+								'recette_dts' => number_format($result->recette_dts, 0, ',', ' '),
+			);
+			 $i++;        				  
+		 }
+	 
+		$form['table'] = array(
+				'#theme' => 'table',
+				'#header' => $header,
+				'#rows' => $rows,
+				'#empty' => t('Aucun r&eacute;sultat.')
+			  );
+		$form['pager'] = array('#markup' => theme('pager'));
+		
+		/*$text = getTextType('Contributor','bottom');
+		$form['contributor_bottom'] = array(
+		  '#markup' => str_replace("\n", "<br />",$text['body_value'])
+		);*/
+		
+		 $form['importation']['back'] = array('#type' => 'submit', '#value' => t('Retour'));
+		  $form['importation']['back']['#submit'] = array('siit_back_submit');
+		  $form['importation']['back']['#limit_validation_errors'] = array();
+		  $form['importation']['back']['#name'] = 'back';
+	
+	return $form;
+	
+}
+

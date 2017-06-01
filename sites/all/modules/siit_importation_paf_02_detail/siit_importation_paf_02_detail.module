@@ -1,0 +1,218 @@
+<?php
+
+/**
+* @file
+* Display a Adema Importation
+*/
+
+function siit_importation_paf_02_detail_menu(){
+    $items = array();
+    $items['siit_importation_paf_02_detail'] = array(
+        'title'            => t('Detail importation Paf02'), 
+        'page callback'    => 'drupal_get_form',
+        'page arguments' => array('siit_importation_paf_02_detail_form'),
+        'access arguments' => array('access siit_importation_paf_02_detail'),
+        'type'             => MENU_LOCAL_TASK,
+    		//'access callback' => TRUE,
+    );
+    
+    return $items;
+    
+}  
+
+function siit_importation_paf_02_detail_permission() {
+  return array( 
+    'access siit_importation_paf_02_detail' => array(
+      'title' => t('siit_importation_paf_02_detail : Detail importation Paf02'),
+      'description' => t('Perform administration tasks for Detail importation Paf02.'),
+    ),
+  );
+}
+
+function siit_importation_paf_02_detail_form($form) {
+
+	$header = array(
+			array('data' => t('Année'), 'field' => 'annee'),
+	    array('data' => t('Mois'), 'field' => 'li_mois'),
+	    array('data' => t('Aéroport'), 'field' => 'li_aeroport'),
+			array('data' => t('Arrivée/Départ'), 'field' => 'li_arrivee_depart'),
+			array('data' => t('Nationalité'), 'field' => 'li_nationalite', 'sort' => 'asc'),
+			array('data' => t('Résident'), 'field' => 'is_resident'),
+			array('data' => t('Nombre de passagers'), 'field' => 'nb_pax'),	   
+	);
+	
+	
+	$rows = Null;
+	$i=0;
+	
+	
+	 /*num_vol,li_compagnie,
+	 siit_vol vol,
+			siit_compagnie cmp,
+	and vol.id_vol = pass.id_vol 
+			and cmp.id_compagnie = pass.id_compagnie 
+	*/
+			
+	global $user;
+    $uid = $user->uid;
+	
+    /*$limit = 10;
+    if (isset($_REQUEST['page']) && !empty($_REQUEST['page'])) {
+    	$start = $_REQUEST['page'] * $limit;
+    	$page = $_REQUEST['page'];
+    } else {
+    	$page = 0;
+    	$start = 0;
+    }*/
+    $sqlList = "select * ";
+    $sqlCount = "select count(*) as total ";  
+    $sql = "from siit_passager_global pax 
+						left join siit_nationalite nat on nat.id_nationalite = pax.id_nationalite
+						left join siit_mois m  on m.id_mois =  pax.id_mois
+						left join siit_aeroport a  on a.id_aeroport =  pax.id_aeroport	
+						left join siit_arrivee_depart ad  on ad.id_arrivee_depart =  pax.id_arrivee_depart							
+						Where pax.id_importation=".$_GET["idImportation"];
+    
+	/*$results = db_query("select * from siit_passager_global pax 
+						left join siit_nationalite nat on nat.id_nationalite = pax.id_nationalite
+						left join siit_mois m  on m.id_mois =  pax.id_mois
+						left join siit_aeroport a  on a.id_aeroport =  pax.id_aeroport	
+						left join siit_arrivee_depart ad  on ad.id_arrivee_depart =  pax.id_arrivee_depart							
+						Where pax.id_importation=".$_GET["idImportation"]); */
+    $order = tablesort_get_order($header);
+	$sort = tablesort_get_sort($header);
+	
+	if (isset($order["sql"]) && !empty($order['sql'])) {
+		$sql .= " order by ".$order["sql"]." ".$sort;
+	} else {
+		//$sql .= " order by li_enseigne";
+	}
+	
+	$results = db_query($sqlList.$sql);
+	//$results = db_query($sqlList.$sql);
+	/*$count_result = db_query($sqlCount.$sql)->fetchAssoc();;*/	
+//	$results = db_query_range($sqlList.$sql,$start,$limit);
+	//$nbTotal = $count_result["total"];
+	//pager_default_initialize($count_result["total"], $limit, $element = 0);
+    
+    $annee_non_res = 0;$mois_non_res= 0;$aeorport_non_res = 0;$arrivee_depart_non_res  = 0;
+	$li_nationalite_non_res  = 0;$is_resident_non_res=""; $resident = "";
+	$nb_pax_non_res = 0;$annee_resident = 0;$mois_resident= 0;$aeorport_resident = 0;
+	$arrivee_depart_resident  = 0;$li_nationalite_resident  = 0;$is_resident_resident  = "";
+	$nb_pax_resident = 0;$annee= 0;$mois= 0;$aeorport = "";$arrivee_depart  = "";$li_nationalite  = "";
+	$is_resident  = "";$nb_pax = 0;
+            	
+	foreach($results as $result) {
+	 	//Oui/Non
+		//drupal_set_message(t("NON RESIDENTS ".$result->is_resident), $type = '', $repeat = true);
+		if ($result->is_resident == 1){
+			$resident =  "Oui";
+		}else if($result->is_resident == 0){
+			$resident =  "Non";
+		}else if($result->is_resident == 3){
+			$resident = "";
+		}
+		
+		if(!empty($result->li_nationalite) && $resident== "Non") {
+			$rows[] = array(  'annee' => $result->annee,
+								'li_mois' => $result->li_mois,
+								'li_aeroport' => $result->li_aeroport,
+								'li_arrivee_depart' => $result->li_arrivee_depart,			        					
+								'li_nationalite' => $result->li_nationalite,
+								'is_resident' => $resident,
+								'nb_pax' => $result->nb_pax,
+								
+							);
+	    }
+		
+		//recuperation des valeurs pour les totaux
+		if(empty($result->li_nationalite) && $resident== "Non") {
+			$annee_non_res = $result->annee;
+			$mois_non_res= $result->li_mois;
+			$aeorport_non_res = $result->li_aeroport;
+			$arrivee_depart_non_res  = $result->li_arrivee_depart;
+			$li_nationalite_non_res  = $result->li_nationalite;
+			$is_resident_non_res  = $resident;
+			$nb_pax_non_res = $result->nb_pax;
+		}
+		
+		if( $resident== "Oui") {
+			$annee_resident = $result->annee;
+			$mois_resident= $result->li_mois;
+			$aeorport_resident = $result->li_aeroport;
+			$arrivee_depart_resident  = $result->li_arrivee_depart;
+			$li_nationalite_resident  = $result->li_nationalite;
+			$is_resident_resident  = $resident;
+			$nb_pax_resident = $result->nb_pax;
+		}
+		
+		if( $resident== "") {
+			$annee= $result->annee;
+			$mois= $result->li_mois;
+			$aeorport = $result->li_aeroport;
+			$arrivee_depart  = $result->li_arrivee_depart;
+			$li_nationalite  = $result->li_nationalite;
+			$is_resident  = $resident;
+			$nb_pax = $result->nb_pax;
+		}
+		
+		
+	}
+	
+	//Mettre ici les totaux non resident/resident/total general
+	set_values($rows,$annee_non_res,$mois_non_res,$aeorport_non_res,
+				$arrivee_depart_non_res,$li_nationalite_non_res,
+				$is_resident_non_res,$nb_pax_non_res) ;
+	 
+	set_values($rows,$annee_resident,$mois_resident,$aeorport_resident,
+				$arrivee_depart_resident,$li_nationalite_resident,
+				$is_resident_resident,$nb_pax_resident) ;
+				
+	set_values($rows,$annee,$mois,$aeorport,$arrivee_depart,
+				$li_nationalite,$is_resident,$nb_pax) ;
+				
+	 
+	/*$nbStart = ($page)*$limit +1;
+ 	$nbEnd = ($page+1)*$limit;
+ 	if ($nbTotal < $nbEnd) {
+ 		$nbEnd = $nbTotal;
+ 	}
+ 
+	$form['nb'] = array(
+		    '#markup' => "<br>Résultats affichés : ".$nbStart." à ".$nbEnd. " / ".$nbTotal,
+	); */
+	$form['table'] = array(
+		    '#theme' => 'table',
+		    '#header' => $header,
+		    '#rows' => $rows,
+		    '#empty' => t('Aucun r&eacute;sultat.')
+		  );
+	//$form['pager'] = array('#markup' => theme('pager'));
+	
+	/*$text = getTextType('Contributor','bottom');
+	$form['contributor_bottom'] = array(
+	  '#markup' => str_replace("\n", "<br />",$text['body_value'])
+	);*/
+	
+	$form['importation']['back'] = array('#type' => 'submit', '#value' => t('Back'));
+	// $form['importation']['back']['#limit_validation_errors'] = array();
+	$form['importation']['back']['#submit'] = array('siit_importation_liste_back_submit');
+	// $form['importation']['back']['#name'] = 'reset';
+	
+	return $form;
+	
+}
+
+function set_values(&$rows,$annee,$mois,$aeorport,$arrivee_depart,$li_nationalite,$is_resident,$nb_pax){
+
+	$rows[] = array(  'annee' => $annee,
+						'mois' => $mois,
+						'aeorport' => $aeorport,
+						'arrivee_depart' => $arrivee_depart,			        					
+						'id_nationalite' => $li_nationalite,
+						'is_resident' => $is_resident,
+						'nb_pax' => $nb_pax,
+								
+					);
+}
+

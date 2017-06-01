@@ -1,0 +1,60 @@
+<?php
+
+/**
+* @file
+* Display a Devalide Importation 
+*/
+
+
+
+
+
+function siit_importation_devalide_menu(){
+    $items = array();
+    $items['siit_importation_devalide'] = array(
+        'title'            => t(''), 
+        'page callback'    => 'drupal_get_form',
+        'page arguments' => array('siit_importation_devalide_form'),
+        'access arguments' => array('access siit_importation_devalide'),
+        'type'             => MENU_LOCAL_TASK,
+    		//'access callback' => TRUE,
+    );
+    
+    return $items;
+    
+}  
+
+function siit_importation_devalide_permission() {
+  return array( 
+    'access siit_importation_devalide' => array(
+      'title' => t('siit_importation_devalide : Devalide'),
+      'description' => t('Perform administration tasks for devalidation importation'),
+    ),
+  );
+}
+
+function siit_importation_devalide_form($form) {
+	drupal_set_title(t(''));
+	global $user;
+	if(isset($_GET["id_statut"])){
+	   $id_statut = $_GET["id_statut"];
+        		
+		if($id_statut == 4){
+          $query = "UPDATE {siit_importation} SET dt_validation = now(), uid_validation = ".$user->uid.", id_statut = ".$id_statut." WHERE id_importation = ".$_GET["id_importation"];
+          drupal_set_message("Import dévalidé.", $type = 'status');
+		
+		}
+       db_query($query);
+    }
+	
+	//$form_state['redirect'] ="siit_importation_liste";
+	$form['importation']['back'] = array('#type' => 'submit', '#value' => t('OK'));
+	$form['importation']['back']['#submit'] = array('siit_importation_liste_back_submit');
+	
+	return $form;
+	
+}
+
+
+
+

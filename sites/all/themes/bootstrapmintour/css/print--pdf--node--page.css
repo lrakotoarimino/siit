@@ -1,0 +1,39 @@
+@CHARSET "UTF-8";
+
+#logo {
+	/*width:216px;
+	height:75px;*/
+	width:151px;
+	height:51px;
+}
+
+.tdlogo {
+	border: 0.2px solid #000;
+	}		
+.day {
+	vertical-align:top;
+	text-align:center;
+}
+
+#printer{
+	vertical-align:top;
+	width:33px;
+	height:33px;
+	align:center;
+}
+
+.firstColumn{
+	width:40%;
+}
+ 
+.secondColumn {
+ 	width:60%;
+}
+
+
+table {
+	border: 0px none;
+	border-spacing: 0px;
+	font-size: 0.800em;
+	width: 100%;
+}

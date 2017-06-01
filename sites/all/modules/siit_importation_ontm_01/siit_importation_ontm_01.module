@@ -1,0 +1,168 @@
+<?php
+
+/**
+* @file
+* Display a Adema Importation formulaire
+*/
+
+	function siit_importation_ontm_01_menu(){
+    $items = array();
+    $items['siit_importation_ontm_01'] = array(
+        'title'            => t('IMPORTATION DES ETABLISSEMENTS (ONTM)'), 
+        'page callback'    => 'drupal_get_form',
+        'page arguments' => array('siit_importation_ontm_01_form'),
+        'access arguments' => array('access siit_importation_ontm_01'),
+        'type'             => MENU_LOCAL_TASK,
+    		//'access callback' => TRUE,
+    );
+    
+    return $items;
+    
+}  
+
+function siit_importation_ontm_01_permission() {
+  return array( 
+    'access siit_importation_ontm_01' => array(
+      'title' => t('siit_importation_ontm_01 : Ontm formulaire'),
+      'description' => t('Perform administration tasks for ontm.'),
+    ),
+  );
+}
+
+function siit_importation_ontm_01_form($form) {
+	
+	drupal_set_title(t('IMPORTATION DES ETABLISSEMENTS (ONTM)'));
+	
+	/*$form['annee'] = array(
+    "#type" => "select",      
+    "#title" => t("Année :"),
+    "#options" => array(
+	    "vide" => t(""),
+      "0" => t("2016"),
+      "1" => t("2017"),
+    ),
+    //"#default_value" => $settings[""],
+    "#required" => FALSE,
+	);*/
+	
+	
+   $form['importation']['csv_file'] = array(
+	        '#title' => 'Importer Fichier :', // Titre dans la page d'importation du fichier
+	        '#description' => 'Seuls ces fichiers csv, xlsx sont valides.',
+	        '#type' => 'managed_file',
+	        '#required' => FALSE,
+	        '#upload_validators' => array(
+	            'file_validate_extensions' => array('csv xlsx'),
+	        ),
+	    );
+	    
+	 $form['importation']['submit'] = array(
+	        '#type' => 'submit',
+	        '#value' => t('Process'),
+	        '#attributes' => array('class' => array('button button--primary js-form-submit form-submit btn-success btn'),),
+            '#validate' => array('csv_import_ontm_01_validate'),
+	    		'#submit' => array('csv_import_ontm_01_submit'),
+	    );
+	    
+	    
+	$form['importation']['back'] = array('#type' => 'submit', '#value' => t('Retour'));
+    $form['importation']['back']['#submit'] = array('siit_back_submit');
+    $form['importation']['back']['#limit_validation_errors'] = array();
+    $form['importation']['back']['#name'] = 'back';
+	
+	$form['#attributes']['class'][] = 'import-form';
+	return $form;
+	
+}
+
+function csv_import_ontm_01_validate($form, &$form_state){
+    if($form_state['values']['csv_file']){
+        $villes = json_decode(LIBTOTALS);
+        $categorie_visiteur = json_decode(CATEGORIE_VISITEUR);
+        $file = file_load($form_state['values']['csv_file']);
+        $uri = $file->uri;
+        $path = drupal_realpath($uri);
+        try {
+            $inputFileType = PHPExcel_IOFactory::identify($path);
+            $objReader = PHPExcel_IOFactory::createReader($inputFileType);
+            $objPHPExcel = $objReader->load($path);
+        } catch (Exception $e) {
+            
+        }
+        
+        $user = db_query("select * from siit_importation imp,siit_type_fichier t where t.id_type_fichier=imp.id_type_fichier  and id_statut=2 and li_type_fichier = '".ENTITE_ONTM01."'");
+        $id_importation = 0;
+        foreach($user as $u) {
+    	   $id_importation = $u->id_importation;
+        }
+        if($id_importation){
+            form_set_error('edit-annee', t("Un import a été déjà validé"));
+        }
+    }
+}
+
+function csv_import_ontm_01_submit($form, &$form_state) {
+     
+     if($form_state['values']['csv_file']){
+        $villes = json_decode(VILLES);
+        $file = file_load($form_state['values']['csv_file']);
+        $uri = $file->uri;
+        $path = drupal_realpath($uri);
+        try {
+            $inputFileType = PHPExcel_IOFactory::identify($path);
+            $objReader = PHPExcel_IOFactory::createReader($inputFileType);
+            $objPHPExcel = $objReader->load($path);
+        } catch (Exception $e) {
+            
+        }
+        
+        controleDoublonImportation(0, 0,ENTITE_ONTM01);
+        $data = array();
+        $data['annee'] = 0;$data['id_mois'] = 0;
+        $data["li_fichier"] = basename($path);$data["id_statut"] = STATUT_AVALIDER;$data["id_type_fichier"] = TYPE_FICHIER_ONTM01;
+        $id_importation = insert_importation($data);
+        $data = array();
+        foreach ($objPHPExcel->getWorksheetIterator() as $worksheet) {
+            $highestRow         = $worksheet->getHighestRow(); 
+            $highestColumn      = $worksheet->getHighestColumn(); 
+            $highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
+            for ($row = 6; $row <= $highestRow; ++ $row) {
+                $data = array();$data['id_importation'] = $id_importation;
+                $data['li_enseigne']="";
+                for ($col = 2; $col < $highestColumnIndex; ++ $col) {
+                    if($col == ONTM01_NB_COL) break;
+                    $cell = $worksheet->getCellByColumnAndRow($col, $row);
+                    $val = $cell->getValue();
+                    switch ($col) {
+                        case 2:
+                          if(in_array($val,$villes)) break;  
+                          $data['li_etablissement'] = $val;
+                          break;
+                        case 6:
+                          $data['fixe'] = $val;
+                          break;
+                        case 7:
+                          $data['mobile'] = $val;
+                          break;
+                        case 8:
+                          $data['email'] = $val;
+                          break;
+                        case 9:
+                          $data['website'] = $val;
+                          break;
+                        case 10:
+                          $data['li_adresse'] = $val;
+                          break;
+                    }
+                }
+                if(array_key_exists("li_etablissement",$data) && $data['li_etablissement']){
+                    import_data_ontm_01($data);
+                }
+                
+            }
+        }
+        drupal_set_message("L'import a été effectué avec succès.", $type = 'status');
+        $form_state['redirect'] ="siit_importation_fusion_etablissement";
+    }
+	
+}

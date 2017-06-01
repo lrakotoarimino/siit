@@ -1,0 +1,82 @@
+Titre_Civilité;Nom;Prénoms;Nom_de_jeune_fille;Date_de_naissance;Lieu_de_naissance;Nationalité;Profession;Numéro_du_passeport;Date_de_délivrance_passeport;Fin_de_validité_passeport;Lieu_d'émission_passeport;Nombre_d'enfants;Enfant_1;Enfant_2;Enfant_3;Enfant_4;Numéro_du_vol;Compagnie;Date_du_vol;Date_de_retour;Numéro_du_visa;Visa_délivré_à;Visa_délivré_le;Autorité_émetteur;Durée_du_séjour(mois);Durée_du_séjour(jours);Aéroport_d'embarquement;Lieu_de_résidence;Adresse;Ville;Pays;En_transit;Lieu_de_destination;Aéroport_de_destination;Date_de_départ;Voyage_en_groupe;Objet_du_voayage;Hébergement
+Mlle;;;;05/08/1993 00:00;comores;comores;;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;07/03/2015 00:00;;;;;0;0;;;;;;;;;;;Autre;Autre
+Madame;;;;10/12/1950 00:00;comores;comores;;;;;;0;;;;;md 141;Air Madagascar;25/02/2015 00:00;26/05/2015 00:00;;;;;0;0;;;;;;;;;;;Autre;Autre
+Madame;;;;21/03/1987 00:00;comores;comores;business;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;26/03/2015 00:00;;;;;0;0;;;;;;;;;;;Affaire;Autre
+Mlle;;;;20/12/1999 00:00;comores;comores;étudiante;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;;;;;;0;0;;;;;;;;;;;Autre;Autre
+Madame;;;;03/02/1962 00:00;antananarivo;malagasy;consultant;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;;;;;;0;0;;;;;;;;;;;Autre;Autre
+Monsieur;;;;19/05/1953 00:00;antananarivo;malagasy;comptable;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;;;;;;0;0;;;;;;;;;;;Autre;Autre
+Monsieur;;;;21/10/1970 00:00;strasbourg;France;directeur;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;;;;;;0;0;;;;;;;;;;;Autre;Autre
+Monsieur;;;;09/12/1947 00:00;antananarivo;congo;photographiste;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;;;;;;0;0;;;;;;;;;;;Autre;Autre
+Monsieur;;;;15/08/1978 00:00;comores;comores;maçon;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;24/05/2015 00:00;;;;;0;0;;;;;comores;;;;;;Autre;Autre
+Monsieur;;;;03/12/1975 00:00;moroni;comores;institutrice;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;16/03/2015 00:00;;;;;0;0;;;;;;;;;;;Autre;Autre
+Monsieur;;;;24/10/1970 00:00;comores;comores;menuisier;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;16/03/2015 00:00;;;;;0;0;;;;;comores;;;;;;Autre;Autre
+Madame;;;;07/09/1965 00:00;comores;comores;aaf;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;;;;;;0;0;;;;;comores;;;;;;Autre;Autre
+Monsieur;;;;18/12/1995 00:00;comores;comores;étudiant;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;;;;;;0;0;;;;;;;;;;;Visite Familiale;Autre
+Monsieur;;;;01/01/1972 00:00;comores;comores;centre national horticoll;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;16/03/2015 00:00;;;;;0;0;;;;;comores;;;;;;Autre;Autre
+Monsieur;;;;12/12/1990 00:00;comores;comores;conseiller agricole;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;16/03/2015 00:00;;;;;0;0;;;;;comores;;;;;;Autre;Autre
+Monsieur;;;;27/06/1966 00:00;analalava;malagasy;chauffer;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;;;;;;0;0;;;;;;;;;;;Autre;Autre
+Monsieur;;;;14/05/1971 00:00;manombo sud;malagasy;controleur de gestion;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;;;;;;0;0;;;;;;;;;;;Autre;Autre
+Monsieur;;;;04/02/1964 00:00;comores;comores;menagère;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;14/03/2015 00:00;;;;;0;0;;;;;comores;;;;;;Tourisme;Autre
+Madame;;;;06/07/1983 00:00;antananarivo;malagasy;controlleur de gestion;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;;;;;;0;0;;;;;;;;;;;Autre;Autre
+Monsieur;;;;27/01/1970 00:00;toamasina;France;conducteur de travaux;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;;;;;;0;0;;;;;;;;;;;Autre;Autre
+Monsieur;;;;04/02/1973 00:00;France;France;chef d'atelier;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;;;;;;0;0;;;;;;;;;;;Autre;Autre
+Monsieur;;;;31/12/1940 00:00;comores;comores;;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;;;;;;0;0;;;;;comores;;;;;;Autre;Autre
+Madame;;;;08/02/1965 00:00;mahamasina;malagasy;consultante;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;;;;;;0;0;;;;;;;;;;;Autre;Autre
+Monsieur;;;;27/05/2013 00:00;mayotte;comores;;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;20/03/2015 00:00;;;;;0;0;;;;;;;;;;;Autre;Autre
+Monsieur;;;;02/01/1976 00:00;France;France;enseignant;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;15/03/2015 00:00;;;;;0;0;;;;;mayotte;;;;;;Tourisme;Hôtel
+Monsieur;;;;25/01/1950 00:00;maurice;maurice;diplomate;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;15/03/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Tourisme;Hôtel
+Monsieur;;;;07/08/1946 00:00;France;France;chef de sercice;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;27/02/2015 00:00;;;;;0;0;;;;;maurice;;;;;;Affaire;Hôtel
+Monsieur;;;;29/10/2001 00:00;marseille;France;;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;11/02/2015 00:00;;;;;0;0;;;;;comores;;;;;;Tourisme;Autre
+Monsieur;;;;06/05/1978 00:00;paris;France;professeur;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;14/03/2015 00:00;;;;;0;0;;;;;comores;;;;;;Tourisme;Hôtel
+Monsieur;;;;11/08/1961 00:00;st pierre;France;expert maritime;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;27/02/2015 00:00;;;;;0;0;;;;;comores;;;;;;Affaire;Hôtel
+Monsieur;;;;15/10/1968 00:00;comores;comores;spécialiste;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;26/02/2015 00:00;;;;;0;0;;;;;;;;;;;Autre;Autre
+Monsieur;;;;19/03/1972 00:00;France;France;direction;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;04/03/2015 00:00;;;;;0;0;;;;;;;;;;;Affaire;Hôtel
+Monsieur;;;;28/09/1975 00:00;paris;France;ingénieur;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;11/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Visite Familiale;Hôtel
+Madame;;;;23/12/1949 00:00;paris;France;conseillere principale;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;11/03/2015 00:00;;;;;0;0;;;;;mayotte;;;;;;Tourisme;Hôtel
+Monsieur;;;;14/04/1950 00:00;France;France;enseignante;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;11/03/2015 00:00;;;;;0;0;;;;;;;;;;;Tourisme;Hôtel
+Monsieur;;;;25/07/1962 00:00;marseille;France;chef d'entreprise;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;11/03/2015 00:00;;;;;0;0;;;;;mayotte;;;;;;Tourisme;Hôtel
+Monsieur;;;;26/11/1981 00:00;mayotte;France;ambulancier;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;06/03/2015 00:00;;;;;0;0;;;;;mayotte;;;;;;Autre;Hôtel
+Madame;;;;29/06/1946 00:00;mampikony;France;retraité;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;26/03/2015 00:00;;;;;0;0;;;;;;;;;;;Visite Familiale;Autre
+Monsieur;;;;13/08/1957 00:00;lyon;France;directeur;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;02/03/2015 00:00;;;;;0;0;;;;;;;;;;;Autre;Hôtel
+Monsieur;;;;22/09/1974 00:00;France;France;enseignant;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;12/03/2015 00:00;;;;;0;0;;;;;mayotte;;;;;;Visite Familiale;Hôtel
+Monsieur;;;;04/12/2002 00:00;ste clotilde;France;élève;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;16/03/2015 00:00;;;;;0;0;;;;;mayotte;;;;;;Affaire;Hôtel
+Monsieur;;;;05/03/1968 00:00;mayotte;France;professeur;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;03/04/2015 00:00;;;;;0;0;;;;;;;;;;;Visite Familiale;Hôtel
+Monsieur;;;;02/12/1966 00:00;antananarivo;France;enseignant;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;12/03/2015 00:00;;;;;0;0;;;;;mayotte;;;;;;Visite Familiale;Autre
+Monsieur;;;;20/01/1955 00:00;France;France;enseingant;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;16/03/2015 00:00;;;;;0;0;;;;;mayotte;;;;;;Tourisme;Hôtel
+Madame;;;;31/01/1970 00:00;diégo suarez;France;;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;13/03/2015 00:00;;;;;0;0;;;;;mayotte;;;;;;Tourisme;Hôtel
+Monsieur;;;;12/01/1975 00:00;fontenay les roses;France;;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;13/03/2015 00:00;;;;;0;0;;;;;mayotte;;;;;;Affaire;Hôtel
+Madame;;;;15/01/1977 00:00;moroni;France;commerçant;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;12/03/2015 00:00;;;;;0;0;;;;;;;;;;;Autre;Hôtel
+Monsieur;;;;13/07/1981 00:00;comores;France;;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;16/03/2015 00:00;;;;;0;0;;;;;;;;;;;Tourisme;Autre
+Madame;;;;16/12/1983 00:00;califorinia;usa;professeur;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;05/03/2015 00:00;;;;;0;0;;;;;;;;;;;Tourisme;Hôtel
+Monsieur;;;;05/08/1962 00:00;majunga;France;commerçant;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;13/03/2015 00:00;;;;;0;0;;;;;mayotte;;;;;;Tourisme;Hôtel
+Monsieur;;;;26/09/1979 00:00;France;France;maitre de conférence;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;05/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Madame;;;;31/01/1964 00:00;antsiranana;France;;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;01/03/2015 00:00;;;;;0;0;;;;;mayotte;;;;;;Visite Familiale;Autre
+Monsieur;;;;17/04/1972 00:00;ambovombe;France;militaire;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;02/03/2015 00:00;;;;;0;0;;;;;mayotte;;;;;;Visite Familiale;Autre
+Monsieur;;;;26/12/1958 00:00;ambatolampy;France;musicien;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;12/03/2015 00:00;;;;;0;0;;;;;mayotte;;;;;;Visite Familiale;Autre
+Monsieur;;;;10/07/1971 00:00;dzaoudzi;France;mecanicien;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;13/03/2015 00:00;;;;;0;0;;;;;mayotte;;;;;;Autre;Hôtel
+Monsieur;;;;08/11/1979 00:00;France;France;;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;15/03/2015 00:00;;;;;0;0;;;;;mayotte;;;;;;Tourisme;Hôtel
+Monsieur;;;;15/05/1963 00:00;mayotte;France;agent;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;13/03/2015 00:00;;;;;0;0;;;;;mayotte;;;;;;Tourisme;Hôtel
+Monsieur;;;;10/09/1999 00:00;comores;comores;élève;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;14/03/2015 00:00;;;;;0;0;;;;;comores;;;;;;Tourisme;Autre
+Monsieur;;;;04/05/1983 00:00;hombo;comores;maintenance;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;28/02/2015 00:00;;;;;0;0;;;;;comores;;;;;;Autre;Autre
+Monsieur;;;;05/05/1957 00:00;moheli;comores;commerçant;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;02/03/2015 00:00;;;;;0;0;;;;;comores;;;;;;Autre;Autre
+Madame;;;;01/06/1969 00:00;comores;comores;commerçant;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;14/03/2015 00:00;;;;;0;0;;;;;comores;;;;;;Tourisme;Autre
+Monsieur;;;;31/12/1958 00:00;comores;comores;meteo plogiste;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;;;;;;0;0;;;;;comores;;;;;;Autre;Autre
+Madame;;;;06/10/1955 00:00;comores;comores;chauffagiste;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;12/03/2015 00:00;;;;;0;0;;;;;comores;;;;;;Autre;Autre
+Mlle;;;;25/12/1990 00:00;comores;comores;;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;;;;;;0;0;;;;;;;;;;;Autre;Autre
+Monsieur;;;;31/12/1981 00:00;comores;comores;agriculteur;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;16/03/2015 00:00;;;;;0;0;;;;;comores;;;;;;Autre;Autre
+Madame;;;;31/12/1969 00:00;comores;comores;menagère;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;14/03/2015 00:00;;;;;0;0;;;;;comores;;;;;;Tourisme;Autre
+Monsieur;;;;20/09/1949 00:00;comores;comores;entrepreneur;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;12/03/2015 00:00;;;;;0;0;;;;;;;;;;;Autre;Autre
+Madame;;;;10/08/1987 00:00;moroni;comores;comptable;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;;;;;;0;0;;;;;;;;;;;Autre;Autre
+Monsieur;;;;14/01/1982 00:00;moroni;comores;comptable;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;;;;;;0;0;;;;;comores;;;;;;Autre;Autre
+Monsieur;;;;11/05/1982 00:00;comores;comores;ingénieur;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;18/03/2015 00:00;;;;;0;0;;;;;comores;;;;;;Autre;Hôtel
+Monsieur;;;;27/09/1974 00:00;tamatave;comores;chauffeur;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;12/09/2015 00:00;;;;;0;0;;;;;;;;;;;Affaire;Hôtel
+Madame;;;;10/11/1983 00:00;mayotte;France;;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;16/03/2015 00:00;;;;;0;0;;;;;;;;;;;Tourisme;Hôtel
+Monsieur;;;;05/04/2003 00:00;guadeloupe;France;élève;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;16/03/2015 00:00;;;;;0;0;;;;;mayotte;;;;;;Autre;Autre
+Monsieur;;;;12/02/1966 00:00;antananarivo;comores;enseingant;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;16/03/2015 00:00;;;;;0;0;;;;;;;;;;;Autre;Autre
+Mlle;;;;20/01/2007 00:00;comores;France;élève;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;16/03/2015 00:00;;;;;0;0;;;;;mayotte;;;;;;Autre;Autre
+Monsieur;;;;03/09/1964 00:00;dzaoudzi;France;enseignant;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;12/03/2015 00:00;;;;;0;0;;;;;mayotte;;;;;;Tourisme;Hôtel
+Madame;;;;12/08/1972 00:00;tulear;France;adjoint admin;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;16/03/2015 00:00;;;;;0;0;;;;;mayotte;;;;;;Autre;Autre
+Monsieur;;;;03/04/1980 00:00;mayotte;France;salarié;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;15/03/2015 00:00;;;;;0;0;;;;;mayotte;;;;;;Tourisme;Hôtel
+Monsieur;;;;13/10/1950 00:00;le mans;France;médecin;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;07/03/2015 00:00;;;;;0;0;;;;;;;;;;;Tourisme;Hôtel
+Monsieur;;;;22/12/1966 00:00;France;France;directeur;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;14/03/2015 00:00;;;;;0;0;;;;;comores;;;;;;Autre;Hôtel
+Monsieur;;;;18/05/1971 00:00;mayotte;France;artisan;;;;;0;;;;;md 141;Air Madagascar;26/02/2015 00:00;06/03/2015 00:00;;;;;0;0;;;;;;;;;;;Tourisme;Hôtel

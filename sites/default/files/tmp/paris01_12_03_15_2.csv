@@ -1,0 +1,123 @@
+Titre_Civilité;Nom;Prénoms;Nom_de_jeune_fille;Date_de_naissance;Lieu_de_naissance;Nationalité;Profession;Numéro_du_passeport;Date_de_délivrance_passeport;Fin_de_validité_passeport;Lieu_d'émission_passeport;Nombre_d'enfants;Enfant_1;Enfant_2;Enfant_3;Enfant_4;Numéro_du_vol;Compagnie;Date_du_vol;Date_de_retour;Numéro_du_visa;Visa_délivré_à;Visa_délivré_le;Autorité_émetteur;Durée_du_séjour(mois);Durée_du_séjour(jours);Aéroport_d'embarquement;Lieu_de_résidence;Adresse;Ville;Pays;En_transit;Lieu_de_destination;Aéroport_de_destination;Date_de_départ;Voyage_en_groupe;Objet_du_voayage;Hébergement
+Mlle;;;;16/12/1992 00:00;marseille;France;étudiante;;;;;0;;;;;af 934;air France;12/03/2015 00:00;10/06/2015 00:00;;;;;0;0;;;;;France;;;;;;Autre;Hôtel
+Monsieur;;;;10/11/1962 00:00;vohipeno;France;conducteur avitailleur;;;;;0;;;;;af 934;air France;12/03/2015 00:00;27/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Visite Familiale;Autre
+Mlle;;;;05/05/1986 00:00;usa;usa;doctor;;;;;0;;;;;af 934;air France;12/03/2015 00:00;;;;;;0;0;;;;;;;;;;;Autre;Autre
+Monsieur;;;;09/04/1953 00:00;genève;suisse;reprographe;;;;;0;;;;;af 934;air France;12/03/2015 00:00;23/03/2015 00:00;;;;;0;0;;;;;suisse;;;;;;Tourisme;Hôtel
+Monsieur;;;;13/05/1961 00:00;canada;canada;maintenance manager;;;;;0;;;;;af 934;air France;12/03/2015 00:00;15/04/2015 00:00;;;;;0;0;;;;;canada;;;;;;Autre;Autre
+Monsieur;;;;22/11/1992 00:00;foulpointe;France;étudiante;;;;;0;;;;;af 934;air France;12/03/2015 00:00;22/07/2015 00:00;;;;;0;0;;;;;France;;;;;;Autre;Autre
+Monsieur;;;;08/09/1980 00:00;France;France;cameleur;;;;;0;;;;;af 934;air France;12/03/2015 00:00;23/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Autre
+Madame;;;;09/11/1949 00:00;antananarivo;France;cadre;;;;;0;;;;;af 934;air France;12/03/2015 00:00;10/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Autre;Autre
+Monsieur;;;;13/06/1966 00:00;France;France;gérant;;;;;0;;;;;af 934;air France;12/03/2015 00:00;20/03/2015 00:00;;;;;0;0;;;;;;;;;;;Tourisme;Autre
+Madame;;;;17/02/1949 00:00;suisse;suisse;retraité;;;;;0;;;;;ss 874;Corsair Fly;12/03/2015 00:00;27/03/2015 00:00;;;;;0;0;;;;;suisse;;;;;;Tourisme;Hôtel
+Monsieur;;;;22/08/1991 00:00;grèce;grèce;police;;;;;0;;;;;af 934;air France;12/03/2015 00:00;01/04/2015 00:00;;;;;0;0;;;;;grèce;;;;;;Tourisme;Hôtel
+Madame;;;;02/07/1962 00:00;France;France;cadre;;;;;0;;;;;af 934;air France;12/03/2015 00:00;05/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Autre
+Monsieur;;;;19/07/1950 00:00;strasbourg;France;retraité;;;;;0;;;;;af 934;air France;12/03/2015 00:00;05/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;07/08/1944 00:00;France;France;retraité;;;;;0;;;;;af 934;air France;12/03/2015 00:00;23/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;05/02/1951 00:00;France;France;retraité;;;;;0;;;;;af 934;air France;12/03/2015 00:00;23/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Visite Familiale;Autre
+Monsieur;;;;04/07/1949 00:00;suisse;suisse;retraité;;;;;0;;;;;af 934;air France;12/03/2015 00:00;27/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;11/07/1950 00:00;suisse;suisse;retraité;;;;;0;;;;;af 934;air France;12/03/2015 00:00;27/03/2015 00:00;;;;;0;0;;;;;suisse;;;;;;Tourisme;Hôtel
+Monsieur;;;;16/09/1945 00:00;nantes;France;retraité;;;;;0;;;;;af 934;air France;12/03/2015 00:00;08/06/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;23/10/1947 00:00;suisse;suisse;;;;;;0;;;;;af 934;air France;12/03/2015 00:00;27/03/2015 00:00;;;;;0;0;;;;;suisse;;;;;;Tourisme;Hôtel
+Madame;;;;30/09/1949 00:00;schweiz;schweiz;;;;;;0;;;;;af 934;air France;12/03/2015 00:00;27/03/2015 00:00;;;;;0;0;;;;;schweiz;;;;;;Tourisme;Hôtel
+Madame;;;;29/09/1973 00:00;suisse;suisse;docteur;;;;;0;;;;;af 934;air France;12/03/2015 00:00;27/03/2015 00:00;;;;;0;0;;;;;suisse;;;;;;Tourisme;Hôtel
+Madame;;;;06/04/1965 00:00;californie;France;enseingante;;;;;0;;;;;af 934;air France;12/03/2015 00:00;23/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;21/02/1956 00:00;suisse;suisse;retraité;;;;;0;;;;;af 934;air France;12/03/2015 00:00;27/03/2015 00:00;;;;;0;0;;;;;suisse;;;;;;Tourisme;Hôtel
+Monsieur;;;;17/03/1953 00:00;France;France;cadre bancaire;;;;;0;;;;;af 934;air France;12/03/2015 00:00;05/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Autre;Autre
+Monsieur;;;;19/12/1965 00:00;ansiers;France;restaurateur;;;;;0;;;;;af 934;air France;12/03/2015 00:00;16/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;12/10/1981 00:00;colombes;France;auditeur;;;;;0;;;;;af 934;air France;12/03/2015 00:00;23/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Affaire;Hôtel
+Mlle;;;;29/04/1990 00:00;France;France;étudiante;;;;;0;;;;;af 934;air France;12/03/2015 00:00;20/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;02/04/1952 00:00;quimperle;France;ingénieur;;;;;0;;;;;af 934;air France;12/03/2015 00:00;15/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;08/07/2000 00:00;aix en provence;France;écolier;;;;;0;;;;;af 934;air France;12/03/2015 00:00;16/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Madame;;;;21/02/1977 00:00;clamart;France;reponsable logisitque;;;;;0;;;;;af 934;air France;12/03/2015 00:00;16/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Visite Familiale;Autre
+Madame;;;;05/03/1954 00:00;bern;chine;nurse;;;;;0;;;;;af 934;air France;12/03/2015 00:00;28/03/2015 00:00;;;;;0;0;;;;;chine;;;;;;Tourisme;Hôtel
+Monsieur;;;;19/08/1958 00:00;marseille;France;bat;;;;;0;;;;;af 934;air France;12/03/2015 00:00;16/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;15/08/1971 00:00;asnieres sur seine;France;directeur;;;;;0;;;;;af 934;air France;12/03/2015 00:00;16/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Affaire;Hôtel
+Madame;;;;06/06/1952 00:00;manakara;France;fonctionnaire;;;;;0;;;;;af 934;air France;12/03/2015 00:00;17/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Autre;Autre
+Mlle;;;;07/11/1976 00:00;France;France;juriste;;;;;0;;;;;af 934;air France;12/03/2015 00:00;16/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Visite Familiale;Autre
+Monsieur;;;;20/08/1937 00:00;France;France;médecin;;;;;0;;;;;af 934;air France;12/03/2015 00:00;23/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Madame;;;;10/03/1949 00:00;sartrouville;France;directeur;;;;;0;;;;;af 934;air France;12/03/2015 00:00;03/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;24/05/1955 00:00;France;France;chercheur;;;;;0;;;;;af 934;air France;12/03/2015 00:00;25/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Autre;Autre
+Madame;;;;02/12/1963 00:00;antananarivo;France;assistante commerciale;;;;;0;;;;;af 934;air France;12/03/2015 00:00;23/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Visite Familiale;Autre
+Monsieur;;;;24/05/1960 00:00;boulogne billancourt;France;informatique;;;;;0;;;;;af 934;air France;12/03/2015 00:00;27/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Affaire;Hôtel
+Madame;;;;07/01/1953 00:00;suisse;suisse;comptable;;;;;0;;;;;af 934;air France;12/03/2015 00:00;27/03/2015 00:00;;;;;0;0;;;;;suisse;;;;;;Tourisme;Hôtel
+Monsieur;;;;07/12/1944 00:00;nice;France;retraité;;;;;0;;;;;af 934;air France;12/03/2015 00:00;09/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Visite Familiale;Autre
+Monsieur;;;;25/11/1950 00:00;meudon;France;retraité;;;;;0;;;;;af 934;air France;12/03/2015 00:00;08/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;25/02/1948 00:00;usa;usa;pharmacie;;;;;0;;;;;af 934;air France;12/03/2015 00:00;03/05/2015 00:00;;;;;0;0;;;;;usa;;;;;;Autre;Autre
+Madame;;;;21/11/1952 00:00;pont l'abbé;France;retraité;;;;;0;;;;;af 934;air France;12/03/2015 00:00;08/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;29/09/1946 00:00;France;France;retraité;;;;;0;;;;;af 934;air France;12/03/2015 00:00;03/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Madame;;;;29/01/1956 00:00;France;France;retraité;;;;;0;;;;;af 934;air France;12/03/2015 00:00;08/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Autre
+Monsieur;;;;22/09/1949 00:00;France;France;;;;;;0;;;;;af 934;air France;12/03/2015 00:00;25/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Visite Familiale;Autre
+Monsieur;;;;12/06/1955 00:00;France;France;retraité;;;;;0;;;;;af 934;air France;12/03/2015 00:00;08/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Autre
+Monsieur;;;;13/12/1975 00:00;antananarivo;malagasy;gérant;;;;;0;;;;;af 934;air France;12/03/2015 00:00;21/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Autre
+Madame;;;;13/10/1958 00:00;angers;France;cadre bancaire;;;;;0;;;;;af 934;air France;12/03/2015 00:00;04/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;12/08/1959 00:00;arrachon;France;chercheur;;;;;0;;;;;af 934;air France;12/03/2015 00:00;25/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Autre;Hôtel
+Madame;;;;24/01/1955 00:00;diégo suarez;France;agent territoire;;;;;0;;;;;af 934;air France;12/03/2015 00:00;23/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Autre;Autre
+Monsieur;;;;23/08/1978 00:00;st priest;France;responsable;;;;;0;;;;;af 934;air France;12/03/2015 00:00;25/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;23/12/1975 00:00;caen;France;consultant;;;;;0;;;;;af 934;air France;12/03/2015 00:00;25/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;19/02/1949 00:00;sartrouville;France;retraité;;;;;0;;;;;af 934;air France;12/03/2015 00:00;25/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Madame;;;;07/08/1961 00:00;hungarie;hungarie;retraité;;;;;0;;;;;af 934;air France;12/03/2015 00:00;01/04/2015 00:00;;;;;0;0;;;;;hongrie;;;;;;Tourisme;Hôtel
+Monsieur;;;;28/12/1963 00:00;budapest;hungarian;electricien;;;;;0;;;;;af 934;air France;12/03/2015 00:00;01/04/2015 00:00;;;;;0;0;;;;;hongrie;;;;;;Tourisme;Hôtel
+Monsieur;;;;13/08/1974 00:00;Italie;Italie;mécanic;;;;;0;;;;;af 934;air France;12/03/2015 00:00;20/03/2015 00:00;;;;;0;0;;;;;Italie;;;;;;Affaire;Hôtel
+Mlle;;;;13/10/1979 00:00;spanish;spanish;docteur;;;;;0;;;;;af 934;air France;12/03/2015 00:00;30/03/2015 00:00;;;;;0;0;;;;;spanish;;;;;;Tourisme;Hôtel
+Monsieur;;;;06/02/1971 00:00;girona;spanish;adversting;;;;;0;;;;;af 934;air France;12/03/2015 00:00;30/05/2015 00:00;;;;;0;0;;;;;spain;;;;;;Tourisme;Hôtel
+Madame;;;;04/05/1989 00:00;chine;chine;trade operation associat;;;;;0;;;;;af 934;air France;12/03/2015 00:00;27/03/2015 00:00;;;;;0;0;;;;;chine;;;;;;Autre;Hôtel
+Monsieur;;;;02/06/1963 00:00;chine;chine;driver;;;;;0;;;;;af 934;air France;12/03/2015 00:00;01/04/2015 00:00;;;;;0;0;;;;;chine;;;;;;Autre;Hôtel
+Mlle;;;;27/01/1982 00:00;montelimar;France;serveuse;;;;;0;;;;;af 934;air France;12/01/2015 00:00;23/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Autre
+Monsieur;;;;26/11/1990 00:00;Allemagne;Allemagne;student;;;;;0;;;;;af 934;air France;12/03/2015 00:00;01/04/2015 00:00;;;;;0;0;;;;;Allemagne;;;;;;Tourisme;Hôtel
+Monsieur;;;;02/04/1964 00:00;bologne;Italie;médecin;;;;;0;;;;;af 934;air France;12/03/2015 00:00;03/05/2015 00:00;;;;;0;0;;;;;Italie;;;;;;Autre;Hôtel
+Monsieur;;;;21/06/1947 00:00;Italie;Italie;médecin;;;;;0;;;;;af 934;air France;12/03/2015 00:00;31/05/2015 00:00;;;;;0;0;;;;;Italie;;;;;;Autre;Autre
+Monsieur;;;;02/10/1985 00:00;France;France;commerçant;;;;;0;;;;;af 934;air France;12/03/2015 00:00;23/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Autre
+Madame;;;;17/11/1957 00:00;Allemagne;Allemagne;;;;;;0;;;;;af 934;air France;12/03/2015 00:00;01/04/2015 00:00;;;;;0;0;;;;;Allemagne;;;;;;Tourisme;Hôtel
+Monsieur;;;;15/10/1992 00:00;Allemagne;Allemagne;étudiant;;;;;0;;;;;af 934;air France;12/03/2015 00:00;01/04/2015 00:00;;;;;0;0;;;;;Allemagne;;;;;;Tourisme;Hôtel
+Monsieur;;;;29/11/1982 00:00;France;France;technicien;;;;;0;;;;;af 934;air France;12/03/2015 00:00;18/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;15/06/1946 00:00;France;France;retraité;;;;;0;;;;;af 934;air France;12/03/2015 00:00;11/05/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Mlle;;;;08/11/1989 00:00;canada;canada;student;;;;;0;;;;;af 934;air France;12/03/2015 00:00;06/04/2015 00:00;;;;;0;0;;;;;canada;;;;;;Tourisme;Hôtel
+Monsieur;;;;09/11/1950 00:00;antananarivo;France;manager;;;;;0;;;;;af 934;air France;12/03/2015 00:00;20/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Visite Familiale;Autre
+Monsieur;;;;27/09/1947 00:00;dijon;France;directeur;;;;;0;;;;;af 934;air France;12/03/2015 00:00;08/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;23/03/1984 00:00;belfast;irish;tv producer;;;;;0;;;;;af 934;air France;12/03/2015 00:00;01/05/2015 00:00;;;;;0;0;;;;;irish;;;;;;Affaire;Hôtel
+Monsieur;;;;04/04/1981 00:00;dubai;royaume uni;producer;;;;;0;;;;;af 934;air France;12/03/2015 00:00;28/04/2015 00:00;;;;;0;0;;;;;uk;;;;;;Affaire;Hôtel
+Mlle;;;;17/03/1984 00:00;uk;royaume uni;directeur;;;;;0;;;;;af 934;air France;12/03/2015 00:00;26/04/2015 00:00;;;;;0;0;;;;;uk;;;;;;Autre;Hôtel
+Monsieur;;;;25/06/1977 00:00;uk;royaume uni;caméraman;;;;;0;;;;;af 934;air France;12/03/2015 00:00;25/03/2015 00:00;;;;;0;0;;;;;uk;;;;;;Affaire;Hôtel
+Monsieur;;;;30/01/1968 00:00;england;english;sound recordist;;;;;0;;;;;af 934;air France;12/03/2015 00:00;04/04/2015 00:00;;;;;0;0;;;;;english;;;;;;Affaire;Hôtel
+Monsieur;;;;30/05/1945 00:00;usa;usa;writer;;;;;0;;;;;af 934;air France;12/03/2015 00:00;24/04/2015 00:00;;;;;0;0;;;;;usa;;;;;;Affaire;Hôtel
+Madame;;;;22/12/1969 00:00;usa;usa;business;;;;;0;;;;;af 934;air France;12/03/2015 00:00;29/04/2015 00:00;;;;;0;0;;;;;usa;;;;;;Affaire;Hôtel
+Monsieur;;;;15/03/1963 00:00;metz;France;cuisinier;;;;;0;;;;;af 934;air France;12/03/2015 00:00;22/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Madame;;;;03/03/1966 00:00;Allemagne;France;consultante;;;;;0;;;;;af 934;air France;12/03/2015 00:00;20/05/2015 00:00;;;;;0;0;;;;;France;;;;;;Autre;Autre
+Monsieur;;;;17/11/1949 00:00;strasbourg;France;retraité;;;;;0;;;;;af 934;air France;12/03/2015 00:00;11/05/2015 00:00;;;;;0;0;;;;;France;;;;;;Autre;Autre
+Monsieur;;;;30/05/1941 00:00;firenze;Italie;retraité;;;;;0;;;;;af 934;air France;12/03/2015 00:00;23/03/2015 00:00;;;;;0;0;;;;;Italie;;;;;;Tourisme;Hôtel
+Mlle;;;;02/02/1975 00:00;sallanches;France;agent compagnie aérienne;;;;;0;;;;;af 934;air France;12/03/2015 00:00;30/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;23/05/1963 00:00;lyon;France;loueur de meuble;;;;;0;;;;;af 934;air France;12/03/2015 00:00;29/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;30/04/1952 00:00;montfermeil;France;retraité;;;;;0;;;;;af 934;air France;12/03/2015 00:00;12/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Madame;;;;11/02/1950 00:00;strasbourg;France;retraité;;;;;0;;;;;af 934;air France;12/03/2015 00:00;26/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;16/10/1964 00:00;France;France;fonctionnaire;;;;;0;;;;;af 934;air France;12/03/2015 00:00;12/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Autre
+Monsieur;;;;11/10/1962 00:00;France;France;;;;;;0;;;;;af 934;air France;12/03/2015 00:00;13/05/2015 00:00;;;;;0;0;;;;;France;;;;;;Autre;Autre
+Monsieur;;;;12/01/1948 00:00;aix en provence;France;chercheur;;;;;0;;;;;af 934;air France;12/03/2015 00:00;12/05/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Madame;;;;12/08/1951 00:00;France;France;retraité;;;;;0;;;;;af 934;air France;12/03/2015 00:00;26/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Autre;Autre
+Monsieur;;;;01/05/1946 00:00;France;France;retraité;;;;;0;;;;;af 934;air France;12/03/2015 00:00;11/05/2015 00:00;;;;;0;0;;;;;France;;;;;;Autre;Autre
+Monsieur;;;;26/04/1950 00:00;France;France;retraité;;;;;0;;;;;af 934;air France;12/03/2015 00:00;26/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Autre;Autre
+Monsieur;;;;27/06/1978 00:00;comores;comores;artiste;;;;;0;;;;;af 934;air France;12/03/2015 00:00;08/04/2015 00:00;;;;;0;0;;;;;comores;;;;;;Tourisme;Autre
+Madame;;;;21/06/1964 00:00;aubenas;France;ingénieur;;;;;0;;;;;af 934;air France;12/03/2015 00:00;20/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Madame;;;;30/06/1977 00:00;ste colombe;France;chargée de solidarité;;;;;0;;;;;af 934;air France;12/03/2015 00:00;20/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Autre;Hôtel
+Monsieur;;;;29/10/1986 00:00;clermont ferrand;France;agriculteur;;;;;0;;;;;af 934;air France;12/03/2015 00:00;23/03/2015 00:00;;;;;0;0;;;;;;;;;;;Visite Familiale;Autre
+Monsieur;;;;13/02/1957 00:00;France;France;expert aéronautique;;;;;0;;;;;af 934;air France;12/03/2015 00:00;05/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Visite Familiale;Autre
+Monsieur;;;;02/03/1990 00:00;slovakia;slovakia;manager;;;;;0;;;;;af 934;air France;12/03/2015 00:00;23/03/2015 00:00;;;;;0;0;;;;;;;;;;;Tourisme;Hôtel
+Madame;;;;18/04/1951 00:00;vangaindrano;France;infirmière;;;;;0;;;;;af 934;air France;12/03/2015 00:00;05/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Visite Familiale;Autre
+Monsieur;;;;27/09/1975 00:00;slovakia;slovakia;worker;;;;;0;;;;;af 934;air France;12/03/2015 00:00;23/03/2015 00:00;;;;;0;0;;;;;slovakia;;;;;;Tourisme;Hôtel
+Monsieur;;;;22/12/1978 00:00;slovakia;slovakia;manager;;;;;0;;;;;af 934;air France;12/03/2015 00:00;23/03/2015 00:00;;;;;0;0;;;;;slovakia;;;;;;Tourisme;Hôtel
+Monsieur;;;;28/06/1960 00:00;brest;France;technicien;;;;;0;;;;;af 934;air France;12/03/2015 00:00;21/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;03/03/1967 00:00;paris;France;acheteur;;;;;0;;;;;af 934;air France;12/03/2015 00:00;30/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;11/02/1941 00:00;suisse;suisse;rentner;;;;;0;;;;;af 934;air France;12/03/2015 00:00;28/03/2015 00:00;;;;;0;0;;;;;suisse;;;;;;Tourisme;Hôtel
+Monsieur;;;;16/11/1964 00:00;suisse;suisse;guide;;;;;0;;;;;af 934;air France;12/03/2015 00:00;27/03/2015 00:00;;;;;0;0;;;;;suisse;;;;;;Tourisme;Hôtel
+Madame;;;;21/04/1939 00:00;suisse;suisse;retraité;;;;;0;;;;;af 934;air France;12/03/2015 00:00;28/03/2015 00:00;;;;;0;0;;;;;suisse;;;;;;Tourisme;Hôtel
+Monsieur;;;;29/08/1989 00:00;Italie;Italie;technicien;;;;;0;;;;;af 934;air France;12/03/2015 00:00;16/03/2015 00:00;;;;;0;0;;;;;Italie;;;;;;Affaire;Hôtel
+Monsieur;;;;28/08/1972 00:00;cayenne;France;manager;;;;;0;;;;;af 934;air France;12/03/2015 00:00;30/03/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Monsieur;;;;21/07/1960 00:00;France;France;chef d'entreprise;;;;;0;;;;;af 934;air France;12/03/2015 00:00;01/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Madame;;;;03/05/1961 00:00;France;France;commerçant;;;;;0;;;;;af 934;air France;12/03/2015 00:00;01/04/2015 00:00;;;;;0;0;;;;;France;;;;;;Tourisme;Hôtel
+Madame;;;;27/08/1939 00:00;thun;suisse;retraité;;;;;0;;;;;af 934;air France;12/03/2015 00:00;27/03/2015 00:00;;;;;0;0;;;;;suisse;;;;;;Tourisme;Hôtel
+Madame;;;;22/11/1956 00:00;Italie;Italie;nurse;;;;;0;;;;;af 934;air France;12/03/2015 00:00;27/03/2015 00:00;;;;;0;0;;;;;Italie;;;;;;Tourisme;Hôtel
+Mlle;;;;02/09/1981 00:00;suisse;suisse;student;;;;;0;;;;;af 934;air France;12/03/2015 00:00;27/03/2015 00:00;;;;;0;0;;;;;suisse;;;;;;Tourisme;Hôtel
+Madame;;;;02/11/1959 00:00;suisse;suisse;farmer;;;;;0;;;;;af 934;air France;12/03/2015 00:00;27/03/2015 00:00;;;;;0;0;;;;;suisse;;;;;;Tourisme;Hôtel
+Monsieur;;;;16/09/1978 00:00;suisse;suisse;student;;;;;0;;;;;af 934;air France;12/03/2015 00:00;27/03/2015 00:00;;;;;0;0;;;;;suisse;;;;;;Tourisme;Hôtel
+Monsieur;;;;11/01/1954 00:00;suisse;suisse;employé;;;;;0;;;;;af 934;air France;12/03/2015 00:00;27/03/2015 00:00;;;;;0;0;;;;;suisse;;;;;;Tourisme;Hôtel
+Madame;;;;12/10/1952 00:00;canada;canada;retraité;;;;;0;;;;;af 934;air France;12/03/2015 00:00;01/04/2015 00:00;;;;;0;0;;;;;canada;;;;;;Tourisme;Hôtel
+Monsieur;;;;08/12/1947 00:00;canada;canada;retraité;;;;;0;;;;;af 934;air France;12/03/2015 00:00;01/04/2015 00:00;;;;;0;0;;;;;canada;;;;;;Tourisme;Hôtel

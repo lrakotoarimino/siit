@@ -1,0 +1,5 @@
+name = SIIT EDBM : Formulaire d'importation pour EDBM
+description = SIIT EDBM : Formulaire d'importation pour EDBM
+core = 7.x
+version = 7.x-0.x-dev
+package = SIIT

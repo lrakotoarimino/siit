@@ -1,0 +1,137 @@
+<?php
+
+/**
+* @file
+* Détail des données des entrées pour ADEMA (fichier ADEMA01)
+*/
+
+function siit_importation_adema_01_detail_menu(){
+    $items = array();
+    $items['siit_importation_adema_01_detail'] = array(
+        'title'            => t('Détail des données ADEMA'), 
+        'page callback'    => 'drupal_get_form',
+        'page arguments' => array('siit_importation_adema_01_detail_form'),
+        'access arguments' => array('access siit_importation_adema_01_detail'),
+        'type'             => MENU_LOCAL_TASK,
+    	//'access callback' => TRUE,
+    );
+    
+    return $items;
+    
+}  
+
+function siit_importation_adema_01_detail_permission() {
+  return array( 
+    'access siit_importation_adema_01_detail' => array(
+      'title' => t('siit_importation_adema_01_detail : Detail importation Adema01'),
+      'description' => t('Perform administration tasks for Detail importation Adema01.'),
+    ),
+  );
+}
+
+function siit_importation_adema_01_detail_form($form) {
+
+	$header = array(
+			array('data' => t('Année'), 'field' => 'annee'),
+	    array('data' => t('Mois'), 'field' => 'li_mois'),
+        array('data' => t('Aeroport'), 'field' => 'li_aeroport', 'sort' => 'asc'),
+	    array('data' => t('Type de vol'), 'field' => 'li_type_vol'),
+	    array('data' => t('Nombre de passagers'), 'field' => 'nb_passagers'/*, 'sort' => 'desc'*/),
+        array('data' => t('Nombre de vols'), 'field' => 'nb_vols'/*, 'sort' => 'desc'*/),
+        array('data' => t('Arrivee/Depart'), 'field' => 'li_arrivee_depart'/*, 'sort' => 'desc'*/)
+	);
+	
+	
+	$rows = Null;
+	$i=0;
+	
+	global $user;
+    $uid = $user->uid;
+    
+    $limit = 10;
+    if (isset($_REQUEST['page']) && !empty($_REQUEST['page'])) {
+    	$start = $_REQUEST['page'] * $limit;
+    	$page = $_REQUEST['page'];
+    } else {
+    	$page = 0;
+    	$start = 0;
+    }
+    $sqlList = "select annee,li_mois,li_aeroport,li_type_vol,nb_passagers,nb_vols,li_arrivee_depart ";
+    $sqlCount = "select count(*) as total ";  
+    $sql = "from siit_adema ad,siit_aeroport ae,siit_mois m,siit_type_vol tv,siit_arrivee_depart arr 
+        where ad.id_aeroport=ae.id_aeroport and m.id_mois=ad.id_mois and tv.id_type_vol=ad.id_type_vol and arr.id_arrivee_depart=ad.id_arrivee_depart and id_importation=".$_GET["idImportation"];
+        
+	/*$results = db_query("select annee,li_mois,li_aeroport,li_type_vol,nb_passagers,nb_vols,li_arrivee_depart from siit_adema ad,siit_aeroport ae,siit_mois m,siit_type_vol tv,siit_arrivee_depart arr 
+where ad.id_aeroport=ae.id_aeroport and m.id_mois=ad.id_mois and tv.id_type_vol=ad.id_type_vol and arr.id_arrivee_depart=ad.id_arrivee_depart and id_importation=".$_GET["idImportation"]." group by id_adema "); */
+    $order = tablesort_get_order($header);
+	$sort = tablesort_get_sort($header);
+	
+	if (isset($order["sql"]) && !empty($order['sql'])) {
+		$sql .= " order by ".$order["sql"]." ".$sort;
+	} /*else {
+		$sql .= " order by dt_importation desc";
+	}*/
+	
+	//$results = db_query($sqlList.$sql);
+	$count_result = db_query($sqlCount.$sql)->fetchAssoc();;
+	$results = db_query_range($sqlList.$sql,$start,$limit);
+	$nbTotal = $count_result["total"];
+	pager_default_initialize($count_result["total"], $limit, $element = 0);
+	
+	$nb = 0; 
+	 foreach($results as $result) {
+	 			
+	       
+	      $rows[$i] = array(
+			    							'annee' => $result->annee,
+			        					'li_mois' => $result->li_mois,
+			        				  'li_aeroport' => $result->li_aeroport,
+			        				  'li_type_vol' => $result->li_type_vol,
+                                      'nb_passagers' => $result->nb_passagers,
+                                      'nb_vols' => $result->nb_vols,
+                                      'li_arrivee_depart' => $result->li_arrivee_depart,
+			        				  );
+	     $i++;        				  
+	 }
+     
+    $nbStart = ($page)*$limit +1;
+ 	$nbEnd = ($page+1)*$limit;
+ 	if ($nbTotal < $nbEnd) {
+ 		$nbEnd = $nbTotal;
+ 	}
+ 
+	$form['nb'] = array(
+		    '#markup' => "<br>Résultats affichés : ".$nbStart." à ".$nbEnd. " / ".$nbTotal,
+		  );
+ 
+	$form['table'] = array(
+		    '#theme' => 'table',
+		    '#header' => $header,
+		    '#rows' => $rows,
+		    '#empty' => t('Aucun r&eacute;sultat.')
+		  );
+	$form['pager'] = array('#markup' => theme('pager'));
+	
+	/*$text = getTextType('Contributor','bottom');
+	$form['contributor_bottom'] = array(
+	  '#markup' => str_replace("\n", "<br />",$text['body_value'])
+	);*/
+	
+	$form['importation']['back'] = array('#type' => 'submit', '#value' => t('Back'));
+	// $form['importation']['back']['#limit_validation_errors'] = array();
+	$form['importation']['back']['#submit'] = array('siit_importation_liste_back_submit');
+	// $form['importation']['back']['#name'] = 'reset';
+	
+	return $form;
+	
+}
+
+function siit_importation_liste_back_submit($form, &$form_state)  {
+
+	$form_state['redirect'] = array(
+			'siit_importation_liste',
+			array(),
+			// $http_response_code
+			302,
+	);
+}
