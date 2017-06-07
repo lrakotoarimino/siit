@@ -89,11 +89,11 @@ drupal_set_title(t('Formulaire EDBM'));
 	
 	$form['importation']['csv_file'] = array(
 	        '#title' => 'Importer Fichier :', // Titre dans la page d'importation du fichier
-	        '#description' => 'Seuls ces fichiers csv, xlsx sont valides.',
+	        '#description' => 'Seuls ces fichiers csv, xlsx et xls sont valides.',
 	        '#type' => 'managed_file',
 	        '#required' => true,
 	        '#upload_validators' => array(
-	            'file_validate_extensions' => array("csv xlsx"),
+	            'file_validate_extensions' => array("csv xlsx xls"),
 	        ),
 	    );
 	    
@@ -207,6 +207,13 @@ function csv_import_edbm_01_validate($form, &$form_state){
 							if(($PHPTimeStamp < 0 || empty($val) || date('Y-m-d',$PHPTimeStamp) === date('Y-m-d') ) && !empty($val_region)){
 							    form_set_error('edit-date'.$row, t("Format de date d'autorisation '$val' non conforme. (".getCellule($row, $col).")"));
 							} 
+							//On vérifie que l'année de l'autorisation est celle de l'import à faire
+							$anneeAutorisation = date('Y',$PHPTimeStamp);
+							if ($annee != $anneeAutorisation) {
+								$dtAutorisation = date('Y-m-d',$PHPTimeStamp);
+								form_set_error('edit-date'.$row, t("La date d'autorisation '$dtAutorisation' n'est pas dans l'année de l'import '$annee'. (".getCellule($row, $col).")"));
+							}
+							
 					}									
                 }
 				
