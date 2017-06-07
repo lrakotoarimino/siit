@@ -159,32 +159,40 @@ function csv_import_edbm_01_validate($form, &$form_state){
 					
 					//Champ obligatoire autre que nom etablissement, enseigne , region à voir
 					if($col == 3){
-					        if(empty($val) && !empty($val_enseigne)){
-								form_set_error('edit-region1'.$row, t("La region est vide. (".getCellule($row, $col).")"));
-							}else if(!empty($val)){
-								$id_region = get_id_region($val);
-								if($id_region == 0){
-									form_set_error('edit-region2'.$row, t("La region '$val' n'existe pas en base. (".getCellule($row, $col).")"));
-								} 
-								$val_region = "tmp";		
-							}
+				        if(empty($val) && !empty($val_enseigne)){
+							form_set_error('edit-region1'.$row, t("La region est vide. (".getCellule($row, $col).")"));
+						}else if(!empty($val)){
+							$id_region = get_id_region($val);
+							if($id_region == 0){
+								form_set_error('edit-region2'.$row, t("La region '$val' n'existe pas en base. (".getCellule($row, $col).")"));
+							} 
+							$val_region = "tmp";		
+						}
 					}
 					
 					if(empty($val_nom_etab) && empty($val_enseigne) && !empty($val_region)){						
 						form_set_error('edit-etab'.$row , t("Nom d'établissement et enseigne sont vides. (".getCellule($row, $col).")."));						
 					}
 					
-                    if($val){											
-                        if($col==7 ){
-							controle_error_nombre('edit-nb-nat'.$row,$val,$row,$col);
+                    if($val){	
+                    	if($col==6 ){
+                    		//Activités
+                    		controle_error_activite_etablissement('edit-activite-etablissement'.$row, $val,$row,$col);
+                    	}else if($col==7 ){
+                        	//Nb d'emplois nationaux
+							controle_error_int('edit-nb-nat'.$row,$val,$row,$col);
 						}else if($col==8 ){
-							controle_error_nombre('edit-nb-etr'.$row,$val,$row,$col);
+							//Nb d'emplois étrangers
+							controle_error_int('edit-nb-etr'.$row,$val,$row,$col);
 						}elseif($col==9 ){
+							//Mt de l'investissement
 							controle_error_nombre('edit-invest'.$row,$val,$row,$col);
 						}elseif($col==14 ){
-							controle_error_nombre('edit-nb-ch'.$row,$val,$row,$col);
+							//Nb de chambres
+							controle_error_int('edit-nb-ch'.$row,$val,$row,$col);
 						}else if($col==15 ){
-							controle_error_nombre('edit-nb-place'.$row,$val,$row,$col);
+							//Nb de places au restos
+							controle_error_int('edit-nb-place'.$row,$val,$row,$col);
 						}else if($col == 12){
 							$id_nat = get_id_nationalite($val,ENTITE_EDBM);
 							if($id_nat == 0){
@@ -218,12 +226,7 @@ function csv_import_edbm_01_validate($form, &$form_state){
     }
 }
 
- function controle_error_nombre($code,$val,$row,$col){
-	 
-	if(!filter_var($val, FILTER_VALIDATE_FLOAT)){
-        form_set_error($code , t($val." n'est pas un nombre (".getCellule($row, $col).") ."));
-    }   
- }
+
 
 function condition_arret($col,$val,&$data_arret){
 		
@@ -391,5 +394,11 @@ function traitement_edbm01($chemin, &$form_state){
         $form_state['redirect'] ="siit_importation_fusion_etablissement";
     }
 	
+}
+
+function controle_error_activite_etablissement($code, $val,$row,$col) {
+	if (empty(get_id_activite_etablissement($val))) {
+		form_set_error($code , t("L'activité ".$val." n'est pas connue (".getCellule($row, $col).") ."));
+	}
 }
 

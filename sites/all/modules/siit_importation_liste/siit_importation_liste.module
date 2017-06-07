@@ -545,12 +545,11 @@ function get_id_type_etablissement($li_type_etablissement) {
 function get_id_activite_etablissement($li_activite_etablissement, $origine = '', $li_enseigne = '') {
 
 	$li_activite_etablissement = str_replace("'", "''", $li_activite_etablissement);
-	$id_activite_etablissement = 9; //9 Hotel restaurant par défaut
+	//$id_activite_etablissement = 9; //9 Hotel restaurant par défaut
+	$id_activite_etablissement = 0; //0 par défaut pour forcer à corriger le fichier
+	
 	if ($origine == 'CNAPS') {
-		//var_dump('cnaps<br>');
-		//var_dump($li_activite_etablissement.'<br>');
-		//var_dump(strtolower($li_activite_etablissement).'<br>');
-		//var_dump(strtolower($li_enseigne).'<br>');
+		//Pour la cnaps on force en fonction du nom de l'activité car ne respecte pas la hierarchie utile
 		if (strpos(strtolower($li_activite_etablissement), 'hotel') === true) {
 			//var_dump('hotel<br>');
 			//var_dump($li_enseigne.'<br>');
@@ -569,8 +568,7 @@ function get_id_activite_etablissement($li_activite_etablissement, $origine = ''
 		}
 		
 		
-		
-		
+		//Toujours pour la CNAPS
 		if (strpos(strtolower($li_activite_etablissement), 'transport') !== false) {
 			//var_dump('transport<br>');
 			if (strpos(strtolower($li_activite_etablissement), 'aerien') !== false) {
@@ -594,13 +592,23 @@ function get_id_activite_etablissement($li_activite_etablissement, $origine = ''
 	}
 
 
+	//Sinon pour les autres (ét éventuellement pour la cnaps), on regarde si l'établissement existe
+	//Le pb est qu'on peut saisir fast-food ou Fast Food et on doit trouver pareil
+	$li_activite_etablissement = strtolower(remove_accents($li_activite_etablissement));
+	
 
 	$activite_etablissement = db_query("select * from siit_activite_etablissement 
-		WHERE lower(li_activite_etablissement) = '".(strtolower($li_activite_etablissement))."'");
+		WHERE lower(remove_accents(li_activite_etablissement)) = '".(strtolower($li_activite_etablissement))."'");
 	foreach($activite_etablissement as $p) {
 			$id_activite_etablissement = $p->id_activite_etablissement;
 	}
-	//var_dump($id_activite_etablissement);die();
+	
+	
+	//Si rien de trouvé, alors on va créer l'activité et on la rattache par défaut
+	// au restaurant. Il faudra qu'un admin drupal modifie cela si besoin
+	
+	
+	
 	return $id_activite_etablissement;
 }
 
@@ -1191,4 +1199,207 @@ function siit_importation_liste_form_submit($form, &$form_state){
   );
 }
 
+function remove_accents($str) {
+ 	 $str = str_replace('Š','S',$str);
+     $str = str_replace('š','s',$str);
+     $str = str_replace('Ð','Dj',$str);
+     $str = str_replace('Ž','Z',$str);
+     $str = str_replace('ž','z',$str);
+     $str = str_replace('À','A',$str);
+     $str = str_replace('Á','A',$str);
+     $str = str_replace('Â','A',$str);
+     $str = str_replace('Ã','A',$str);
+     $str = str_replace('Ä','A',$str);
+     $str = str_replace('Å','A',$str);
+     $str = str_replace('Æ','A',$str);
+     $str = str_replace('Ç','C',$str);
+     $str = str_replace('È','E',$str);
+     $str = str_replace('É','E',$str);
+     $str = str_replace('Ê','E',$str);
+     $str = str_replace('Ë','E',$str);
+     $str = str_replace('Ì','I',$str);
+     $str = str_replace('Í','I',$str);
+     $str = str_replace('Î','I',$str);
+     $str = str_replace('Ï','I',$str);
+     $str = str_replace('Ñ','N',$str);
+     $str = str_replace('Ò','O',$str);
+     $str = str_replace('Ó','O',$str);
+     $str = str_replace('Ô','O',$str);
+     $str = str_replace('Õ','O',$str);
+     $str = str_replace('Ö','O',$str);
+     $str = str_replace('Ø','O',$str);
+     $str = str_replace('Ù','U',$str);
+     $str = str_replace('Ú','U',$str);
+     $str = str_replace('Û','U',$str);
+     $str = str_replace('Ü','U',$str);
+     $str = str_replace('Ý','Y',$str);
+     $str = str_replace('Þ','B',$str);
+     $str = str_replace('ß','Ss',$str);
+     $str = str_replace('à','a',$str);
+     $str = str_replace('á','a',$str);
+     $str = str_replace('â','a',$str);
+     $str = str_replace('ã','a',$str);
+     $str = str_replace('ä','a',$str);
+     $str = str_replace('å','a',$str);
+     $str = str_replace('æ','a',$str);
+     $str = str_replace('ç','c',$str);
+     $str = str_replace('è','e',$str);
+     $str = str_replace('é','e',$str);
+     $str = str_replace('ê','e',$str);
+     $str = str_replace('ë','e',$str);
+     $str = str_replace('ì','i',$str);
+     $str = str_replace('í','i',$str);
+     $str = str_replace('î','i',$str);
+     $str = str_replace('ï','i',$str);
+     $str = str_replace('ð','o',$str);
+     $str = str_replace('ñ','n',$str);
+     $str = str_replace('ò','o',$str);
+     $str = str_replace('ó','o',$str);
+     $str = str_replace('ô','o',$str);
+     $str = str_replace('õ','o',$str);
+     $str = str_replace('ö','o',$str);
+     $str = str_replace('ø','o',$str);
+     $str = str_replace('ù','u',$str);
+     $str = str_replace('ú','u',$str);
+     $str = str_replace('û','u',$str);
+     $str = str_replace('ý','y',$str);
+     $str = str_replace('ý','y',$str);
+     $str = str_replace('þ','b',$str);
+     $str = str_replace('ÿ','y',$str);
+     $str = str_replace('ƒ','f',$str);
+     $str = str_replace('-','',$str);
+     $str = str_replace('_','',$str);
+     $str = str_replace(' ','',$str);
+     $str = str_replace('\'','',$str);
+     $str = str_replace('’','',$str);
+	return $str;
+}
 
+/* Pour info dans le sql
+
+DROP FUNCTION IF EXISTS remove_accents;
+
+DELIMITER $$
+CREATE FUNCTION  remove_accents(str TEXT)
+    RETURNS text
+    LANGUAGE SQL
+    DETERMINISTIC
+    NO SQL
+    SQL SECURITY INVOKER
+    COMMENT ''
+ 
+BEGIN
+ 
+    SET str = REPLACE(str,'Š','S');
+    SET str = REPLACE(str,'š','s');
+    SET str = REPLACE(str,'Ð','Dj');
+    SET str = REPLACE(str,'Ž','Z');
+    SET str = REPLACE(str,'ž','z');
+    SET str = REPLACE(str,'À','A');
+    SET str = REPLACE(str,'Á','A');
+    SET str = REPLACE(str,'Â','A');
+    SET str = REPLACE(str,'Ã','A');
+    SET str = REPLACE(str,'Ä','A');
+    SET str = REPLACE(str,'Å','A');
+    SET str = REPLACE(str,'Æ','A');
+    SET str = REPLACE(str,'Ç','C');
+    SET str = REPLACE(str,'È','E');
+    SET str = REPLACE(str,'É','E');
+    SET str = REPLACE(str,'Ê','E');
+    SET str = REPLACE(str,'Ë','E');
+    SET str = REPLACE(str,'Ì','I');
+    SET str = REPLACE(str,'Í','I');
+    SET str = REPLACE(str,'Î','I');
+    SET str = REPLACE(str,'Ï','I');
+    SET str = REPLACE(str,'Ñ','N');
+    SET str = REPLACE(str,'Ò','O');
+    SET str = REPLACE(str,'Ó','O');
+    SET str = REPLACE(str,'Ô','O');
+    SET str = REPLACE(str,'Õ','O');
+    SET str = REPLACE(str,'Ö','O');
+    SET str = REPLACE(str,'Ø','O');
+    SET str = REPLACE(str,'Ù','U');
+    SET str = REPLACE(str,'Ú','U');
+    SET str = REPLACE(str,'Û','U');
+    SET str = REPLACE(str,'Ü','U');
+    SET str = REPLACE(str,'Ý','Y');
+    SET str = REPLACE(str,'Þ','B');
+    SET str = REPLACE(str,'ß','Ss');
+    SET str = REPLACE(str,'à','a');
+    SET str = REPLACE(str,'á','a');
+    SET str = REPLACE(str,'â','a');
+    SET str = REPLACE(str,'ã','a');
+    SET str = REPLACE(str,'ä','a');
+    SET str = REPLACE(str,'å','a');
+    SET str = REPLACE(str,'æ','a');
+    SET str = REPLACE(str,'ç','c');
+    SET str = REPLACE(str,'è','e');
+    SET str = REPLACE(str,'é','e');
+    SET str = REPLACE(str,'ê','e');
+    SET str = REPLACE(str,'ë','e');
+    SET str = REPLACE(str,'ì','i');
+    SET str = REPLACE(str,'í','i');
+    SET str = REPLACE(str,'î','i');
+    SET str = REPLACE(str,'ï','i');
+    SET str = REPLACE(str,'ð','o');
+    SET str = REPLACE(str,'ñ','n');
+    SET str = REPLACE(str,'ò','o');
+    SET str = REPLACE(str,'ó','o');
+    SET str = REPLACE(str,'ô','o');
+    SET str = REPLACE(str,'õ','o');
+    SET str = REPLACE(str,'ö','o');
+    SET str = REPLACE(str,'ø','o');
+    SET str = REPLACE(str,'ù','u');
+    SET str = REPLACE(str,'ú','u');
+    SET str = REPLACE(str,'û','u');
+    SET str = REPLACE(str,'ý','y');
+    SET str = REPLACE(str,'ý','y');
+    SET str = REPLACE(str,'þ','b');
+    SET str = REPLACE(str,'ÿ','y');
+    SET str = REPLACE(str,'ƒ','f');
+    SET str = REPLACE(str,'-','');
+    SET str = REPLACE(str,'_','');
+    SET str = REPLACE(str,' ','');
+    SET str = REPLACE(str,'\'','');
+    SET str = REPLACE(str,'’','');
+    RETURN str;
+END;
+$$
+DELIMITER ;
+
+*/
+
+function getOptions($table, $key, $libelle) {
+
+	$sql = "select ".$key.", ".$libelle." from ".$table." ORDER BY ".$libelle;
+	$results = db_query($sql);
+	
+	$options = array();
+	$options[""] = t("Tous");
+    
+	foreach($results as $result) {
+		$options[$result->$key] = $result->$libelle;
+	}
+
+	return $options;
+}  
+
+
+function controle_error_int($code,$val,$row,$col){
+	 
+	if(!filter_var($val, FILTER_VALIDATE_INT)){
+        form_set_error($code , t($val." n'est pas un entier positif (".getCellule($row, $col).") ."));
+    } else {
+    	if ($val < 0) {
+    		form_set_error($code , t($val." n'est pas un entier positif (".getCellule($row, $col).") ."));
+    	}
+    } 
+ }
+ 
+
+function controle_error_nombre($code,$val,$row,$col){
+	 
+	if(!filter_var($val, FILTER_VALIDATE_FLOAT)){
+        form_set_error($code , t($val." n'est pas un nombre (".getCellule($row, $col).") ."));
+    }   
+ }
