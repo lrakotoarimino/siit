@@ -242,7 +242,7 @@ function siit_importation_liste_form($form) {
     }
 	
 	//Rappel de validation
-	siit_importation_liste_cron_job("");
+	//siit_importation_liste_cron_job("");
 	
 	$header = array(
 		array('data' => t('Ann&eacute;e'), 'field' => 'annee', 'sort' => 'asc'),

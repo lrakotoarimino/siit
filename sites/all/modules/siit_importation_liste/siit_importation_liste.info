@@ -1,5 +1,5 @@
-name = SIIT : ???? Importation
-description = SIIT : ???? 
+name = SIIT : Liste des importations
+description = SIIT : Liste des importations + cron job
 core = 7.x
 version = 7.x-0.x-dev
 package = SIIT
