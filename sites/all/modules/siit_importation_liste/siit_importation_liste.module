@@ -146,6 +146,7 @@ function detail_donnee($a_valider){
 	
 }
 
+
 //
 function siit_importation_liste_cronapi() {
   $items = array();
