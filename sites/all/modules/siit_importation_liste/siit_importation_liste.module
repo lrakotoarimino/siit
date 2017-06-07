@@ -1386,15 +1386,21 @@ function getOptions($table, $key, $libelle) {
 }  
 
 
-function controle_error_int($code,$val,$row,$col){
-	 
+function controle_error_int($code,$val,$row,$col, $msg=''){
+	if (!empty($msg)) {
+		$msg = $msg. " ";
+	}
+	
 	if(!filter_var($val, FILTER_VALIDATE_INT)){
-        form_set_error($code , t($val." n'est pas un entier positif (".getCellule($row, $col).") ."));
+        form_set_error($code , t($msg. $val." n'est pas un entier positif (".getCellule($row, $col).") ."));
+        return false;
     } else {
     	if ($val < 0) {
-    		form_set_error($code , t($val." n'est pas un entier positif (".getCellule($row, $col).") ."));
+    		form_set_error($code , t($msg. $val." n'est pas un entier positif (".getCellule($row, $col).") ."));
+    		return false;
     	}
     } 
+    return true;
  }
  
 

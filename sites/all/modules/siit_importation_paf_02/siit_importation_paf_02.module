@@ -45,14 +45,19 @@ function siit_importation_paf_02_form($form, &$form_state) {
 	        return get_siit_importation_paf_02_form($form, $form_state);
 	    }
         else{
-            $user = db_query("select * from siit_importation imp,siit_type_fichier t where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee']." and id_mois = ".$_POST['mois']." and id_statut!=2 and li_type_fichier = '".ENTITE_PAF02."'");
+            $user = db_query("select * from siit_importation imp,siit_type_fichier t 
+            	where t.id_type_fichier=imp.id_type_fichier 
+            		and annee=".$_POST['annee']." and id_mois = ".$_POST['mois']." 
+            		and id_statut in (1,4) and li_type_fichier = '".ENTITE_PAF02."'");
              $id_importation = 0;
              foreach($user as $u) {
             	   $id_importation = $u->id_importation;
             }
 			
             if($id_importation){
-                  $question = "Il existe déjà des données en attente de validation, refusées ou dévalidées pour la période ".get_lib_mois($_POST['mois'])." ".$_POST['annee'].". Souhaitez vous remplacer les données avec celles de ce fichier ?";
+            	
+            	  drupal_get_messages('error'); //Reset les messages
+                  $question = "Il existe déjà des données en attente de validation, ou dévalidées pour la période ".get_lib_mois($_POST['mois'])." ".$_POST['annee'].". Souhaitez vous remplacer les données avec celles de ce fichier ?";
                   $path = 'siit_importation_paf_02';
                   $description = '';
                   $yes = 'Oui';
@@ -220,10 +225,11 @@ function csv_import_paf_02_validate($form, &$form_state) {
 					
 					if($row == 3 &&  $col == 5 ){
 						$nb_pax_total = $worksheet->getCellByColumnAndRow($col+2, $row)->getValue();
-						if (!is_numeric($nb_pax_total) ){
-							form_set_error('edit-total', t("Le montant total des passagers '". $nb_pax_total."' n'est pas un chiffre.(".getCellule($row, $col+2).")"));	
-							//return;
-						}
+						controle_error_int('edit-nb-total',$nb_pax_total,$row, $col+2, "Le nombre total des passagers");
+						
+						/*if (!is_numeric($nb_pax_total) ){
+							form_set_error('edit-total', t("Le nombre total des passagers '". $nb_pax_total."' n'est pas un chiffre.(".getCellule($row, $col+2).")"));	
+						}*/
 						//drupal_set_message(t("nb_pax total debarqué".$nb_pax), $type = '', $repeat = true);
 						
 						
@@ -232,29 +238,35 @@ function csv_import_paf_02_validate($form, &$form_state) {
 					if($row >= 5 &&  $col == 5 ){
 					    $cell = $worksheet->getCellByColumnAndRow($col, $row)->getValue(); 
 						
-						if(!empty( $cell )){
+						if(!empty($cell)){
 						     //drupal_set_message(t("Rcell->getValue()".$cell->getValue()), $type = '', $repeat = true);
 							 if( $cell == "RESIDENTS"){
 								$nb_pax_resident = $worksheet->getCellByColumnAndRow($col+2, $row)->getValue();
-								if (!is_numeric($nb_pax_resident) ){
-									form_set_error('edit-resident', t("Le nombre de passagers résidents '$nb_pax_resident' n'est pas un chiffre.(".getCellule($row, $col+2).")"));	
-								}
+								controle_error_int('edit-nb-total-res',$nb_pax_total,$row, $col+2, "Le nombre de passagers résidents");
+								//if (!is_numeric($nb_pax_resident) ){
+								//	form_set_error('edit-resident', t("Le nombre de passagers résidents '$nb_pax_resident' n'est pas un chiffre.(".getCellule($row, $col+2).")"));	
+								//}
 								//drupal_set_message(t("RESIDENTS nb_pax".$nb_pax), $type = '', $repeat = true);
 								
-							}else if( $cell == "NON RESIDENTS"){
+							} else if($cell == "NON RESIDENTS"){
 								$nb_pax_non_res = $worksheet->getCellByColumnAndRow($col+2, $row)->getValue();
-								if (!is_numeric($nb_pax_non_res) ){
-									form_set_error('edit-nb-nonres', t("Le nombre de passagers non résidents '$nb_pax_non_res' n'est pas un chiffre. (".getCellule($row, $col+2).")"));	
-								}
-							}else{
+								controle_error_int('edit-nb-total-non-res',$nb_pax_total,$row, $col+2, "Le nombre de passagers non résidents");
+								//if (!is_numeric($nb_pax_non_res) ){
+								//	form_set_error('edit-nb-nonres', t("Le nombre de passagers non résidents '$nb_pax_non_res' n'est pas un chiffre. (".getCellule($row, $col+2).")"));	
+								//}
+							} else {
 								
 								$nat = $cell;
 								$nb_pax_tmp = $worksheet->getCellByColumnAndRow($col+2, $row)->getValue();
-								if (!is_numeric($nb_pax_tmp) ){
+								$res = controle_error_int('edit-nb-total-non-res',$nb_pax_tmp,$row, $col+2, "Le nombre de passagers");
+								if ($res) {
+									$nb_pax = $nb_pax_tmp+$nb_pax;
+								}
+								/*if (!is_numeric($nb_pax_tmp) ){
 									drupal_set_message(t("Le nombre de passagers '$nb_pax_tmp' n'est pas un chiffre. (".getCellule($row, $col+2).")"), $type = 'error', $repeat = true);	
 								}else {
 									$nb_pax = $nb_pax_tmp+$nb_pax;
-								}
+								}*/
 								
 								$id_nationalite = get_id_nationalite($nat ,ENTITE_PAF02);
 								if($id_nationalite==0){
