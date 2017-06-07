@@ -18,7 +18,7 @@ ini_set('xdebug.var_display_max_data', -1);
 	function siit_importation_paf_02_menu(){
     $items = array();
     $items['siit_importation_paf_02'] = array(
-        'title'            => t('Informations globales sur les passagers à l’arrivée et au départ de Nosy Be'), 
+        'title'            => t('Importation des données de la PAF Nosy Be'), 
         'page callback'    => 'drupal_get_form',
         'page arguments' => array('siit_importation_paf_02_form'),
         'access arguments' => array('access siit_importation_paf_02'),
@@ -81,7 +81,7 @@ function siit_importation_paf_02_form($form, &$form_state) {
 
 function get_siit_importation_paf_02_form($form, &$form_state){
 		
-	drupal_set_title(t('Informations globales sur les passagers à l’arrivée et au départ de Nosy Be'));
+	drupal_set_title(t('Importation des données de la PAF Nosy Be'));
 	
 	$options = optionYear();
 	$form['annee'] = array(

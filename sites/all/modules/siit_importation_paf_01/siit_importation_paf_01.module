@@ -8,7 +8,7 @@
 function siit_importation_paf_01_menu(){
     $items = array();
     $items['siit_importation_paf_01'] = array(
-        'title'            => t('Importation détaillée des fiches touristiques'), 
+        'title'            => t('Importation des données de la PAF Ivato'), 
         'page callback'    => 'drupal_get_form',
         'page arguments' => array('siit_importation_paf_01_form'),
         'access arguments' => array('access siit_importation_paf_01'),
@@ -31,7 +31,7 @@ function siit_importation_paf_01_permission() {
 
 function siit_importation_paf_01_form($form) {
 	
-	drupal_set_title(t('Importation détaillée des fiches touristiques'));
+	drupal_set_title(t('Importation des données de la PAF Ivato'));
 
 	
 	$form['datevol'] = array(
