@@ -180,8 +180,7 @@ function csv_import_adema_01_validate($form, &$form_state){
                     else if($row == 15 || $row == 31 || $row == 47 || 
                     	$row == 66 || $row == 82 || $row == 98 || $row == 117 || $row == 133 || 
                     	$row == 149 ) {
-                    	if($col==$mois){
-                    	
+                    	if($col==$mois && $col>0){
                     		controle_libelle_mois('edit-code'.$row,$val,$row,$col);
                     	}
                     }
