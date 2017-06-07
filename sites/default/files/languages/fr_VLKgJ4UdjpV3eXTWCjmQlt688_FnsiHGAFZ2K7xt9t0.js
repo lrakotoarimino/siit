@@ -1,1 +1,0 @@
-Drupal.locale = { 'strings': {"":{"This field is required.":"Ce champ est requis."}} };
