@@ -227,7 +227,7 @@ function csv_import_paf_02_validate($form, &$form_state) {
 					
 					if($row == 3 &&  $col == 5 ){
 						$nb_pax_total = $worksheet->getCellByColumnAndRow($col+2, $row)->getValue();
-						controle_error_int('edit-nb-total',$nb_pax_total,$row, $col+2, "Le nombre total des passagers");
+						controle_error_int('edit-nb-total'.$row,$nb_pax_total,$row, $col+2, "Le nombre total des passagers");
 						
 						/*if (!is_numeric($nb_pax_total) ){
 							form_set_error('edit-total', t("Le nombre total des passagers '". $nb_pax_total."' n'est pas un chiffre.(".getCellule($row, $col+2).")"));	
@@ -244,7 +244,7 @@ function csv_import_paf_02_validate($form, &$form_state) {
 						     //drupal_set_message(t("Rcell->getValue()".$cell->getValue()), $type = '', $repeat = true);
 							 if( $cell == "RESIDENTS"){
 								$nb_pax_resident = $worksheet->getCellByColumnAndRow($col+2, $row)->getValue();
-								controle_error_int('edit-nb-total-res',$nb_pax_total,$row, $col+2, "Le nombre de passagers résidents");
+								controle_error_int('edit-nb-total-res'.$row,$nb_pax_total,$row, $col+2, "Le nombre de passagers résidents");
 								//if (!is_numeric($nb_pax_resident) ){
 								//	form_set_error('edit-resident', t("Le nombre de passagers résidents '$nb_pax_resident' n'est pas un chiffre.(".getCellule($row, $col+2).")"));	
 								//}
@@ -252,7 +252,7 @@ function csv_import_paf_02_validate($form, &$form_state) {
 								
 							} else if($cell == "NON RESIDENTS"){
 								$nb_pax_non_res = $worksheet->getCellByColumnAndRow($col+2, $row)->getValue();
-								controle_error_int('edit-nb-total-non-res',$nb_pax_total,$row, $col+2, "Le nombre de passagers non résidents");
+								controle_error_int('edit-nb-total-non-res'.$row,$nb_pax_total,$row, $col+2, "Le nombre de passagers non résidents");
 								//if (!is_numeric($nb_pax_non_res) ){
 								//	form_set_error('edit-nb-nonres', t("Le nombre de passagers non résidents '$nb_pax_non_res' n'est pas un chiffre. (".getCellule($row, $col+2).")"));	
 								//}
@@ -260,7 +260,7 @@ function csv_import_paf_02_validate($form, &$form_state) {
 								
 								$nat = $cell;
 								$nb_pax_tmp = $worksheet->getCellByColumnAndRow($col+2, $row)->getValue();
-								$res = controle_error_int('edit-nb-total-non-res',$nb_pax_tmp,$row, $col+2, "Le nombre de passagers");
+								$res = controle_error_int('edit-nb-total-non-res'.$row,$nb_pax_tmp,$row, $col+2, "Le nombre de passagers");
 								if ($res) {
 									$nb_pax = $nb_pax_tmp+$nb_pax;
 								}

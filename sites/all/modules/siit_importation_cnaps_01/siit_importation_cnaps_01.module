@@ -217,7 +217,7 @@ function csv_import_cnaps_01_validate($form, &$form_state){
 								$nationaux = $cell->getValue()==""?0:$cell->getValue();
 								//drupal_set_message(t("nationaux =".$nationaux ), $type = '', $repeat = true);
 								
-								controle_error_int('edit-nb-total',$nationaux,$row, $col, "Le nombre de personnels nationaux");
+								controle_error_int('edit-nb-total'.$row,$nationaux,$row, $col, "Le nombre de personnels nationaux");
 						
 								//if (!is_numeric($nationaux) ){
 								//	form_set_error('edit-nbnat'.$row, t("Le nombre de personnels nationaux '$nationaux' n'est pas un nombre. (".getCellule($row, $col).")"));
@@ -231,7 +231,7 @@ function csv_import_cnaps_01_validate($form, &$form_state){
 								$etrangers = $cell->getValue()==""?0:$cell->getValue();
 								//drupal_set_message(t("etranger =".$etrangers ), $type = '', $repeat = true);
 								
-								controle_error_int('edit-nbetr',$etrangers,$row, $col, "Le nombre de personnels etrangers");
+								controle_error_int('edit-nbetr'.$row,$etrangers,$row, $col, "Le nombre de personnels etrangers");
 						
 								//if (!is_numeric($etrangers) ){
 								//	form_set_error('edit-nbpaxetr'.$row, t("Le nombre de personnels etrangers '$etrangers' n'est pas un nombre. (".getCellule($row, $col).")"));

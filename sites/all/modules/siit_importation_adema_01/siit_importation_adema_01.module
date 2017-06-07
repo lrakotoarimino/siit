@@ -97,11 +97,11 @@ function get_siit_importation_adema_01_form($form, &$form_state){
 
 	$form['importation']['csv_file'] = array(
 	        '#title' => 'Importer Fichier :', // Titre dans la page d'importation du fichier
-	        '#description' => 'Seuls ces fichiers csv, xlsx sont valides.',
+	        '#description' => 'Seuls ces fichiers csv, xlsx et xls sont valides.',
 	        '#type' => 'managed_file',
 	        '#required' => true,
 	        '#upload_validators' => array(
-	            'file_validate_extensions' => array("csv xlsx"),
+	            'file_validate_extensions' => array("csv xlsx xls"),
 	        ),
 	    );
 	    
@@ -127,6 +127,21 @@ function get_siit_importation_adema_01_form($form, &$form_state){
 function csv_import_adema_01_validate($form, &$form_state){
 	
     global $libMois;
+    
+    if (!empty($_POST['annee']) && !empty($_POST['mois'])){
+    	$user = db_query("select * from siit_importation imp,siit_type_fichier t 
+        	where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee']." 
+        	and id_mois=".$_POST['mois']." and id_statut=2 and li_type_fichier = '".ENTITE_ADEMA."'" );
+        $id_importation = 0;
+        foreach($user as $u) {
+    	   $id_importation = $u->id_importation;
+        }
+        if($id_importation){
+            form_set_error('edit-validate', t("Un import a été déjà validé pour le mois de ".$libMois[$_POST['mois']]." - ".$_POST['annee']));
+        } 
+    }
+    
+    
     if($form_state['values']['csv_file']){
         $file = file_load($form_state['values']['csv_file']);
         $uri = $file->uri;
@@ -140,14 +155,7 @@ function csv_import_adema_01_validate($form, &$form_state){
         }
         $annee = $_POST['annee'];
         $mois = $_POST['mois'];
-        $user = db_query("select * from siit_importation imp,siit_type_fichier t where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee']." and id_mois=".$_POST['mois']." and id_statut=2 and li_type_fichier = '".ENTITE_ADEMA."'" );
-        $id_importation = 0;
-        foreach($user as $u) {
-    	   $id_importation = $u->id_importation;
-        }
-        if($id_importation){
-            form_set_error('edit-validate', t("Un import a été déjà validé pour le mois de ".$libMois[$_POST['mois']]." - ".$_POST['annee']));
-        } 
+        
         
         foreach ($objPHPExcel->getWorksheetIterator() as $worksheet) {
             $highestRow         = $worksheet->getHighestRow(); 
@@ -180,16 +188,30 @@ function csv_import_adema_01_validate($form, &$form_state){
                         }
                         else if($col==$mois){
                             if($val){
-                                if(!filter_var($val, FILTER_VALIDATE_INT)){
+                            	controle_error_int('edit-valeur'.$row,$val,$row, $col);
+						
+                                /*if(!filter_var($val, FILTER_VALIDATE_INT)){
                                     form_set_error('edit-valeur'.$row, t($val." n'est pas un entier (".getCellule($row, $col).") ."));
-                                }
+                                }*/
                             }
+                            
+                            if (is_null($val)) {var_dump($val);
+								form_set_error('edit-valeur'.$row, t($val." n'est pas un entier (".getCellule($row, $col).") ."));
+							}
+                            
+                            
 							$nb_pax = $worksheet->getCellByColumnAndRow($col, $row+275)->getValue();
 							if($nb_pax){
-                                if(!filter_var($nb_pax, FILTER_VALIDATE_INT)){
+								controle_error_int('edit-valeur'.$row,$nb_pax,$row+275, $col);
+								
+                                /*if(!filter_var($nb_pax, FILTER_VALIDATE_INT)){
                                     form_set_error('edit-valeur'.$row, t($nb_pax." n'est pas un entier (".getCellule($row+275, $col).") ."));
-                                }
+                                }*/
                             }
+                            if ($nb_pax == '') {
+							//	form_set_error('edit-valeur'.$row, t($nb_pax." n'est pas un entier (".getCellule($row+275, $col).") ."));
+							}
+							
                         }
                     }
                     $lastVal = $val;
