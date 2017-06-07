@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * Test file
  * @file
  * Drupal site-specific configuration file.
  *
