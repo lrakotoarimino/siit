@@ -250,9 +250,9 @@ $databases = array (
   array (
     'default' => 
     array (
-      'database' => '',
-      'username' => '',
-      'password' => '',
+      'database' => 'siit_bi_2_copie',
+      'username' => 'siit',
+      'password' => 'Djkhq4d54gk',
       'host' => 'localhost',
       'port' => '',
       'driver' => 'mysql',
