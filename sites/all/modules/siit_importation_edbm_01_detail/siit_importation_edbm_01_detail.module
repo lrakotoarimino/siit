@@ -20,6 +20,7 @@ function siit_importation_edbm_01_detail_menu(){
     
 }  
 
+
 function siit_importation_edbm_01_detail_permission() {
   return array( 
     'access siit_importation_edbm_01_detail' => array(
