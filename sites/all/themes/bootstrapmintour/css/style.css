@@ -338,3 +338,14 @@ input#edit-nb-touristes {
 .page-admin-content-webform ul.tabs--primary.nav.nav-tabs {
     display: none;
 }
+
+fieldset#edit-locale {
+    display: none;
+}
+
+fieldset#edit-picture {
+    display: none;
+}
+.nav-tabs > li > a {
+ display:none;
+}
