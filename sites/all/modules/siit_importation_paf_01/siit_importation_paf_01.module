@@ -73,8 +73,8 @@ function siit_importation_paf_01_form($form) {
 	$form["aeroport"] = array(
 	    "#type" => "select",      
 	    "#title" => t("Aéroport d'arrivée :"),
-	    "#options" => get_all_aeroport(false),
-	    "#default_value" => "TNR",
+	    "#options" => get_all_aeroport(false,1),
+	    "#default_value" => "1",
 	    "#required" => TRUE,
 	    );
 		
@@ -711,8 +711,12 @@ function get_all_pays($vide = false, $entite=''){
 	return $options;
 }
 
-function get_all_aeroport($vide = false){
+function get_all_aeroport($vide = false, $id=0){
     $sql = "SELECT id_aeroport,li_aeroport FROM siit_aeroport WHERE is_imported = 'O'"; 
+    if (!empty($id)) {
+   	 $sql .= " and id_aeroport = ".$id;
+    }
+    
 	$results = db_query($sql);
 	
 	$options = array();
