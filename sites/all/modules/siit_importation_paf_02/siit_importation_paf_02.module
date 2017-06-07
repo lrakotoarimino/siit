@@ -117,7 +117,7 @@ function get_siit_importation_paf_02_form($form, &$form_state){
     
 	$form['importation']['csv_file'] = array(
 	        '#title' => 'Importer Fichier', // Titre dans la page d'importation du fichier
-	        '#description' => 'Seuls ces fichiers csv, xlsx sont valides.',
+	        '#description' => 'Seuls ces fichiers csv, xlsx et xls sont valides.',
 	        '#type' => 'managed_file',
 	        '#required' => true,
 	        '#upload_validators' => array(
@@ -151,8 +151,10 @@ function csv_import_paf_02_validate($form, &$form_state) {
 	$passee = false;
 	
 	if(!empty($_POST['annee']) && !empty($_POST['mois'])){
-		$user = db_query("select * from siit_importation imp,siit_type_fichier t where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee'].
-							" and id_statut=2 and li_type_fichier = '".ENTITE_PAF02."' and id_mois=".$_POST['mois'] );
+		$user = db_query("select * from siit_importation imp, 
+					siit_type_fichier t where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee'].
+					" and id_statut=2 and li_type_fichier = '".ENTITE_PAF02."' 
+					and id_mois=".$_POST['mois'] );
 		$id_importation = 0;
 		foreach($user as $u) {
 		   $id_importation = $u->id_importation;
@@ -301,8 +303,10 @@ function csv_import_paf_02_submit($form, &$form_state){
 	
 	if(!isset($form_state['storage']['confirm'])) {
 			
-        $user = db_query("select * from siit_importation imp,siit_type_fichier t where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee']." and id_mois=".$_POST['mois']." 
-							and id_statut <> 2 and li_type_fichier = '".ENTITE_PAF02."'");
+        $user = db_query("select * from siit_importation imp,siit_type_fichier t 
+        	where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee']." 
+        	and id_mois=".$_POST['mois']." 
+			and id_statut <> 2 and li_type_fichier = '".ENTITE_PAF02."'");
         $id_importation = 0;
         foreach($user as $u) {
     	   $id_importation = $u->id_importation;

@@ -44,7 +44,9 @@ function siit_importation_cnaps_01_form($form, &$form_state) {
 	        return get_siit_importation_cnaps_01_form($form, $form_state);
 	    }
         else{
-            $user = db_query("select * from siit_importation imp,siit_type_fichier t where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee']." and id_statut!=2 and li_type_fichier = '".ENTITE_CNAPS01."'");
+            $user = db_query("select * from siit_importation imp,siit_type_fichier t 
+            	where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee']." 
+            	and id_statut in (1,4) and li_type_fichier = '".ENTITE_CNAPS01."'");
              $id_importation = 0;
              foreach($user as $u) {
             	   $id_importation = $u->id_importation;
@@ -93,11 +95,11 @@ function get_siit_importation_cnaps_01_form($form, &$form_state){
 	
 	$form['importation']['csv_file'] = array(
 	        '#title' => 'Importer Fichier :', // Titre dans la page d'importation du fichier
-	        '#description' => 'Seuls ces fichiers csv, xlsx sont valides.',
+	        '#description' => 'Seuls ces fichiers csv, xlsx et xls sont valides.',
 	        '#type' => 'managed_file',
 	        '#required' => TRUE,
 	        '#upload_validators' => array(
-	         'file_validate_extensions' => array("csv xlsx"),
+	         'file_validate_extensions' => array("csv xlsx xls"),
 	        ),
 	    );
 	    
@@ -128,8 +130,25 @@ function csv_import_cnaps_01_validate($form, &$form_state){
 	$nationaux;$etrangers ;
 	$row_begin =0 ; $col_begin=0;
 	$cell_="";
+	
+	if(empty($_POST['annee']) ){
+		//form_set_error('edit-annee', t("Le champs Année est requis"));
+	}
 		
-		
+	if(!empty($_POST['annee'])) {	
+		//Test deja validé
+		$user = db_query("select * from siit_importation imp,siit_type_fichier t 
+			where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee']." 
+			and id_statut=2 and li_type_fichier = '".ENTITE_CNAPS01."'" );
+        $id_importation = 0;
+        foreach($user as $u) {
+       	   $id_importation = $u->id_importation;
+        }
+        if($id_importation){
+            form_set_error('edit-annee', t("Un import a été déjà validé pour l'année ".$_POST['annee']));
+        } 	
+	}
+	
 	// Récupération du fichier 
 	if($form_state['values']['csv_file']){	
 		$file = file_load($form_state['values']['csv_file']);
@@ -141,15 +160,7 @@ function csv_import_cnaps_01_validate($form, &$form_state){
 			$objPHPExcel = $objReader->load($path);				
 		} catch (Exception $e) {}
 		
-		//Test deja validé
-		$user = db_query("select * from siit_importation imp,siit_type_fichier t where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee']." and id_statut=2 and li_type_fichier = '".ENTITE_CNAPS01."'" );
-        $id_importation = 0;
-        foreach($user as $u) {
-       	   $id_importation = $u->id_importation;
-        }
-        if($id_importation){
-            form_set_error('edit-annee', t("Un import a été déjà validé pour l'année ".$_POST['annee']));
-        } 				
+					
 		
 		//Test champs
 		foreach ($objPHPExcel->getWorksheetIterator() as $worksheet) {
@@ -205,9 +216,12 @@ function csv_import_cnaps_01_validate($form, &$form_state){
 							else{
 								$nationaux = $cell->getValue()==""?0:$cell->getValue();
 								//drupal_set_message(t("nationaux =".$nationaux ), $type = '', $repeat = true);
-								if (!is_numeric($nationaux) ){
-									form_set_error('edit-nbpaxnat'.$row, t("Le nombre de personnels nationaux '$nationaux' n'est pas un nombre. (".getCellule($row, $col).")"));
-								}
+								
+								controle_error_int('edit-nb-total',$nationaux,$row, $col, "Le nombre de personnels nationaux");
+						
+								//if (!is_numeric($nationaux) ){
+								//	form_set_error('edit-nbnat'.$row, t("Le nombre de personnels nationaux '$nationaux' n'est pas un nombre. (".getCellule($row, $col).")"));
+								//}
 							}							
 						} else
 						if($col == $col_begin+6){	
@@ -216,9 +230,12 @@ function csv_import_cnaps_01_validate($form, &$form_state){
 							else{
 								$etrangers = $cell->getValue()==""?0:$cell->getValue();
 								//drupal_set_message(t("etranger =".$etrangers ), $type = '', $repeat = true);
-								if (!is_numeric($etrangers) ){
-									form_set_error('edit-nbpaxetr'.$row, t("Le nombre de personnels etrangers '$etrangers' n'est pas un nombre. (".getCellule($row, $col).")"));
-								}
+								
+								controle_error_int('edit-nbetr',$etrangers,$row, $col, "Le nombre de personnels etrangers");
+						
+								//if (!is_numeric($etrangers) ){
+								//	form_set_error('edit-nbpaxetr'.$row, t("Le nombre de personnels etrangers '$etrangers' n'est pas un nombre. (".getCellule($row, $col).")"));
+								//}
 							}					
 						} 			
 						//drupal_set_message(t('Set :'.$data['region'].$data['cat'].$data['mois_annee']), $type = '', $repeat = FALSE);		
