@@ -1,7 +1,6 @@
 <?php
 
 /**
- * Modification test
  * @file
  * Drupal site-specific configuration file.
  *
@@ -250,9 +249,9 @@ $databases = array (
   array (
     'default' => 
     array (
-      'database' => 'siit_bi_2_copie',
-      'username' => 'siit',
-      'password' => 'Djkhq4d54gk',
+      'database' => 'siit_20170607',
+      'username' => 'root',
+      'password' => 'root',
       'host' => 'localhost',
       'port' => '',
       'driver' => 'mysql',
@@ -291,7 +290,7 @@ $update_free_access = FALSE;
  *   $drupal_hash_salt = file_get_contents('/home/example/salt.txt');
  *
  */
-$drupal_hash_salt = 'qQO_srnZ86xRufY9ErqR9GWUASVUs3K8SeQwCMRCvOw';
+$drupal_hash_salt = '6a6cJiOxOL9PJq-ZrP8rhRxQhn9pJ5_PRVVtIBDgunY';
 
 /**
  * Base URL (optional).

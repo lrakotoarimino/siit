@@ -61,12 +61,12 @@ function siit_importation_apmf_01_detail_form($form) {
     }
 	
 	
-    $sqlList = "select esc.annee, dt_escale, id_croisiere, is_premier_toucher, li_port,
+    $sqlList = "select esc.annee, dt_escale, esc.id_croisiere, is_premier_toucher, li_port,
 						nav.li_navire, li_type_transport_maritime ,li_pays, li_nationalite, nb_passagers ";
     $sqlCount = "select count(*) as total ";  
     $sql = "from siit_apmf_passagers pax 
 				left join siit_apmf_escale esc on esc.id_apmf_escale =  pax.id_apmf_escale
-				left join siit_apmf_croisiere croi on croi.id_croisiere =  esc.id_apmf_croisiere
+				left join siit_apmf_croisiere croi on croi.id_croisiere =  esc.id_croisiere
 				left join siit_nationalite nat  on nat.id_nationalite = pax.id_nationalite  
 
 				left join siit_apmf_navire nav on nav.id_apmf_navire = croi.id_navire
