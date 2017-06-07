@@ -398,7 +398,8 @@ function traitement_edbm01($chemin, &$form_state){
 }
 
 function controle_error_activite_etablissement($code, $val,$row,$col) {
-	if (empty(get_id_activite_etablissement($val))) {
+	$idActivite = get_id_activite_etablissement($val);
+	if (empty($idActivite)) {
 		form_set_error($code , t("L'activité ".$val." n'est pas connue (".getCellule($row, $col).") ."));
 	}
 }
