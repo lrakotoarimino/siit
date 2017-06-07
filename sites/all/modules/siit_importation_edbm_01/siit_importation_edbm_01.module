@@ -286,7 +286,7 @@ function csv_import_edbm_01_submit($form, &$form_state) {
 	if(!isset($form_state['storage']['confirm'])) {
 			
         $user = db_query("select * from siit_importation imp,siit_type_fichier t where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee']." 
-						and id_statut <> 2 and li_type_fichier = '".ENTITE_EDBM."'");
+						and id_statut in (1,4) and li_type_fichier = '".ENTITE_EDBM."'");
         $id_importation = 0;
         foreach($user as $u) {
     	   $id_importation = $u->id_importation;
