@@ -464,14 +464,14 @@ function import_data_apmf_escale($value){
 	
     $id_escale = db_insert('siit_apmf_escale')
 					->fields(array('dt_escale', 'id_port', 'is_premier_toucher','id_mois', 
-						 'annee','id_apmf_croisiere','id_importation'))
+						 'annee','id_croisiere','id_importation'))
 					->values(array(
 							'dt_escale' => $value["dt_escale"],
 							'id_port' => $value["id_port"],
 							'is_premier_toucher' => set_premier_toucher_value($value['is_premier_toucher']),
 							'id_mois' =>  $value["id_mois"],
 							'annee' => $value["annee"],
-							'id_apmf_croisiere' => $value["id_croisiere"],
+							'id_croisiere' => $value["id_croisiere"],
 							'id_importation' => $value["id_importation"],
 							))
 			->execute();
@@ -566,7 +566,7 @@ function get_id_escale($data){
 	$id_apmf_escale = 0;
 	
 	$sql = "SELECT id_apmf_escale FROM {siit_apmf_escale} p 
-		WHERE p.id_apmf_croisiere =".$data['id_croisiere']." 
+		WHERE p.id_croisiere =".$data['id_croisiere']." 
 			and p.id_importation =".$data['id_importation']." 
 			 and p.id_port =".$data['id_port'];
 		/*p.dt_escale =".$data['dt_escale']." and p.is_premier_toucher =".set_premier_toucher_value($data['is_premier_toucher']).
@@ -603,12 +603,12 @@ function manage_annee_mois_croisiere($data){
 	$annee = 0 ;
 	$id_mois = 0;
 	//determiner si il y a des données 1er toucher dans escale
-	$sql = "SELECT id_apmf_croisiere, is_premier_toucher, annee, id_mois FROM {siit_apmf_escale} p WHERE 
-				p.id_apmf_croisiere =".$data['id_croisiere']." and p.is_premier_toucher = 1";
+	$sql = "SELECT id_croisiere, is_premier_toucher, annee, id_mois FROM {siit_apmf_escale} p WHERE 
+				p.id_croisiere =".$data['id_croisiere']." and p.is_premier_toucher = 1";
 								
 	$results = db_query($sql);
 	foreach($results as $result) {
-		$id_croisiere = $result->id_apmf_croisiere;
+		$id_croisiere = $result->id_croisiere;
 		$annee = $result->annee;
 		$id_mois = $result->id_mois;
 		break;
