@@ -38,15 +38,13 @@ function siit_importation_adema_01_form($form, &$form_state) {
 	    }
         else{
 			
-            $user = db_query("select * from siit_importation imp,siit_type_fichier t where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee']." and id_mois =".$_POST['mois'].
-							" and id_statut!=2 and li_type_fichier = '".ENTITE_ADEMA."'");
-             $id_importation = 0;
-             foreach($user as $u) {
-            	   $id_importation = $u->id_importation;
-            }
+			if(!empty($_POST['annee']) && !empty($_POST['mois'])){
+				//Controle si un import validé existe déjà
+				list($id_importation,$question) = searchDataExist(ENTITE_ADEMA, $_POST['annee'], $_POST['mois'], STATUT_AVALIDER, false);
+			}
+	
 			
             if($id_importation){
-                  $question = "Il existe déjà des données en attente de validation, refusées ou dévalidées pour la période ".get_lib_mois($_POST['mois'])." ".$_POST['annee'].". Souhaitez vous remplacer les données avec celles de ce fichier ?";
                   $path = 'siit_importation_adema_01';
                   $description = '';
                   $yes = 'Oui';
@@ -128,18 +126,11 @@ function csv_import_adema_01_validate($form, &$form_state){
 	
     global $libMois;
     
-    if (!empty($_POST['annee']) && !empty($_POST['mois'])){
-    	$user = db_query("select * from siit_importation imp,siit_type_fichier t 
-        	where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee']." 
-        	and id_mois=".$_POST['mois']." and id_statut=2 and li_type_fichier = '".ENTITE_ADEMA."'" );
-        $id_importation = 0;
-        foreach($user as $u) {
-    	   $id_importation = $u->id_importation;
-        }
-        if($id_importation){
-            form_set_error('edit-validate', t("Un import a été déjà validé pour le mois de ".$libMois[$_POST['mois']]." - ".$_POST['annee']));
-        } 
-    }
+    if(!empty($_POST['annee']) && !empty($_POST['mois'])){
+		//Controle si un import validé existe déjà
+		list($id_importation,$question) = searchDataExist(ENTITE_ADEMA, $_POST['annee'], $_POST['mois'], STATUT_VALIDE, false);
+	}
+    
     
     
     if($form_state['values']['csv_file']){
@@ -234,12 +225,7 @@ function csv_import_adema_01_submit($form, &$form_state){
 
 	if(!isset($form_state['storage']['confirm'])) {
 		
-        $user = db_query("select * from siit_importation imp,siit_type_fichier t where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee']." and id_mois =".$_POST['mois'].
-							" and id_statut <> 2 and li_type_fichier = '".ENTITE_ADEMA."'");
-        $id_importation = 0;
-        foreach($user as $u) {
-    	   $id_importation = $u->id_importation;
-        }		
+		list($id_importation,$question) = searchDataExist(ENTITE_ADEMA, $_POST['annee'], $_POST['mois'], STATUT_VALIDE, true) ;
 		
         if($id_importation){
             $form_state['storage']['confirm'] = TRUE;

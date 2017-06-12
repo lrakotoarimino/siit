@@ -1489,3 +1489,110 @@ function getPeriodAndStatutImport($idImportation) {
 	
 	return $label;
 }
+
+
+function get_id_etablissement($value) {
+	$libelle = str_replace( "'", "\\'", $value["li_etablissement"] );
+	$id_etab =0;
+	$sql = "SELECT id_etablissement FROM {siit_etablissement} p WHERE 
+			lower(p.li_enseigne) = '".strtolower(escape($value["li_etablissement"]))."' and p.id_region = ".$value["id_region"].""; 
+	
+	$results = db_query($sql);	
+ 	foreach($results as $result) {
+		$id_etab = $result->id_etablissement;
+	}		   
+	return $id_etab;	
+}
+
+
+function get_region_etablissement($id) {
+
+  $id_region =0;
+  $sql = "SELECT id_region FROM {siit_etablissement} p WHERE 
+			p.id_etablissement ='".$id."'"; 
+		
+	$results = db_query($sql);
+	foreach($results as $result) {
+		$id_region = $result->id_region;
+	}		   
+	return $id_region;	
+
+}
+
+
+function get_id_mois($libelle) {
+
+  $id_mois =0;
+  $sql = "SELECT id_mois FROM {siit_mois} p WHERE 
+			lower(p.li_mois)='".strtolower($libelle)."'"; 
+		
+	$results = db_query($sql);
+	foreach($results as $result) {
+		$id_mois = $result->id_mois;
+	}		   
+	return $id_mois;	
+
+}
+
+
+function get_lib_mois($id_mois) {
+	$li_mois = "";
+	$ms = db_query("select li_mois from siit_mois where id_mois = $id_mois");
+	
+	foreach($ms as $m) {
+			$li_mois = $m->li_mois;
+	}
+	return $li_mois;
+}
+
+function searchDataExist($type_fichier, $annee, $mois = 0, $statut = STATUT_VALIDE, $isDiff = false) {
+	//Permet de vérifier si il existe déjà une importation dans le type de fichier pour
+	//meme année / meme mois
+	$sql = "select * from siit_importation imp,siit_type_fichier t 
+				where t.id_type_fichier=imp.id_type_fichier 
+				and annee = ".$annee."
+				and id_mois = ".$mois." 
+				and li_type_fichier = '".$type_fichier."'";
+	
+	if (!$isDiff) {
+		$sql .= " and id_statut = ".$statut;
+	} else {
+		$sql .= " and id_statut <> ".$statut;
+	}
+	$datas= db_query($sql);
+	
+	$id_importation = 0;
+	$question = "";
+	
+	foreach($datas as $data) {
+		$id_importation = $data->id_importation;
+	}
+	
+	if (!empty($id_importation) && (!$isDiff)){
+		if (!empty($mois)) {
+			$mois = get_lib_mois($mois)." ";
+		} else {
+			$mois = "";
+		}
+			
+		if ($statut == STATUT_VALIDE) {
+			form_set_error('edit-valid', t("Un import a déjà été validé pour la période ".$mois.$annee));
+		}
+		
+		if ($statut == STATUT_AVALIDER) {
+			$question = "Il existe déjà des données en attente de validation pour la période ".$mois.$annee.". Souhaitez vous remplacer les données avec celles de ce fichier ?";
+                  
+		}
+	} 
+		
+	
+	return array($id_importation,$question);
+}
+
+function delete_importation($id_importation){
+	db_delete('siit_importation')
+		->condition('id_importation',  $id_importation)
+		->execute();	
+}
+
+

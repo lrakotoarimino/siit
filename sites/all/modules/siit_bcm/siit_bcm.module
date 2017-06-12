@@ -39,13 +39,7 @@ function siit_bcm_form($form, &$form_state) {
 	    }
         else{
 		
-		    //drupal_set_message(t("dans else de form_state['storage']['confirm']"), $type = '', $repeat = FALSE);			
-			$user = db_query("select * from siit_importation imp,siit_type_fichier t where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee'].
-								" and id_mois =".$_POST['mois']." and id_statut!=2 and li_type_fichier = '".ENTITE_BCM."'");
-				 $id_importation = 0;
-				 foreach($user as $u) {
-					   $id_importation = $u->id_importation;
-			}
+		    list($id_importation,$question) = searchDataExist(ENTITE_BCM, $_POST['annee'], $_POST['mois'], STATUT_AVALIDER, false);
 			
 			if($id_importation){
 			
@@ -55,7 +49,6 @@ function siit_bcm_form($form, &$form_state) {
 					$recettedts = $form_state['values']['recettedts'] ;
 					$nb_touristes = $form_state['values']['nb_touristes'] ;
 			
-					$question = "Il existe déjà des données en attente de validation, refusées ou dévalidées pour la période ".get_li_mois($_POST['mois'])." ".$_POST['annee'].". Souhaitez vous remplacer les données avec celles qui sont sasies ?";
 					$path = 'siit_bcm';
 					$description = '';
 					$yes = 'Oui';
@@ -157,16 +150,10 @@ function siit_bcm_form_validate($form, &$form_state){
 
 		//Test deja validé
 		if(!empty($_POST['annee']) && !empty($_POST['mois'])){
-			$user = db_query("select * from siit_importation imp,siit_type_fichier t where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee'].
-								" and id_mois =".$_POST['mois']." and id_statut=2 and li_type_fichier = '".ENTITE_BCM."'" );
-			$id_importation = 0;
-			foreach($user as $u) {
-			   $id_importation = $u->id_importation;
-			}
-			if($id_importation){
-				form_set_error('edit-annee', t("Un import a été déjà validé pour la période ".get_li_mois($_POST['mois'])." ".$_POST['annee']));
-			} 			
+			//Controle si un import validé existe déjà
+			list($id_importation,$question) = searchDataExist(ENTITE_BCM, $_POST['annee'], $_POST['mois'], STATUT_VALIDE, false);
 		}
+		
 		
 		$nb_touristes = $form_state['values']['nb_touristes'];
 		if(!is_numeric($nb_touristes)){
@@ -210,14 +197,8 @@ function siit_bcm_form_submit($form,&$form_state){
 
 		if(!isset($form_state['storage']['confirm'])) {
 			
-			$user = db_query("select * from siit_importation imp,siit_type_fichier t where t.id_type_fichier=imp.id_type_fichier and annee = ".$_POST['annee'].
-								" and id_mois =".$_POST['mois']." and id_statut <> 2 and li_type_fichier = '".ENTITE_BCM."'");
-			$id_importation = 0;
-			foreach($user as $u) {
-			   $id_importation = $u->id_importation;
-			}		
-			//drupal_set_message(t("siit_bcm_form_submit : $id_importation "), $type = '', $repeat = true);	
-			
+			list($id_importation,$question) = searchDataExist(ENTITE_BCM, $_POST['annee'], $_POST['mois'], STATUT_VALIDE, true) ;
+		
 			if($id_importation){
 				$form_state['storage']['confirm'] = TRUE;
 				$form_state['rebuild'] = TRUE;

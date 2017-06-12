@@ -91,7 +91,7 @@ function siit_importation_adema_01_detail_form($form) {
 	$options = getOptions('siit_arrivee_depart', 'id_arrivee_depart', 'li_arrivee_depart');
 	$form['criteria']['arrivee_depart'] = array(
         '#type' => 'select',
-        '#title' => t('Type de vol :'),
+        '#title' => t('Arrivée/Départ :'),
         '#options' => $options,
         //'#required' => $required,
     );

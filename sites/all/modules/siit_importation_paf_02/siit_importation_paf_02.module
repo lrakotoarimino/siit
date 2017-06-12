@@ -45,19 +45,11 @@ function siit_importation_paf_02_form($form, &$form_state) {
 	        return get_siit_importation_paf_02_form($form, $form_state);
 	    }
         else{
-            $user = db_query("select * from siit_importation imp,siit_type_fichier t 
-            	where t.id_type_fichier=imp.id_type_fichier 
-            		and annee=".$_POST['annee']." and id_mois = ".$_POST['mois']." 
-            		and id_statut in (1,4) and li_type_fichier = '".ENTITE_PAF02."'");
-             $id_importation = 0;
-             foreach($user as $u) {
-            	   $id_importation = $u->id_importation;
-            }
+            list($id_importation,$question) = searchDataExist(ENTITE_PAF02, $_POST['annee'], $_POST['mois'], STATUT_AVALIDER, false);
 			
             if($id_importation){
             	
             	  drupal_get_messages('error'); //Reset les messages
-                  $question = "Il existe déjà des données en attente de validation, ou dévalidées pour la période ".get_lib_mois($_POST['mois'])." ".$_POST['annee'].". Souhaitez vous remplacer les données avec celles de ce fichier ?";
                   $path = 'siit_importation_paf_02';
                   $description = '';
                   $yes = 'Oui';
@@ -151,17 +143,8 @@ function csv_import_paf_02_validate($form, &$form_state) {
 	$passee = false;
 	
 	if(!empty($_POST['annee']) && !empty($_POST['mois'])){
-		$user = db_query("select * from siit_importation imp, 
-					siit_type_fichier t where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee'].
-					" and id_statut=2 and li_type_fichier = '".ENTITE_PAF02."' 
-					and id_mois=".$_POST['mois'] );
-		$id_importation = 0;
-		foreach($user as $u) {
-		   $id_importation = $u->id_importation;
-		}
-		if($id_importation){
-			form_set_error('edit-valid', t("Un import a été déjà validé pour le mois de ".get_lib_mois($_POST['mois'])." - ".$_POST['annee']));
-		} 
+		//Controle si un import validé existe déjà
+		list($id_importation,$question) = searchDataExist(ENTITE_PAF02, $_POST['annee'], $_POST['mois'], STATUT_VALIDE, false);
 	}
 	
 	$annee_form  = $form_state['values']['annee'];
@@ -217,12 +200,12 @@ function csv_import_paf_02_validate($form, &$form_state) {
 						if($id_mois==0){
 							form_set_error('edit-mois', t("Le champs 'Mois' du fichier contient une erreur."));
 							//return;
-						}else
-						if(trim(strtolower($mois_form))!=trim(strtolower($id_mois)) ) {
-							form_set_error('edit-mois_form', t("Le mois saisi et celui du fichier sont différents."));
-							//return;
+						}else if(trim(strtolower($mois_form))!=trim(strtolower($id_mois)) ) {
+							$li_mois = get_lib_mois($id_mois);
+							form_set_error('edit-mois_form', t("Le mois saisi et celui du fichier (".$li_mois.") sont différents."));
+							
 						}
-						//drupal_set_message(t("id mois".$id_mois), $type = '', $repeat = true);
+						
 					}
 					
 					if($row == 3 &&  $col == 5 ){
@@ -303,15 +286,7 @@ function csv_import_paf_02_submit($form, &$form_state){
 	
 	if(!isset($form_state['storage']['confirm'])) {
 			
-        $user = db_query("select * from siit_importation imp,siit_type_fichier t 
-        	where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee']." 
-        	and id_mois=".$_POST['mois']." 
-			and id_statut <> 2 and li_type_fichier = '".ENTITE_PAF02."'");
-        $id_importation = 0;
-        foreach($user as $u) {
-    	   $id_importation = $u->id_importation;
-        }		
-		//drupal_set_message(t("csv_import_paf_02_submit : $id_importation "), $type = '', $repeat = true);	
+        list($id_importation,$question) = searchDataExist(ENTITE_PAF02, $_POST['annee'], $_POST['mois'], STATUT_VALIDE, true) ;
 		
         if($id_importation){
             $form_state['storage']['confirm'] = TRUE;

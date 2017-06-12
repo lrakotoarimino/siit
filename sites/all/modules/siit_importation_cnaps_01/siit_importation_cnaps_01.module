@@ -44,16 +44,11 @@ function siit_importation_cnaps_01_form($form, &$form_state) {
 	        return get_siit_importation_cnaps_01_form($form, $form_state);
 	    }
         else{
-            $user = db_query("select * from siit_importation imp,siit_type_fichier t 
-            	where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee']." 
-            	and id_statut in (1,4) and li_type_fichier = '".ENTITE_CNAPS01."'");
-             $id_importation = 0;
-             foreach($user as $u) {
-            	   $id_importation = $u->id_importation;
-            }
+        
+        	list($id_importation,$question) = searchDataExist(ENTITE_CNAPS01, $_POST['annee'], 0, STATUT_AVALIDER, false);
+			
 			
             if($id_importation){
-                  $question = "Il existe déjà des données en attente de validation, refusées ou dévalidées pour l'année ".$_POST['annee'].". Souhaitez vous remplacer les données avec celles de ce fichier ?";
                   $path = 'siit_importation_cnaps_01';
                   $description = '';
                   $yes = 'Oui';
@@ -131,23 +126,12 @@ function csv_import_cnaps_01_validate($form, &$form_state){
 	$row_begin =0 ; $col_begin=0;
 	$cell_="";
 	
-	if(empty($_POST['annee']) ){
-		//form_set_error('edit-annee', t("Le champs Année est requis"));
+	
+	if(!empty($_POST['annee'])){
+		//Controle si un import validé existe déjà
+		list($id_importation,$question) = searchDataExist(ENTITE_CNAPS01, $_POST['annee'], 0, STATUT_VALIDE, false);
 	}
 		
-	if(!empty($_POST['annee'])) {	
-		//Test deja validé
-		$user = db_query("select * from siit_importation imp,siit_type_fichier t 
-			where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee']." 
-			and id_statut=2 and li_type_fichier = '".ENTITE_CNAPS01."'" );
-        $id_importation = 0;
-        foreach($user as $u) {
-       	   $id_importation = $u->id_importation;
-        }
-        if($id_importation){
-            form_set_error('edit-annee', t("Un import a été déjà validé pour l'année ".$_POST['annee']));
-        } 	
-	}
 	
 	// Récupération du fichier 
 	if($form_state['values']['csv_file']){	
@@ -253,13 +237,7 @@ function csv_import_cnaps_01_submit($form, &$form_state){
 
 	if(!isset($form_state['storage']['confirm'])) {
 			
-        $user = db_query("select * from siit_importation imp,siit_type_fichier t where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee']."
-							and id_statut <> 2 and li_type_fichier = '".ENTITE_CNAPS01."'");
-        $id_importation = 0;
-        foreach($user as $u) {
-    	   $id_importation = $u->id_importation;
-        }		
-		//drupal_set_message(t("csv_import_cnaps_01_submit : $id_importation "), $type = '', $repeat = true);	
+		list($id_importation,$question) = searchDataExist(ENTITE_CNAPS01, $_POST['annee'],0, STATUT_VALIDE, true) ;
 		
         if($id_importation){
             $form_state['storage']['confirm'] = TRUE;
