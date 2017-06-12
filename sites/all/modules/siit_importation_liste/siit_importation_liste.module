@@ -163,7 +163,9 @@ function siit_importation_liste_cron_job($job) {
 	//nb_jours pour eviter l'erreur de la table local_source table source
 	
 		$a_valider = array();
-		$results = db_query("select * from siit_importation where (id_statut = 1 OR id_statut = 4) ORDER BY dt_importation DESC " ); //and DATEDIFF( now(),dt_importation) >= ".NB_JR);
+		$results = db_query("select * from siit_importation 
+			where (id_statut = 1 OR id_statut = 4) ORDER BY dt_importation DESC " ); 
+			//and DATEDIFF( now(),dt_importation) >= ".NB_JR);
 		
 		foreach($results as $result) {
 			$a_valider[] = array(
@@ -245,15 +247,15 @@ function siit_importation_liste_form($form) {
 	//siit_importation_liste_cron_job("");
 	
 	$header = array(
-		array('data' => t('Ann&eacute;e'), 'field' => 'annee', 'sort' => 'asc'),
+		array('data' => t('Ann&eacute;e'), 'field' => 'annee'),
 		array('data' => t('Mois'), 'field' => 'imp.id_mois'),
-	    array('data' => t('Date importation'), 'field' => 'dt_importation' , 'sort' => 'asc'),
-	    array('data' => t('User'), 'field' => 'uid_importation', 'sort' => 'asc'),
-	    array('data' => t('Nom fichier'), 'field' => 'li_fichier', 'sort' => 'asc'),
-	    array('data' => t('User validateur'), 'field' => 'uid_validation', 'sort' => 'asc'),
-	    array('data' => t('Date validation'), 'field' => 'dt_validation', 'sort' => 'asc'),
-	    array('data' => t('Type'), 'field' => 'li_type_fichier', 'sort' => 'asc'),
-	    array('data' => t('Statut'), 'field' => 'li_statut', 'sort' => 'asc'),
+	    array('data' => t('Date importation'), 'field' => 'dt_importation' , 'sort' => 'desc'),
+	    array('data' => t('User'), 'field' => 'uid_importation'),
+	    array('data' => t('Nom fichier'), 'field' => 'li_fichier'),
+	    array('data' => t('User validateur'), 'field' => 'uid_validation'),
+	    array('data' => t('Date validation'), 'field' => 'dt_validation'),
+	    array('data' => t('Type'), 'field' => 'li_type_fichier'),
+	    array('data' => t('Statut'), 'field' => 'li_statut'),
 	    array('data' => t('Actions')),
 	);
 	
@@ -364,6 +366,7 @@ function siit_importation_liste_form($form) {
 	
 	$order = tablesort_get_order($header);
 	$sort = tablesort_get_sort($header);
+	
 	
 	if (isset($order["sql"]) && !empty($order['sql'])) {
 		$sql .= " order by ".$order["sql"]." ".$sort;
