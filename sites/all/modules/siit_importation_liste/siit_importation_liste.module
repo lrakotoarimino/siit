@@ -315,7 +315,7 @@ function siit_importation_liste_form($form) {
 		$form['criteria']['type_fichier']['#default_value'] = $_REQUEST['type_fichier'];
 	}
 	
-	$form['submit'] = array(
+	$form['criteria']['submit'] = array(
 			'#type' => 'submit',
 			'#value' => t('Rechercher'),
 	);

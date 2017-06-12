@@ -30,11 +30,92 @@ function siit_importation_apmf_01_detail_permission() {
   );
 }
 
+function siit_importation_apmf_01_detail_form_submit($form, &$form_state){
+	
+	$form_state['redirect'] = array(
+		// $path
+		'siit_importation_apmf_01_detail',
+		// $options
+		array('query' => array('port' => $form_state['values']['port'],
+			'nationalite' => $form_state['values']['nationalite'],
+			'pays' => $form_state['values']['pays'],
+			'navire' => $form_state['values']['navire'],
+			'idImportation' => $form_state['values']['idImportation'],)),
+		// $http_response_code
+		302,
+  );
+}
+
+
 function siit_importation_apmf_01_detail_form($form) {
 
 	$label = getPeriodAndStatutImport($_GET["idImportation"]);
     drupal_set_title(t('Détail des données APMF')." : ".$label);
+    
+    $form['idImportation'] = array(
+        '#type' => 'hidden',
+        '#default_value' => $_GET["idImportation"],
+ 
+    );
+    
+    $form['criteria'] = array(
+			'#type' => 'fieldset',
+			'#title' => t('Filtres'),
+			'#collapsible' => FALSE, // Added
+			'#collapsed' => FALSE,  // Added
+			'#attributes' => array('class' => array('container-inline'))
+	);
+	
+	$options = getOptions('siit_port', 'id_port', 'li_port');
+	$form['criteria']['port'] = array(
+        '#type' => 'select',
+        '#title' => t('Port :'),
+        '#options' => $options,
+        //'#required' => $required,
+    );
+    if (isset($_REQUEST['port'])) {
+		$form['criteria']['port']['#default_value'] = $_REQUEST['port'];
+	}
+	
+	$options = getOptions('siit_pays', 'id_pays', 'li_pays');
+	$form['criteria']['pays'] = array(
+        '#type' => 'select',
+        '#title' => t('Provenance :'),
+        '#options' => $options,
+        //'#required' => $required,
+    );
+    if (isset($_REQUEST['pays'])) {
+		$form['criteria']['pays']['#default_value'] = $_REQUEST['pays'];
+	}
+	
+	$options = getOptions('siit_apmf_navire', 'id_apmf_navire', 'li_navire');
+	$form['criteria']['navire'] = array(
+        '#type' => 'select',
+        '#title' => t('Navire :'),
+        '#options' => $options,
+        //'#required' => $required,
+    );
+    if (isset($_REQUEST['navire'])) {
+		$form['criteria']['navire']['#default_value'] = $_REQUEST['navire'];
+	}
+	
+	$options = getOptions('siit_nationalite', 'id_nationalite', 'li_nationalite');
+	$form['criteria']['nationalite'] = array(
+        '#type' => 'select',
+        '#title' => t('Nationalite :'),
+        '#options' => $options,
+        //'#required' => $required,
+    );
+    if (isset($_REQUEST['nationalite'])) {
+		$form['criteria']['nationalite']['#default_value'] = $_REQUEST['nationalite'];
+	}
+	
 
+	$form['criteria']['submit'] = array(
+			'#type' => 'submit',
+			'#value' => t('Rechercher'),
+	);
+	
 	$header = array(
 		array('data' => t('Année'), 'field' => 'annee'),
 	    array('data' => t('Date Escale'), 'field' => 'dt_escale', 'sort' => 'desc' ),
@@ -55,7 +136,7 @@ function siit_importation_apmf_01_detail_form($form) {
 	global $user;
     $uid = $user->uid;
     
-    $limit = 10;
+    $limit = 50;
     if (isset($_REQUEST['page']) && !empty($_REQUEST['page'])) {
     	$start = $_REQUEST['page'] * $limit;
     	$page = $_REQUEST['page'];
@@ -82,6 +163,21 @@ function siit_importation_apmf_01_detail_form($form) {
         
     $order = tablesort_get_order($header);
 	$sort = tablesort_get_sort($header);
+	
+	
+	if (isset($_REQUEST['port']) && !empty($_REQUEST['port'])) {
+		$sql .= " AND esc.id_port = ".$_REQUEST['port'];
+	}
+	if (isset($_REQUEST['nationalite']) && !empty($_REQUEST['nationalite'])) {
+		$sql .= " AND pax.id_nationalite = ".$_REQUEST['nationalite'];
+	}
+	if (isset($_REQUEST['pays']) && !empty($_REQUEST['pays'])) {
+		$sql .= " AND croi.id_pays_provenance = ".$_REQUEST['pays'];
+	}
+	if (isset($_REQUEST['navire']) && !empty($_REQUEST['navire'])) {
+		$sql .= " AND croi.id_navire = ".$_REQUEST['navire'];
+	}
+	
 	
 	if (isset($order["sql"]) && !empty($order['sql'])) {
 		

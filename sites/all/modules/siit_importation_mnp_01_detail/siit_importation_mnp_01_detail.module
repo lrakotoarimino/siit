@@ -29,10 +29,69 @@ function siit_importation_mnp_01_detail_permission() {
   );
 }
 
+function siit_importation_mnp_01_detail_form_submit($form, &$form_state){
+	
+	$form_state['redirect'] = array(
+		// $path
+		'siit_importation_mnp_01_detail',
+		// $options
+		array('query' => array('parc' => $form_state['values']['parc'],
+			'nationalite' => $form_state['values']['nationalite'],
+			'idImportation' => $form_state['values']['idImportation'],)),
+		// $http_response_code
+		302,
+  );
+}
+
+
 function siit_importation_mnp_01_detail_form($form) {
 
 	$label = getPeriodAndStatutImport($_GET["idImportation"]);
     drupal_set_title(t('Détail des données des entrées dans les parcs')." : ".$label);
+    
+    $form['idImportation'] = array(
+        '#type' => 'hidden',
+        '#default_value' => $_GET["idImportation"],
+ 
+    );
+    
+    $form['criteria'] = array(
+			'#type' => 'fieldset',
+			'#title' => t('Filtres'),
+			'#collapsible' => FALSE, // Added
+			'#collapsed' => FALSE,  // Added
+			'#attributes' => array('class' => array('container-inline'))
+	);
+	
+    
+    $options = getOptions('siit_parc', 'id_parc', 'li_parc');
+	$form['criteria']['parc'] = array(
+        '#type' => 'select',
+        '#title' => t('Parc :'),
+        '#options' => $options,
+        //'#required' => $required,
+    );
+    if (isset($_REQUEST['parc'])) {
+		$form['criteria']['parc']['#default_value'] = $_REQUEST['parc'];
+	}
+	
+	$options = getOptions('siit_nationalite', 'id_nationalite', 'li_nationalite');
+	$form['criteria']['nationalite'] = array(
+        '#type' => 'select',
+        '#title' => t('Nationalite :'),
+        '#options' => $options,
+        //'#required' => $required,
+    );
+    if (isset($_REQUEST['nationalite'])) {
+		$form['criteria']['nationalite']['#default_value'] = $_REQUEST['nationalite'];
+	}
+	
+	$form['criteria']['submit'] = array(
+			'#type' => 'submit',
+			'#value' => t('Rechercher'),
+	);
+	
+	
 	
 	$header = array(
 			array('data' => t('Parc'), 'field' => 'li_parc'/*, 'sort' => 'asc'*/),
@@ -56,7 +115,7 @@ function siit_importation_mnp_01_detail_form($form) {
 	global $user;
     $uid = $user->uid;
     
-    $limit = 10;
+    $limit = 50;
     if (isset($_REQUEST['page']) && !empty($_REQUEST['page'])) {
     	$start = $_REQUEST['page'] * $limit;
     	$page = $_REQUEST['page'];
@@ -75,17 +134,16 @@ function siit_importation_mnp_01_detail_form($form) {
 			id_importation=".$_GET["idImportation"];
 	
 	
-	/*$sql = "SELECT * FROM {siit_visiteur_parc_nationalite} pn
-			LEFT JOIN {siit_nationalite} n ON pn.id_nationalite = n.id_nationalite
-			LEFT JOIN {siit_parc} p ON pn.id_parc = p.id_parc
-			LEFT JOIN {siit_mois} m ON pn.id_mois = m.id_mois
-			WHERE 
-			id_importation=".$_GET["idImportation"]; 
-			
-	$sql .= " ORDER BY pn.id_parc,pn.annee desc, m.li_mois desc";*/	
 	
     $order = tablesort_get_order($header);
 	$sort = tablesort_get_sort($header);
+	
+	if (isset($_REQUEST['parc']) && !empty($_REQUEST['parc'])) {
+		$sql .= " AND pn.id_parc = ".$_REQUEST['parc'];
+	}
+	if (isset($_REQUEST['nationalite']) && !empty($_REQUEST['nationalite'])) {
+		$sql .= " AND pn.id_nationalite = ".$_REQUEST['nationalite'];
+	}
 	
 	if (isset($order["sql"]) && !empty($order['sql'])) {
 		$sql .= " order by ".$order["sql"]." ".$sort. " , li_nationalite";
@@ -124,7 +182,7 @@ function siit_importation_mnp_01_detail_form($form) {
 	}
      
     $donnees = get_siit_visiteur_parc_categorie($_GET["idImportation"],$last_id_parc);
-    
+    $donnees["li_nationalite"] = "Total du parc";
     if($donnees) $rows[$i] = $donnees;
     
     $nbStart = ($page)*$limit +1;

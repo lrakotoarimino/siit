@@ -29,13 +29,85 @@ function siit_importation_adema_01_detail_permission() {
   );
 }
 
+function siit_importation_adema_01_detail_form_submit($form, &$form_state){
+	
+	$form_state['redirect'] = array(
+		// $path
+		'siit_importation_adema_01_detail',
+		// $options
+		array('query' => array('aeroport' => $form_state['values']['aeroport'],
+			'type_vol' => $form_state['values']['type_vol'],
+			'arrivee_depart' => $form_state['values']['arrivee_depart'],
+			'idImportation' => $form_state['values']['idImportation'],)),
+		// $http_response_code
+		302,
+  );
+}
+
+
 function siit_importation_adema_01_detail_form($form) {
 
 	$label = getPeriodAndStatutImport($_GET["idImportation"]);
     drupal_set_title(t('Détail des données ADEMA')." : ".$label);
     
+    
+    $form['idImportation'] = array(
+        '#type' => 'hidden',
+        '#default_value' => $_GET["idImportation"],
+ 
+    );
+    
+    $form['criteria'] = array(
+			'#type' => 'fieldset',
+			'#title' => t('Filtres'),
+			'#collapsible' => FALSE, // Added
+			'#collapsed' => FALSE,  // Added
+			'#attributes' => array('class' => array('container-inline'))
+	);
+	
+    
+    $options = getOptions('siit_aeroport', 'id_aeroport', 'li_aeroport');
+	$form['criteria']['aeroport'] = array(
+        '#type' => 'select',
+        '#title' => t('Aéroport :'),
+        '#options' => $options,
+        //'#required' => $required,
+    );
+    if (isset($_REQUEST['aeroport'])) {
+		$form['criteria']['aeroport']['#default_value'] = $_REQUEST['aeroport'];
+	}
+	
+	$options = getOptions('siit_type_vol', 'id_type_vol', 'li_type_vol');
+	$form['criteria']['type_vol'] = array(
+        '#type' => 'select',
+        '#title' => t('Type de vol :'),
+        '#options' => $options,
+        //'#required' => $required,
+    );
+    if (isset($_REQUEST['type_vol'])) {
+		$form['criteria']['type_vol']['#default_value'] = $_REQUEST['type_vol'];
+	}
+	
+	$options = getOptions('siit_arrivee_depart', 'id_arrivee_depart', 'li_arrivee_depart');
+	$form['criteria']['arrivee_depart'] = array(
+        '#type' => 'select',
+        '#title' => t('Type de vol :'),
+        '#options' => $options,
+        //'#required' => $required,
+    );
+    if (isset($_REQUEST['arrivee_depart'])) {
+		$form['criteria']['arrivee_depart']['#default_value'] = $_REQUEST['arrivee_depart'];
+	}
+	
+	
+	$form['criteria']['submit'] = array(
+			'#type' => 'submit',
+			'#value' => t('Rechercher'),
+	);
+	
+    
 	$header = array(
-			array('data' => t('Année'), 'field' => 'annee'),
+		array('data' => t('Année'), 'field' => 'annee'),
 	    array('data' => t('Mois'), 'field' => 'li_mois'),
         array('data' => t('Aeroport'), 'field' => 'li_aeroport', 'sort' => 'asc'),
 	    array('data' => t('Type de vol'), 'field' => 'li_type_vol'),
@@ -51,7 +123,7 @@ function siit_importation_adema_01_detail_form($form) {
 	global $user;
     $uid = $user->uid;
     
-    $limit = 10;
+    $limit = 50;
     if (isset($_REQUEST['page']) && !empty($_REQUEST['page'])) {
     	$start = $_REQUEST['page'] * $limit;
     	$page = $_REQUEST['page'];
@@ -60,14 +132,26 @@ function siit_importation_adema_01_detail_form($form) {
     	$start = 0;
     }
     $sqlList = "select annee,li_mois,li_aeroport,li_type_vol,nb_passagers,nb_vols,li_arrivee_depart ";
+    
     $sqlCount = "select count(*) as total ";  
+    
     $sql = "from siit_adema ad,siit_aeroport ae,siit_mois m,siit_type_vol tv,siit_arrivee_depart arr 
         where ad.id_aeroport=ae.id_aeroport and m.id_mois=ad.id_mois and tv.id_type_vol=ad.id_type_vol and arr.id_arrivee_depart=ad.id_arrivee_depart and id_importation=".$_GET["idImportation"];
         
-	/*$results = db_query("select annee,li_mois,li_aeroport,li_type_vol,nb_passagers,nb_vols,li_arrivee_depart from siit_adema ad,siit_aeroport ae,siit_mois m,siit_type_vol tv,siit_arrivee_depart arr 
-where ad.id_aeroport=ae.id_aeroport and m.id_mois=ad.id_mois and tv.id_type_vol=ad.id_type_vol and arr.id_arrivee_depart=ad.id_arrivee_depart and id_importation=".$_GET["idImportation"]." group by id_adema "); */
+	
     $order = tablesort_get_order($header);
 	$sort = tablesort_get_sort($header);
+	
+	if (isset($_REQUEST['aeroport']) && !empty($_REQUEST['aeroport'])) {
+		$sql .= " AND ad.id_aeroport = ".$_REQUEST['aeroport'];
+	}
+	if (isset($_REQUEST['type_vol']) && !empty($_REQUEST['type_vol'])) {
+		$sql .= " AND ad.id_type_vol = ".$_REQUEST['type_vol'];
+	}
+	if (isset($_REQUEST['arrivee_depart']) && !empty($_REQUEST['arrivee_depart'])) {
+		$sql .= " AND ad.id_arrivee_depart = ".$_REQUEST['arrivee_depart'];
+	}
+	
 	
 	if (isset($order["sql"]) && !empty($order['sql'])) {
 		$sql .= " order by ".$order["sql"]." ".$sort;

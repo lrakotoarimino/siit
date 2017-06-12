@@ -29,10 +29,79 @@ function siit_importation_ontm_02_detail_permission() {
   );
 }
 
+function siit_importation_ontm_02_detail_form_submit($form, &$form_state){
+	
+	$form_state['redirect'] = array(
+		// $path
+		'siit_importation_ontm_02_detail',
+		// $options
+		array('query' => array('employeur' => $form_state['values']['employeur'],
+			'region' => $form_state['values']['region'],
+			'classement' => $form_state['values']['classement'],
+			'idImportation' => $form_state['values']['idImportation'],)),
+		// $http_response_code
+		302,
+  );
+}
+
 function siit_importation_ontm_02_detail_form($form) {
 
 	$label = getPeriodAndStatutImport($_GET["idImportation"]);
     drupal_set_title(t('Détail des vignettes touristiques (ONTM)')." : ".$label);
+	
+	
+	$form['idImportation'] = array(
+        '#type' => 'hidden',
+        '#default_value' => $_GET["idImportation"],
+ 
+    );
+    
+    $form['criteria'] = array(
+			'#type' => 'fieldset',
+			'#title' => t('Filtres'),
+			'#collapsible' => FALSE, // Added
+			'#collapsed' => FALSE,  // Added
+			'#attributes' => array('class' => array('container-inline'))
+	);
+	
+	$form['criteria']['employeur'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Employeur :'),
+        
+    );
+    if (isset($_REQUEST['employeur'])) {
+		$form['criteria']['employeur']['#default_value'] = $_REQUEST['employeur'];
+	}
+	
+    
+    $options = getOptions('siit_region', 'id_region', 'li_region');
+	$form['criteria']['region'] = array(
+        '#type' => 'select',
+        '#title' => t('Région :'),
+        '#options' => $options,
+        //'#required' => $required,
+    );
+    if (isset($_REQUEST['region'])) {
+		$form['criteria']['region']['#default_value'] = $_REQUEST['region'];
+	}
+	
+	 $options = getOptions('siit_classement_etablissement', 'id_classement_etablissement', 'li_classement_etablissement');
+	$form['criteria']['classement'] = array(
+        '#type' => 'select',
+        '#title' => t('Classement :'),
+        '#options' => $options,
+        //'#required' => $required,
+    );
+    if (isset($_REQUEST['classement'])) {
+		$form['criteria']['classement']['#default_value'] = $_REQUEST['classement'];
+	}
+	
+	
+	$form['criteria']['submit'] = array(
+			'#type' => 'submit',
+			'#value' => t('Rechercher'),
+	);
+	
 	
 	$header = array(
 			array('data' => t('Nom établissement'), 'field' => 'li_enseigne', 'sort' => 'asc'),
@@ -51,7 +120,7 @@ function siit_importation_ontm_02_detail_form($form) {
 	global $user;
     $uid = $user->uid;
 	
-    $limit = 10;
+    $limit = 50;
     if (isset($_REQUEST['page']) && !empty($_REQUEST['page'])) {
     	$start = $_REQUEST['page'] * $limit;
     	$page = $_REQUEST['page'];
@@ -72,6 +141,18 @@ function siit_importation_ontm_02_detail_form($form) {
  
     $order = tablesort_get_order($header);
 	$sort = tablesort_get_sort($header);
+	
+	
+	if (isset($_REQUEST['region']) && !empty($_REQUEST['region'])) {
+		$sql .= " AND etab.id_region = ".$_REQUEST['region'];
+	}
+	if (isset($_REQUEST['employeur']) && !empty($_REQUEST['employeur'])) {
+		$sql .= " AND (lower(etab.li_etablissement) like '%".strtolower($_REQUEST['employeur'])."%'
+		OR lower(etab.li_enseigne) like '%".strtolower($_REQUEST['employeur'])."%')";
+	}
+	if (isset($_REQUEST['classement']) && !empty($_REQUEST['classement'])) {
+		$sql .= " AND etab.id_classement_etablissement = ".$_REQUEST['classement'];
+	}
 	
 	if (isset($order["sql"]) && !empty($order['sql'])) {
 		$sql .= " order by ".$order["sql"]." ".$sort;

@@ -37,7 +37,9 @@ function siit_importation_edbm_01_detail_form_submit($form, &$form_state){
 		// $path
 		'siit_importation_edbm_01_detail',
 		// $options
-		array('query' => array('activite' => $form_state['values']['activite'],
+		array('query' => array('employeur' => $form_state['values']['employeur'],
+			'region' => $form_state['values']['region'],
+			'activite' => $form_state['values']['activite'],
 			'idImportation' => $form_state['values']['idImportation'],)),
 		// $http_response_code
 		302,
@@ -48,18 +50,50 @@ function siit_importation_edbm_01_detail_form_submit($form, &$form_state){
 
 function siit_importation_edbm_01_detail_form($form) {
 
-	$options = getOptions('siit_activite_etablissement', 'id_activite_etablissement', 'li_activite_etablissement');
 	
-	$form['criteria']['idImportation'] = array(
+	
+    
+    $label = getPeriodAndStatutImport($_GET["idImportation"]);
+    drupal_set_title(t('Détail des données EDBM')." : ".$label);
+    
+    $form['idImportation'] = array(
         '#type' => 'hidden',
         '#default_value' => $_GET["idImportation"],
  
     );
     
-    $label = getPeriodAndStatutImport($_GET["idImportation"]);
-    drupal_set_title(t('Détail des données EDBM')." : ".$label);
+    $form['criteria'] = array(
+			'#type' => 'fieldset',
+			'#title' => t('Filtres'),
+			'#collapsible' => FALSE, // Added
+			'#collapsed' => FALSE,  // Added
+			'#attributes' => array('class' => array('container-inline'))
+	);
+	
+	$form['criteria']['employeur'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Employeur :'),
+        
+    );
+    if (isset($_REQUEST['employeur'])) {
+		$form['criteria']['employeur']['#default_value'] = $_REQUEST['employeur'];
+	}
+	
     
-    
+    $options = getOptions('siit_region', 'id_region', 'li_region');
+	$form['criteria']['region'] = array(
+        '#type' => 'select',
+        '#title' => t('Région :'),
+        '#options' => $options,
+        //'#required' => $required,
+    );
+    if (isset($_REQUEST['region'])) {
+		$form['criteria']['region']['#default_value'] = $_REQUEST['region'];
+	}
+	
+	
+    $options = getOptions('siit_activite_etablissement', 'id_activite_etablissement', 'li_activite_etablissement');
+	
 	$form['criteria']['activite'] = array(
         '#type' => 'select',
         '#title' => t('Activité :'),
@@ -70,7 +104,7 @@ function siit_importation_edbm_01_detail_form($form) {
 		$form['criteria']['activite']['#default_value'] = $_REQUEST['activite'];
 	}
 	
-	$form['submit'] = array(
+	$form['criteria']['submit'] = array(
 			'#type' => 'submit',
 			'#value' => t('Rechercher'),
 	);
@@ -100,7 +134,7 @@ function siit_importation_edbm_01_detail_form($form) {
 	global $user;
     $uid = $user->uid;
 	
-    $limit = 100;
+    $limit = 50;
     if (isset($_REQUEST['page']) && !empty($_REQUEST['page'])) {
     	$start = $_REQUEST['page'] * $limit;
     	$page = $_REQUEST['page'];
@@ -126,6 +160,13 @@ function siit_importation_edbm_01_detail_form($form) {
 	
 	if (isset($_REQUEST['activite']) && !empty($_REQUEST['activite'])) {
 		$sql .= " AND actetab.id_activite_etablissement = ".$_REQUEST['activite'];
+	}
+	if (isset($_REQUEST['region']) && !empty($_REQUEST['region'])) {
+		$sql .= " AND etab.id_region = ".$_REQUEST['region'];
+	}
+	if (isset($_REQUEST['employeur']) && !empty($_REQUEST['employeur'])) {
+		$sql .= " AND (lower(etab.li_etablissement) like '%".strtolower($_REQUEST['employeur'])."%'
+		OR lower(etab.li_enseigne) like '%".strtolower($_REQUEST['employeur'])."%')";
 	}
 	
 	if (isset($order["sql"]) && !empty($order['sql'])) {

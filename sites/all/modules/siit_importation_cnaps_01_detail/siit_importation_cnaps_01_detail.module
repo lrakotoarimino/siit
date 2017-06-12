@@ -19,6 +19,22 @@ function siit_importation_cnaps_01_detail_menu(){
     
 }  
 
+function siit_importation_cnaps_01_detail_form_submit($form, &$form_state){
+	
+	$form_state['redirect'] = array(
+		// $path
+		'siit_importation_cnaps_01_detail',
+		// $options
+		array('query' => array('employeur' => $form_state['values']['employeur'],
+			'region' => $form_state['values']['region'],
+			'idImportation' => $form_state['values']['idImportation'],)),
+		// $http_response_code
+		302,
+  );
+}
+
+
+
 function siit_importation_cnaps_01_detail_permission() {
   return array( 
     'access siit_importation_cnaps_01_detail' => array(
@@ -32,10 +48,50 @@ function siit_importation_cnaps_01_detail_form($form) {
 
 	$label = getPeriodAndStatutImport($_GET["idImportation"]);
     drupal_set_title(t('Détail des données CNAPS')." : ".$label);
+    
+    $form['idImportation'] = array(
+        '#type' => 'hidden',
+        '#default_value' => $_GET["idImportation"],
+ 
+    );
+    
+    $form['criteria'] = array(
+			'#type' => 'fieldset',
+			'#title' => t('Filtres'),
+			'#collapsible' => FALSE, // Added
+			'#collapsed' => FALSE,  // Added
+			'#attributes' => array('class' => array('container-inline'))
+	);
+	
+	$form['criteria']['employeur'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Employeur :'),
+        
+    );
+    if (isset($_REQUEST['employeur'])) {
+		$form['criteria']['employeur']['#default_value'] = $_REQUEST['employeur'];
+	}
+	
+    
+    $options = getOptions('siit_region', 'id_region', 'li_region');
+	$form['criteria']['region'] = array(
+        '#type' => 'select',
+        '#title' => t('Région :'),
+        '#options' => $options,
+        //'#required' => $required,
+    );
+    if (isset($_REQUEST['region'])) {
+		$form['criteria']['region']['#default_value'] = $_REQUEST['region'];
+	}
+	
+	$form['criteria']['submit'] = array(
+			'#type' => 'submit',
+			'#value' => t('Rechercher'),
+	);
+	
 	
 	$header = array(
-		    
-        array('data' => t('Nom employeur'), 'field' => 'li_enseigne'),
+		array('data' => t('Nom employeur'), 'field' => 'li_enseigne'),
 	    array('data' => t('Région'), 'field' => 'li_region'/*, 'sort' => 'desc'*/),
 	    array('data' => t('Année'), 'field' => 'emp.annee'),	
 	    array('data' => t('Nombre employés nationaux'), 'field' => 'nbr_emplois_nationaux'/*, 'sort' => 'desc'*/),
@@ -49,7 +105,7 @@ function siit_importation_cnaps_01_detail_form($form) {
 	global $user;
     $uid = $user->uid;
     
-    $limit = 10;
+    $limit = 50;
     if (isset($_REQUEST['page']) && !empty($_REQUEST['page'])) {
     	$start = $_REQUEST['page'] * $limit;
     	$page = $_REQUEST['page'];
@@ -65,12 +121,17 @@ function siit_importation_cnaps_01_detail_form($form) {
 							left join siit_region reg on etab.id_region=reg.id_region 
 							where emp.id_importation=".$_GET["idImportation"]; 
     
-	/*$results = db_query("select emp.annee,li_enseigne,li_region,nbr_emplois_nationaux,nbr_emplois_etrangers from siit_employes emp
-							left join siit_etablissement etab on etab.id_etablissement = emp.id_etablissement  
-							left join siit_region reg on etab.id_region=reg.id_region 
-							where emp.id_importation=".$_GET["idImportation"]); */
-     $order = tablesort_get_order($header);
+	
+    $order = tablesort_get_order($header);
 	$sort = tablesort_get_sort($header);
+	
+	if (isset($_REQUEST['region']) && !empty($_REQUEST['region'])) {
+		$sql .= " AND etab.id_region = ".$_REQUEST['region'];
+	}
+	if (isset($_REQUEST['employeur']) && !empty($_REQUEST['employeur'])) {
+		$sql .= " AND (lower(etab.li_etablissement) like '%".strtolower($_REQUEST['employeur'])."%'
+		OR lower(etab.li_enseigne) like '%".strtolower($_REQUEST['employeur'])."%')";
+	}
 	
 	if (isset($order["sql"]) && !empty($order['sql'])) {
 		$sql .= " order by ".$order["sql"]." ".$sort;
@@ -78,7 +139,8 @@ function siit_importation_cnaps_01_detail_form($form) {
 		$sql .= " order by li_enseigne";
 	}
 	
-	//$results = db_query($sqlList.$sql);
+	
+
 	$count_result = db_query($sqlCount.$sql)->fetchAssoc();;
 	$results = db_query_range($sqlList.$sql,$start,$limit);
 	$nbTotal = $count_result["total"];
@@ -87,7 +149,6 @@ function siit_importation_cnaps_01_detail_form($form) {
 	 foreach($results as $result) {
 	 		
 	    $rows[$i] = array(
-			    
 			    'li_enseigne' => $result->li_enseigne,
 			    'li_region' => $result->li_region,
 			    'emp.annee' => $result->annee,

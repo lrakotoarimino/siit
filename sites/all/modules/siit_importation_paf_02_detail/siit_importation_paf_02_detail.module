@@ -29,19 +29,81 @@ function siit_importation_paf_02_detail_permission() {
   );
 }
 
+function siit_importation_paf_02_detail_form_submit($form, &$form_state){
+	
+	$form_state['redirect'] = array(
+		// $path
+		'siit_importation_paf_02_detail',
+		// $options
+		array('query' => array('nationalite' => $form_state['values']['nationalite'],
+			'resident' => $form_state['values']['resident'],
+			'idImportation' => $form_state['values']['idImportation'],)),
+		// $http_response_code
+		302,
+  );
+}
+
+
+	
+
+
 function siit_importation_paf_02_detail_form($form) {
 
 	$label = getPeriodAndStatutImport($_GET["idImportation"]);
     drupal_set_title(t('Detail importation Paf02 (Nosy Be)')." : ".$label);
     
+    $form['idImportation'] = array(
+        '#type' => 'hidden',
+        '#default_value' => $_GET["idImportation"],
+ 
+    );
+    
+    $form['criteria'] = array(
+			'#type' => 'fieldset',
+			'#title' => t('Filtres'),
+			'#collapsible' => FALSE, // Added
+			'#collapsed' => FALSE,  // Added
+			'#attributes' => array('class' => array('container-inline'))
+	);
+	
+    
+    $options = getOptions('siit_nationalite', 'id_nationalite', 'li_nationalite');
+	$form['criteria']['nationalite'] = array(
+        '#type' => 'select',
+        '#title' => t('Nationalité :'),
+        '#options' => $options,
+        //'#required' => $required,
+    );
+    if (isset($_REQUEST['nationalite'])) {
+		$form['criteria']['nationalite']['#default_value'] = $_REQUEST['nationalite'];
+	}
+	
+	$options = array('' => 'Tous', '0' => 'Non', '1' => 'Oui');;
+	$form['criteria']['resident'] = array(
+        '#type' => 'select',
+        '#title' => t('Résident :'),
+        '#options' => $options,
+      
+    );
+    if (isset($_REQUEST['resident'])) {
+		$form['criteria']['resident']['#default_value'] = $_REQUEST['resident'];
+	}
+	
+	
+	
+	$form['criteria']['submit'] = array(
+			'#type' => 'submit',
+			'#value' => t('Rechercher'),
+	);
+    
 	$header = array(
-			array('data' => t('Année'), 'field' => 'annee'),
+		array('data' => t('Année'), 'field' => 'annee'),
 	    array('data' => t('Mois'), 'field' => 'li_mois'),
 	    array('data' => t('Aéroport'), 'field' => 'li_aeroport'),
-			array('data' => t('Arrivée/Départ'), 'field' => 'li_arrivee_depart'),
-			array('data' => t('Nationalité'), 'field' => 'li_nationalite', 'sort' => 'asc'),
-			array('data' => t('Résident'), 'field' => 'is_resident'),
-			array('data' => t('Nombre de passagers'), 'field' => 'nb_pax'),	   
+		array('data' => t('Arrivée/Départ'), 'field' => 'li_arrivee_depart'),
+		array('data' => t('Nationalité'), 'field' => 'li_nationalite', 'sort' => 'asc'),
+		array('data' => t('Résident'), 'field' => 'is_resident'),
+		array('data' => t('Nombre de passagers'), 'field' => 'nb_pax'),	   
 	);
 	
 	
@@ -49,24 +111,13 @@ function siit_importation_paf_02_detail_form($form) {
 	$i=0;
 	
 	
-	 /*num_vol,li_compagnie,
-	 siit_vol vol,
-			siit_compagnie cmp,
-	and vol.id_vol = pass.id_vol 
-			and cmp.id_compagnie = pass.id_compagnie 
-	*/
+	
 			
 	global $user;
     $uid = $user->uid;
 	
-    /*$limit = 10;
-    if (isset($_REQUEST['page']) && !empty($_REQUEST['page'])) {
-    	$start = $_REQUEST['page'] * $limit;
-    	$page = $_REQUEST['page'];
-    } else {
-    	$page = 0;
-    	$start = 0;
-    }*/
+   
+
     $sqlList = "select * ";
     $sqlCount = "select count(*) as total ";  
     $sql = "from siit_passager_global pax 
@@ -76,27 +127,28 @@ function siit_importation_paf_02_detail_form($form) {
 						left join siit_arrivee_depart ad  on ad.id_arrivee_depart =  pax.id_arrivee_depart							
 						Where pax.id_importation=".$_GET["idImportation"];
     
-	/*$results = db_query("select * from siit_passager_global pax 
-						left join siit_nationalite nat on nat.id_nationalite = pax.id_nationalite
-						left join siit_mois m  on m.id_mois =  pax.id_mois
-						left join siit_aeroport a  on a.id_aeroport =  pax.id_aeroport	
-						left join siit_arrivee_depart ad  on ad.id_arrivee_depart =  pax.id_arrivee_depart							
-						Where pax.id_importation=".$_GET["idImportation"]); */
-    $order = tablesort_get_order($header);
+	
+	$order = tablesort_get_order($header);
 	$sort = tablesort_get_sort($header);
+	
+	
+	if (isset($_REQUEST['resident']) && $_REQUEST['resident'] != '') {
+		$sql .= " AND pax.is_resident = '".$_REQUEST['resident']."'";
+	}
+	
+	if (isset($_REQUEST['nationalite']) && !empty($_REQUEST['nationalite'])) {
+		$sql .= " AND pax.id_nationalite = ".$_REQUEST['nationalite'];
+	}
 	
 	if (isset($order["sql"]) && !empty($order['sql'])) {
 		$sql .= " order by ".$order["sql"]." ".$sort;
 	} else {
 		//$sql .= " order by li_enseigne";
 	}
-	
+	var_dump($sqlList.$sql);
 	$results = db_query($sqlList.$sql);
-	//$results = db_query($sqlList.$sql);
-	/*$count_result = db_query($sqlCount.$sql)->fetchAssoc();;*/	
-//	$results = db_query_range($sqlList.$sql,$start,$limit);
-	//$nbTotal = $count_result["total"];
-	//pager_default_initialize($count_result["total"], $limit, $element = 0);
+	
+
     
     $annee_non_res = 0;$mois_non_res= 0;$aeorport_non_res = 0;$arrivee_depart_non_res  = 0;
 	$li_nationalite_non_res  = 0;$is_resident_non_res=""; $resident = "";

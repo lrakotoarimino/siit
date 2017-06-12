@@ -30,10 +30,116 @@ function siit_importation_paf_01_detail_permission() {
   );
 }
 
+function siit_importation_paf_01_detail_form_submit($form, &$form_state){
+	
+	$form_state['redirect'] = array(
+		// $path
+		'siit_importation_paf_01_detail',
+		// $options
+		array('query' => array('pays' => $form_state['values']['pays'],
+			'nationalite' => $form_state['values']['nationalite'],
+			'profession' => $form_state['values']['profession'],
+			'hebergement' => $form_state['values']['hebergement'],
+			'objet_voyage' => $form_state['values']['objet_voyage'],
+			'resident' => $form_state['values']['resident'],
+			'idImportation' => $form_state['values']['idImportation'],)),
+		// $http_response_code
+		302,
+  );
+}
+
+
 function siit_importation_paf_01_detail_form($form) {
 
 	$label = getPeriodAndStatutImport($_GET["idImportation"]);
     drupal_set_title(t('Detail importation Paf01 (Ivato)')." : ".$label);
+    
+    $form['idImportation'] = array(
+        '#type' => 'hidden',
+        '#default_value' => $_GET["idImportation"],
+ 
+    );
+    
+    $form['criteria'] = array(
+			'#type' => 'fieldset',
+			'#title' => t('Filtres'),
+			'#collapsible' => FALSE, // Added
+			'#collapsed' => FALSE,  // Added
+			'#attributes' => array('class' => array('container-inline'))
+	);
+	
+    
+    $options = getOptions('siit_nationalite', 'id_nationalite', 'li_nationalite');
+	$form['criteria']['nationalite'] = array(
+        '#type' => 'select',
+        '#title' => t('Nationalité :'),
+        '#options' => $options,
+        //'#required' => $required,
+    );
+    if (isset($_REQUEST['nationalite'])) {
+		$form['criteria']['nationalite']['#default_value'] = $_REQUEST['nationalite'];
+	}
+	
+	$options = array('' => 'Tous', '0' => 'Non', '1' => 'Oui');;
+	$form['criteria']['resident'] = array(
+        '#type' => 'select',
+        '#title' => t('Résident :'),
+        '#options' => $options,
+      
+    );
+    if (isset($_REQUEST['resident'])) {
+		$form['criteria']['resident']['#default_value'] = $_REQUEST['resident'];
+	}
+	
+	$options = getOptions('siit_pays', 'id_pays', 'li_pays');
+	$form['criteria']['pays'] = array(
+        '#type' => 'select',
+        '#title' => t('Pays :'),
+        '#options' => $options,
+        //'#required' => $required,
+    );
+    if (isset($_REQUEST['pays'])) {
+		$form['criteria']['pays']['#default_value'] = $_REQUEST['pays'];
+	}
+	
+	$options = getOptions('siit_profession', 'id_profession', 'li_profession');
+	$form['criteria']['profession'] = array(
+        '#type' => 'select',
+        '#title' => t('Profession :'),
+        '#options' => $options,
+        //'#required' => $required,
+    );
+    if (isset($_REQUEST['profession'])) {
+		$form['criteria']['profession']['#default_value'] = $_REQUEST['profession'];
+	}
+	
+	$options = getOptions('siit_hebergement', 'id_hebergement', 'li_hebergement');
+	$form['criteria']['hebergement'] = array(
+        '#type' => 'select',
+        '#title' => t('Hébergement :'),
+        '#options' => $options,
+        //'#required' => $required,
+    );
+    if (isset($_REQUEST['hebergement'])) {
+		$form['criteria']['hebergement']['#default_value'] = $_REQUEST['hebergement'];
+	}
+	
+	$options = getOptions('siit_objet_voyage', 'id_objet_voyage', 'li_objet_voyage');
+	$form['criteria']['objet_voyage'] = array(
+        '#type' => 'select',
+        '#title' => t('Objet du voyage :'),
+        '#options' => $options,
+        //'#required' => $required,
+    );
+    if (isset($_REQUEST['objet_voyage'])) {
+		$form['criteria']['objet_voyage']['#default_value'] = $_REQUEST['objet_voyage'];
+	}
+	
+	$form['criteria']['submit'] = array(
+			'#type' => 'submit',
+			'#value' => t('Rechercher'),
+	);
+	
     
 	$header = array(
 			array('data' => t('Civilite'), 'field' => 'li_civilite'),
@@ -60,7 +166,7 @@ function siit_importation_paf_01_detail_form($form) {
 	global $user;
     $uid = $user->uid;
 	
-    $limit = 10;
+    $limit = 50;
     if (isset($_REQUEST['page']) && !empty($_REQUEST['page'])) {
     	$start = $_REQUEST['page'] * $limit;
     	$page = $_REQUEST['page'];
@@ -83,21 +189,29 @@ function siit_importation_paf_01_detail_form($form) {
 			LEFT JOIN siit_pays pays_emb ON pays_emb.id_pays = pass.id_pays_embarquement 
 			where pass.id_importation=".$_GET["idImportation"];
     
-	/*$results = db_query("select li_civilite,is_resident,li_nationalite,dt_naissance,
-			pays.li_pays,lieu_residence,li_profession,is_voyage_groupe,is_transit,
-			li_lieu_destination,dt_retour,li_hebergement,li_objet_voyage,
-			pays_emb.li_pays as li_pays_embarquement
-			FROM siit_passager pass 
-			LEFT JOIN siit_nationalite nat ON nat.id_nationalite = pass.id_nationalite
-			LEFT JOIN siit_civilite civ ON civ.id_civilite = pass.id_civilite 
-			LEFT JOIN siit_pays pays ON pays.id_pays = pass.id_pays 
-			LEFT JOIN siit_hebergement heb ON heb.id_hebergement = pass.id_hebergement 
-			LEFT JOIN siit_objet_voyage ov ON ov.id_objet_voyage = pass.id_objet_voyage
-			LEFT JOIN siit_profession pro ON pro.id_profession = pass.id_profession
-			LEFT JOIN siit_pays pays_emb ON pays_emb.id_pays = pass.id_pays_embarquement 
-			where pass.id_importation=".$_GET["idImportation"]); */
+	
     $order = tablesort_get_order($header);
 	$sort = tablesort_get_sort($header);
+	
+	if (isset($_REQUEST['resident']) && $_REQUEST['resident'] != '') {
+		$sql .= " AND pass.is_resident = '".$_REQUEST['resident']."'";
+	}
+	if (isset($_REQUEST['nationalite']) && !empty($_REQUEST['nationalite'])) {
+		$sql .= " AND pass.id_nationalite = ".$_REQUEST['nationalite'];
+	}
+	if (isset($_REQUEST['pays']) && !empty($_REQUEST['pays'])) {
+		$sql .= " AND pass.id_pays = ".$_REQUEST['pays'];
+	}
+	if (isset($_REQUEST['profession']) && !empty($_REQUEST['profession'])) {
+		$sql .= " AND pass.id_profession = ".$_REQUEST['profession'];
+	}
+	if (isset($_REQUEST['hebergement']) && !empty($_REQUEST['hebergement'])) {
+		$sql .= " AND pass.id_hebergement = ".$_REQUEST['hebergement'];
+	}
+	if (isset($_REQUEST['objet_voyage']) && !empty($_REQUEST['objet_voyage'])) {
+		$sql .= " AND pass.id_objet_voyage = ".$_REQUEST['objet_voyage'];
+	}
+	
 	
 	if (isset($order["sql"]) && !empty($order['sql'])) {
 		$sql .= " order by ".$order["sql"]." ".$sort;

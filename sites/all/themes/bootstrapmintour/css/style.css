@@ -354,3 +354,28 @@ h1.page-header {
     font-size: 16px;
     font-weight: bold;
 }
+
+select#edit-aeroport {
+    width: 170px;
+}
+select#edit-type-vol {
+    width: 150px;
+}
+select#edit-arrivee-depart {
+    width: 150px;
+}
+select#edit-pays {
+    width: 160px;
+}
+select#edit-navire {
+    width: 130px;
+}
+select {
+    font-size: 12px!important;
+}
+input {
+    font-size: 12px!important;
+}
+input#edit-employeur {
+    width: 300px;
+}
