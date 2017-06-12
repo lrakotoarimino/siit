@@ -8,7 +8,7 @@
 function siit_importation_paf_02_detail_menu(){
     $items = array();
     $items['siit_importation_paf_02_detail'] = array(
-        'title'            => t('Detail importation Paf02'), 
+        //'title'            => t('Detail importation Paf02'), 
         'page callback'    => 'drupal_get_form',
         'page arguments' => array('siit_importation_paf_02_detail_form'),
         'access arguments' => array('access siit_importation_paf_02_detail'),
@@ -31,6 +31,9 @@ function siit_importation_paf_02_detail_permission() {
 
 function siit_importation_paf_02_detail_form($form) {
 
+	$label = getPeriodAndStatutImport($_GET["idImportation"]);
+    drupal_set_title(t('Detail importation Paf02 (Nosy Be)')." : ".$label);
+    
 	$header = array(
 			array('data' => t('Année'), 'field' => 'annee'),
 	    array('data' => t('Mois'), 'field' => 'li_mois'),

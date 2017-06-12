@@ -9,7 +9,7 @@ function siit_importation_paf_01_detail_menu(){
     $items = array();
     //var_dump($_REQUEST["idImportation"]);
     $items['siit_importation_paf_01_detail'] = array(
-        'title'            => t('Detail importation Paf01'), 
+        //'title'            => t('Detail importation Paf01 (Ivato)'), 
         'page callback'    => 'drupal_get_form',
         'page arguments' => array('siit_importation_paf_01_detail_form'),
         'access arguments' => array('access siit_importation_paf_01_detail'),
@@ -32,6 +32,9 @@ function siit_importation_paf_01_detail_permission() {
 
 function siit_importation_paf_01_detail_form($form) {
 
+	$label = getPeriodAndStatutImport($_GET["idImportation"]);
+    drupal_set_title(t('Detail importation Paf01 (Ivato)')." : ".$label);
+    
 	$header = array(
 			array('data' => t('Civilite'), 'field' => 'li_civilite'),
 	    	array('data' => t('Resident'), 'field' => 'is_resident'),

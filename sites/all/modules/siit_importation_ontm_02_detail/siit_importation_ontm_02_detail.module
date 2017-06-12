@@ -8,7 +8,7 @@
 function siit_importation_ontm_02_detail_menu(){
     $items = array();
     $items['siit_importation_ontm_02_detail'] = array(
-        'title'            => t('Détail des vignettes touristiques (ONTM)'), 
+        //'title'            => t('Détail des vignettes touristiques (ONTM)'), 
         'page callback'    => 'drupal_get_form',
         'page arguments' => array('siit_importation_ontm_02_detail_form'),
         'access arguments' => array('access siit_importation_ontm_02_detail'),
@@ -31,8 +31,9 @@ function siit_importation_ontm_02_detail_permission() {
 
 function siit_importation_ontm_02_detail_form($form) {
 
+	$label = getPeriodAndStatutImport($_GET["idImportation"]);
+    drupal_set_title(t('Détail des vignettes touristiques (ONTM)')." : ".$label);
 	
-	drupal_set_title(t('Détail des vignettes touristiques (ONTM)'));
 	$header = array(
 			array('data' => t('Nom établissement'), 'field' => 'li_enseigne', 'sort' => 'asc'),
 			array('data' => t('Région'), 'field' => 'li_region'),

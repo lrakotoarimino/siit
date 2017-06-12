@@ -8,7 +8,7 @@
 function siit_importation_apmf_01_detail_menu(){
     $items = array();
     $items['siit_importation_apmf_01_detail'] = array(
-        'title'            => t('Détail des données APMF'), 
+        //'title'            => t('Détail des données APMF'), 
         'page callback'    => 'drupal_get_form',
         'page arguments' => array('siit_importation_apmf_01_detail_form'),
         'access arguments' => array('access siit_importation_apmf_01_detail'),
@@ -31,6 +31,9 @@ function siit_importation_apmf_01_detail_permission() {
 }
 
 function siit_importation_apmf_01_detail_form($form) {
+
+	$label = getPeriodAndStatutImport($_GET["idImportation"]);
+    drupal_set_title(t('Détail des données APMF')." : ".$label);
 
 	$header = array(
 		array('data' => t('Année'), 'field' => 'annee'),

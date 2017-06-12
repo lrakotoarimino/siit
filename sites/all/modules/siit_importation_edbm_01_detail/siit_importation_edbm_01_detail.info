@@ -1,5 +1,5 @@
-name = SIIT EDBM : Liste des données des Etablissement EDBM
-description = SIIT EDBM : Liste des données des Etablissement EDBM
+name = SIIT EDBM : Liste des donnÃ©es des Etablissement EDBM
+description = SIIT EDBM : Liste des donnÃ©es des Etablissement EDBM
 core = 7.x
 version = 7.x-0.x-dev
 package = SIIT

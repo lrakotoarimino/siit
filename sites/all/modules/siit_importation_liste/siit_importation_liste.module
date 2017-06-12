@@ -1444,3 +1444,43 @@ function controle_error_nombre($code,$val,$row,$col){
         form_set_error($code , t($val." n'est pas un nombre (".getCellule($row, $col).") ."));
     }   
  }
+ 
+function getPeriodAndStatutImport($idImportation) {
+	$sql = "select * from siit_importation i
+		left join siit_mois m ON m.id_mois = i.id_mois
+		left join siit_statut s ON i.id_statut = s.id_statut
+		left join siit_type_fichier t ON t.id_type_fichier = i.id_type_fichier
+	where id_importation = ".$idImportation;
+	$data = db_query($sql)->fetchObject();
+	
+	$label = "";
+	if ($data) {
+		$li_mois = $data->li_mois;
+		$annee = $data->annee;
+		$li_statut = $data->li_statut;
+		$li_type_fichier = $data->li_type_fichier;
+		$id_importation = $data->id_importation;
+		
+		$label = (!empty($li_mois) ? $li_mois." " : "");
+		$label .= $annee;
+		
+		
+		//Si c'est un type PAF01, on ajoute le vol
+		if ($li_type_fichier == 'PAF01') {
+			//On récupère le pays d'embarquement dans la table passager
+			$sql = "SELECT li_pays FROM siit_passager p 
+				LEFT JOIN siit_pays pa ON p.id_pays_embarquement = pa.id_pays
+				WHERE p.id_importation = ".$id_importation;
+			$data = db_query($sql)->fetchObject();
+			if ($data) {
+				$li_pays = $data->li_pays;
+				$label .= " en provenance de ".$li_pays;
+			}
+		}
+		
+		$label .= " (".$li_statut.")";
+	}
+	
+	
+	return $label;
+}

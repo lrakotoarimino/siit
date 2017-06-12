@@ -2,13 +2,14 @@
 
 /**
 * @file
-* DÃ©tail des donnÃ©es des entrÃ©es pour Etablissements (EDBM01)
+* Détail des données des entrées pour Etablissements (EDBM01)
 */
 
 function siit_importation_edbm_01_detail_menu(){
     $items = array();
+    
     $items['siit_importation_edbm_01_detail'] = array(
-        'title'            => t('Détail des données EDBM'), 
+        //'title'            => t('Détail des données EDBM'), 
         'page callback'    => 'drupal_get_form',
         'page arguments' => array('siit_importation_edbm_01_detail_form'),
         'access arguments' => array('access siit_importation_edbm_01_detail'),
@@ -54,8 +55,11 @@ function siit_importation_edbm_01_detail_form($form) {
         '#default_value' => $_GET["idImportation"],
  
     );
-	
-	
+    
+    $label = getPeriodAndStatutImport($_GET["idImportation"]);
+    drupal_set_title(t('Détail des données EDBM')." : ".$label);
+    
+    
 	$form['criteria']['activite'] = array(
         '#type' => 'select',
         '#title' => t('Activité :'),

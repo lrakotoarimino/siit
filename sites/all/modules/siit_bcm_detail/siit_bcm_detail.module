@@ -8,7 +8,7 @@
 function siit_bcm_detail_menu(){
     $items = array();
     $items['siit_bcm_detail'] = array(
-        'title'            => t('LISTE DES RECETTES TOURISTIQUES'), 
+        //'title'            => t('LISTE DES RECETTES TOURISTIQUES'), 
         'page callback'    => 'drupal_get_form',
         'page arguments' => array('siit_bcm_detail_form'),
         'access arguments' => array('access siit_bcm_detail'),
@@ -31,7 +31,8 @@ function siit_bcm_detail_permission() {
 
 function siit_bcm_detail_form($form) {
 	
-	drupal_set_title(t('Liste de Recettes Touristiques'));
+	$label = getPeriodAndStatutImport($_GET["idImportation"]);
+    drupal_set_title(t('Liste des Recettes Touristiques')." : ".$label);
 	
 	$header = array(
 			array('data' => t('Annee'), 'field' => 'annee'),

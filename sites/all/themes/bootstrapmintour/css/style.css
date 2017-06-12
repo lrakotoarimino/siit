@@ -349,3 +349,8 @@ fieldset#edit-picture {
 .nav-tabs > li > a {
  display:none;
 }
+
+h1.page-header {
+    font-size: 16px;
+    font-weight: bold;
+}
