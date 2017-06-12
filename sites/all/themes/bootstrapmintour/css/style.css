@@ -382,7 +382,7 @@ input#edit-employeur {
 select#edit-port {
     width: 110px;
 }
-input#edit-id_croisiere {
+input#edit-id-croisiere {
     width: 70px;
 }
 label.control-label {
