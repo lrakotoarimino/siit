@@ -23,7 +23,7 @@
     font-size: 10px;
 }
 .form-item {
-    margin-right: 20px;
+    margin-right: 10px;
 }
 
 .select-very-small, .input-very-small {
@@ -365,7 +365,7 @@ select#edit-arrivee-depart {
     width: 150px;
 }
 select#edit-pays {
-    width: 160px;
+    width: 130px;
 }
 select#edit-navire {
     width: 130px;
@@ -378,4 +378,16 @@ input {
 }
 input#edit-employeur {
     width: 300px;
+}
+select#edit-port {
+    width: 110px;
+}
+input#edit-id_croisiere {
+    width: 70px;
+}
+label.control-label {
+    font-size: 12px;
+}
+button#edit-submit {
+    font-size: 12px!important;
 }

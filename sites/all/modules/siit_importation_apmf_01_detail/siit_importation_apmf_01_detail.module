@@ -38,9 +38,11 @@ function siit_importation_apmf_01_detail_form_submit($form, &$form_state){
 		// $options
 		array('query' => array('port' => $form_state['values']['port'],
 			'nationalite' => $form_state['values']['nationalite'],
+			'id_croisiere' => $form_state['values']['id_croisiere'],
 			'pays' => $form_state['values']['pays'],
 			'navire' => $form_state['values']['navire'],
 			'idImportation' => $form_state['values']['idImportation'],)),
+			
 		// $http_response_code
 		302,
   );
@@ -110,6 +112,14 @@ function siit_importation_apmf_01_detail_form($form) {
 		$form['criteria']['nationalite']['#default_value'] = $_REQUEST['nationalite'];
 	}
 	
+	$form['criteria']['id_croisiere'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Id croisière :'),
+        
+    );
+	 if (isset($_REQUEST['id_croisiere'])) {
+		$form['criteria']['id_croisiere']['#default_value'] = $_REQUEST['id_croisiere'];
+	}
 
 	$form['criteria']['submit'] = array(
 			'#type' => 'submit',
@@ -119,7 +129,7 @@ function siit_importation_apmf_01_detail_form($form) {
 	$header = array(
 		array('data' => t('Année'), 'field' => 'annee'),
 	    array('data' => t('Date Escale'), 'field' => 'dt_escale', 'sort' => 'desc' ),
-        array('data' => t('ID'), 'field' => 'id_croisiere', 'sort' => 'asc' ),
+        array('data' => t('ID croisière'), 'field' => 'esc.id_croisiere', 'sort' => 'asc' ),
 	    array('data' => t('Premier Toucher'), 'field' => 'is_premier_toucher'),
 	    array('data' => t('Port'), 'field' => 'li_port'/*, 'sort' => 'desc'*/),
         array('data' => t('Navire'), 'field' => 'li_navire'/*, 'sort' => 'desc'*/),
@@ -153,7 +163,6 @@ function siit_importation_apmf_01_detail_form($form) {
 				left join siit_apmf_escale esc on esc.id_apmf_escale =  pax.id_apmf_escale
 				left join siit_apmf_croisiere croi on croi.id_croisiere =  esc.id_croisiere
 				left join siit_nationalite nat  on nat.id_nationalite = pax.id_nationalite  
-
 				left join siit_apmf_navire nav on nav.id_apmf_navire = croi.id_navire
 				left join siit_type_transport_maritime tm  on tm.id_type_transport_maritime = croi.id_type_transport_maritime  
 				left join siit_port port  on port.id_port = esc.id_port  
@@ -177,7 +186,9 @@ function siit_importation_apmf_01_detail_form($form) {
 	if (isset($_REQUEST['navire']) && !empty($_REQUEST['navire'])) {
 		$sql .= " AND croi.id_navire = ".$_REQUEST['navire'];
 	}
-	
+	if (isset($_REQUEST['id_croisiere']) && !empty($_REQUEST['id_croisiere'])) {
+		$sql .= " AND esc.id_croisiere = ".$_REQUEST['id_croisiere'];
+	}
 	
 	if (isset($order["sql"]) && !empty($order['sql'])) {
 		
