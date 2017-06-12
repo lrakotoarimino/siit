@@ -254,7 +254,7 @@ function siit_importation_liste_form($form) {
 	    array('data' => t('Nom fichier'), 'field' => 'li_fichier'),
 	    array('data' => t('User validateur'), 'field' => 'uid_validation'),
 	    array('data' => t('Date validation'), 'field' => 'dt_validation'),
-	    array('data' => t('Type'), 'field' => 'li_type_fichier'),
+	    array('data' => t('Type'), 'field' => 'li_type_fichier_select'),
 	    array('data' => t('Statut'), 'field' => 'li_statut'),
 	    array('data' => t('Actions')),
 	);
@@ -338,7 +338,7 @@ function siit_importation_liste_form($form) {
     }
 	
 	$sqlList = "select imp.id_importation, imp.uid_validation, annee, m.id_mois, 
-		dt_importation, uid_importation, li_mois, li_type_fichier,li_statut,
+		dt_importation, uid_importation, li_mois, li_type_fichier, li_type_fichier_select, li_statut,
 		imp.li_fichier, imp.dt_validation, imp.id_type_fichier, imp.id_statut ";
 	$sqlCount = "select count(*) as total ";  
 	
@@ -406,7 +406,7 @@ function siit_importation_liste_form($form) {
 			        			'li_fichier' => $result->li_fichier,
 	      						'user_valide' => $user_valide,
 	      						'dt_validation' => $date_valid,
-	      						'type_fichier' => $result->li_type_fichier,
+	      						'type_fichier' => $result->li_type_fichier_select,
 	      						'statut' => $result->li_statut,
 			        			);
 			        				  
@@ -1065,12 +1065,14 @@ function optionTypeFichier($tous = false) {
     if ($tous) {
     	$options[] = t("Tous");
     }
-    $sql = "SELECT id_type_fichier,li_type_fichier FROM siit_type_fichier ORDER BY li_type_fichier"; 
+    $sql = "SELECT id_type_fichier,li_type_fichier , li_type_fichier_select FROM siit_type_fichier 
+    	WHERE is_active = '1'
+    	ORDER BY li_type_fichier_select"; 
 	$results = db_query($sql);
 	
 	
 	foreach($results as $result){
-	  $options[$result->id_type_fichier] = $result->li_type_fichier;
+	  $options[$result->id_type_fichier] = $result->li_type_fichier_select;
 	}
 	return $options;
 }
