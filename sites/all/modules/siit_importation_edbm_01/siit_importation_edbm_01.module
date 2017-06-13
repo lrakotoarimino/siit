@@ -322,16 +322,22 @@ function traitement_edbm01($chemin, &$form_state){
         $annee = $_POST['annee'];
         controleDoublonImportation($annee, 0,ENTITE_EDBM);
         $data = array();
-        $data['annee'] = $annee;$data['id_mois'] = 0;
-        $data["li_fichier"] = basename($path);$data["id_statut"] = STATUT_AVALIDER;$data["id_type_fichier"] = TYPE_FICHIER_EDBM;
+        $data['annee'] = $annee;
+        $data['id_mois'] = 0;
+        $data["li_fichier"] = basename($path);
+        $data["id_statut"] = STATUT_AVALIDER;
+        $data["id_type_fichier"] = TYPE_FICHIER_EDBM;
         $id_importation = insert_importation($data);
+        
         $data = array();
         foreach ($objPHPExcel->getWorksheetIterator() as $worksheet) {
             $highestRow         = $worksheet->getHighestRow(); 
             $highestColumn      = $worksheet->getHighestColumn(); 
             $highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
             for ($row = 2; $row <= $highestRow; ++ $row) {
-                $data = array();$data['id_importation'] = $id_importation;$data['annee'] = $annee;
+                $data = array();
+                $data['id_importation'] = $id_importation;
+                $data['annee'] = $annee;
                 for ($col = 0; $col < $highestColumnIndex; ++ $col) {
                     if($col == EDBM01_NB_COL) break;
                     $cell = $worksheet->getCellByColumnAndRow($col, $row);

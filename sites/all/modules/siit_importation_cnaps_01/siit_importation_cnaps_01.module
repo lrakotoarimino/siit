@@ -189,37 +189,30 @@ function csv_import_cnaps_01_validate($form, &$form_state){
 							//Traitement region caractere speciaux		
 							$region = manage_region($region);
 														
-							$id_region = get_id_region($region);	
+							$id_region = get_id_region($region);
+								
                             if($id_region==0){
 								form_set_error('edit-region'.$row, t("La région '$region' n'existe pas en base. (".getCellule($row, $col).")"));
 							}							
 						}else
 						if($col == $col_begin+5){
+							
 							$cell_ = $worksheet->getCellByColumnAndRow(0, $row)->getValue();
+							
 							if($cell_ == "TOTAL") break;
+							
 							else{
-								$nationaux = $cell->getValue()==""?0:$cell->getValue();
-								//drupal_set_message(t("nationaux =".$nationaux ), $type = '', $repeat = true);
-								
-								controle_error_int('edit-nb-total'.$row,$nationaux,$row, $col, "Le nombre de personnels nationaux");
+								$nationaux = $cell->getValue()=="" ? 0 : $cell->getValue();
+								controle_error_int('edit-nb-total'.$row, $nationaux, $row, $col, "Le nombre de personnels nationaux");
 						
-								//if (!is_numeric($nationaux) ){
-								//	form_set_error('edit-nbnat'.$row, t("Le nombre de personnels nationaux '$nationaux' n'est pas un nombre. (".getCellule($row, $col).")"));
-								//}
 							}							
 						} else
 						if($col == $col_begin+6){	
 							$cell_ = $worksheet->getCellByColumnAndRow(0, $row)->getValue();
 							if($cell_ == "TOTAL") break;
 							else{
-								$etrangers = $cell->getValue()==""?0:$cell->getValue();
-								//drupal_set_message(t("etranger =".$etrangers ), $type = '', $repeat = true);
-								
-								controle_error_int('edit-nbetr'.$row,$etrangers,$row, $col, "Le nombre de personnels etrangers");
-						
-								//if (!is_numeric($etrangers) ){
-								//	form_set_error('edit-nbpaxetr'.$row, t("Le nombre de personnels etrangers '$etrangers' n'est pas un nombre. (".getCellule($row, $col).")"));
-								//}
+								$etrangers = $cell->getValue()=="" ? 0 : $cell->getValue();
+								controle_error_int('edit-nbetr'.$row, $etrangers ,$row, $col, "Le nombre de personnels etrangers");
 							}					
 						} 			
 						//drupal_set_message(t('Set :'.$data['region'].$data['cat'].$data['mois_annee']), $type = '', $repeat = FALSE);		
@@ -297,9 +290,13 @@ function traitement_cnaps01($chemin, &$form_state){
 			$id_importation = insert_importation($data_import);
 			
 			$data = array();
-			$region="";$li_etablissement="";$id_etablissement=0;
-			$nationaux;$etrangers;
-			$row_begin =0 ; $col_begin=0;
+			$region="";
+			$li_etablissement = "";
+			$id_etablissement = 0;
+			$nationaux;
+			$etrangers;
+			$row_begin =0; 
+			$col_begin=0;
 			$cell_="";
 			
 			foreach ($objPHPExcel->getWorksheetIterator() as $worksheet) {
@@ -359,15 +356,22 @@ function traitement_cnaps01($chemin, &$form_state){
 			//UPDATE AND SAVE	 	
 			// INSERTION siit_etablissement et siit_employes	
 
-			$id_etab=0;
 			foreach ($data as $value) {		
-				//insert ici
-				if($value["li_etablissement"]!="" && $value["id_etablissement"]==0 ){
-					$id_etab = import_data_etablissement($value);
-					import_data_cnaps_01($value, $id_etab);
-				}else{
-						import_data_cnaps_01($value, 0);
+				list($id_etablissement, $annee_etablissement, $is_cnaps, $is_edbm, $is_ontm) = get_id_etablissement($value);
+				
+				if(!empty($value["li_etablissement"]) && empty($id_etablissement)) {
+					$id_etablissement = import_data_etablissement($value);
+				} else {
+					//On va mettre à jour si les données de l'année dans siit_etablissement
+					// est inférieure ou égale à celle qu'on importe
+					if ($annee >= $annee_etablissement && !empty($id_etablissement)) {
+						update_etablissement($value, $id_etablissement);
+					}
 				}
+
+				//On va insérer les données employées de l'année
+				import_data_cnaps_01($value, $id_etablissement);
+				
 			}
 		
 			drupal_set_message("L'import a été effectué avec succès.", $type = 'status');
@@ -375,6 +379,19 @@ function traitement_cnaps01($chemin, &$form_state){
 	}				
 }
 
+function update_etablissement($value, $id_etablissement) {
+	//On met à jour le nb d'emploies et l'année dans la table des établissements
+	$data = array();
+	$data["annee"] = $value["annee"];
+	$data["nb_emplois_nationaux"] = $value["nbr_emplois_nationaux"];
+	$data["nb_emplois_etrangers"] = $value["nbr_emplois_etrangers"];
+	$data["is_cnaps"] = '1';
+	$query = db_update('siit_etablissement')
+        ->condition('id_etablissement', $id_etablissement);
+    $query
+      ->fields($data)
+      ->execute();
+}
 
 function manage_region($lib_region){
 
@@ -387,33 +404,33 @@ function manage_region($lib_region){
 	return $lib_region;
 }
 
-function import_data_cnaps_01($value, $id_etab){
+function import_data_cnaps_01($value, $id_etablissement){
        
         db_insert('siit_employes')
 				->fields(array('id_etablissement', 'annee', 'nbr_emplois_nationaux',
 				'nbr_emplois_etrangers', 'id_importation'))
 				->values(array(
-					'id_etablissement' => $id_etab!=0?$id_etab:$value["id_etablissement"],
+					'id_etablissement' => $id_etablissement,
 					'annee' => $value["annee"],
                     'nbr_emplois_nationaux' => $value["nbr_emplois_nationaux"] ? $value["nbr_emplois_nationaux"]:0,	           					
 					'nbr_emplois_etrangers' => $value["nbr_emplois_etrangers"] ? $value["nbr_emplois_etrangers"]:0,
 					'id_importation' => $value["id_importation"], 
 				))
-			->execute();
+		->execute();
   
 }
 
 
 function import_data_etablissement($value){
     
-     $id_etab =   db_insert('siit_etablissement')
+     $id_etab = db_insert('siit_etablissement')
 				->fields(array('li_etablissement', 'li_enseigne', 'id_region', 'li_adresse', 'nb_emplois_nationaux', 'nb_emplois_etrangers',
 				'id_activite_etablissement','mt_investissement', 'dt_autorisation', 'num_autorisation', 'nb_chambres', 'nb_lits', 'nb_places_repas',
-				'fixe',	'mobile', 'email' ,'website',
+				'fixe',	'mobile', 'email' ,'website','annee',
 				'id_nationalite_promoteur', 'id_classement_etablissement', 'is_cnaps', 'id_importation'))
 				->values(array(
-					'li_etablissement' => $value["li_etablissement"],
-					'li_enseigne' => $value["li_etablissement"],
+					'li_etablissement' => trim($value["li_etablissement"]),
+					'li_enseigne' => trim($value["li_etablissement"]),
 					'id_region' => $value["id_region"],
 					'li_adresse' => "",
 					'id_activite_etablissement' => $value["id_activite_etablissement"],
@@ -430,6 +447,7 @@ function import_data_etablissement($value){
 					'mobile' => '',
 					'email' => '',
 					'website' => '',
+					'annee' => intVal($value["annee"]),
 					'nb_emplois_nationaux' => $value["nbr_emplois_nationaux"] ? $value["nbr_emplois_nationaux"]:0,	           					
 					'nb_emplois_etrangers' => $value["nbr_emplois_etrangers"] ? $value["nbr_emplois_etrangers"]:0,
 					'id_importation' => $value["id_importation"],					

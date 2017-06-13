@@ -734,11 +734,19 @@ function isToInsert($row, $col,$val,$entite,$data) {
    
 	return $ret;
 }
+
 function insert_importation($data){
+  //insertion dans la table importation pour toutes les entités
+  
   global $user; 
-  $query = "INSERT INTO {siit_importation} (annee, id_mois,dt_importation,uid_importation,li_fichier,id_statut,id_type_fichier) VALUES (:arg1, :arg2, now(), :arg3, :arg4, :arg5, :arg6)";
-  $args = array(':arg1' => $data["annee"], ':arg2' => $data["id_mois"], ':arg3' => $user->uid, ':arg4' => $data["li_fichier"], ':arg5' => $data["id_statut"], ':arg6' => $data["id_type_fichier"]);
+  $query = "INSERT INTO {siit_importation} (annee, id_mois,dt_importation,uid_importation,li_fichier,id_statut,id_type_fichier) 
+  	VALUES (:arg1, :arg2, now(), :arg3, :arg4, :arg5, :arg6)";
+  	
+  $args = array(':arg1' => $data["annee"], ':arg2' => $data["id_mois"], ':arg3' => $user->uid, 
+  	':arg4' => $data["li_fichier"], ':arg5' => $data["id_statut"], 
+  	':arg6' => $data["id_type_fichier"]);
   $last_id = db_query($query, $args, array('return' => Database::RETURN_INSERT_ID));
+  
   return $last_id;
 }
 
@@ -749,23 +757,53 @@ function import_data_edbm_01($value){
     if(!$value['id_nationalite_promoteur']) $value['id_nationalite_promoteur'] = 134; //Malagasy
     if(!$value['id_classement_etablissement']) $value['id_classement_etablissement'] = 11;
     $value["is_edbm"] = 1;
-    $sql = "select * from siit_etablissement where li_enseigne = '".escape($value['li_enseigne'])."'";
-    $etabl = db_query($sql);
-	$id_etablissement = 0;
     
-    foreach($etabl as $u){
-	   $id_etablissement = $u->id_etablissement;
-	}
+    //On recherche si l'établissement existe déjà
+    list($id_etablissement, $annee_etablissement, $is_cnaps, $is_edbm, $is_ontm) = get_id_etablissement($value);
+    
+    
     if($id_etablissement){
         $query = db_update('siit_etablissement')
-        ->condition('id_etablissement', $id_etablissement);
-    }
-    else{
+        	->condition('id_etablissement', $id_etablissement);
+        $data = array();
+        //On va mettre à jour si les données de l'année dans siit_etablissement
+		// est inférieure ou égale à celle qu'on importe
+		$data['is_edbm'] = '1';
+		
+		if ($value['annee'] >= $annee_etablissement) {
+			
+			//Si c'est un etablissement déjà connu par la CNAPS, les données nb employés sont prioritaires
+			if (!$is_cnaps) {
+				$data['nb_emplois_nationaux'] = $value['nb_emplois_nationaux'];
+				$data['nb_emplois_etrangers'] = $value['nb_emplois_etrangers'];
+			}
+			
+			//Si c'est un établissement déjà connu par l'EDBM, on met à jour toutes les autres données
+			if ($is_edbm) {
+				$data['li_adresse'] = $value['li_adresse'];
+				$data['id_activite_etablissement'] = $value['id_activite_etablissement'];
+				$data['mt_investissement'] = $value['mt_investissement'];
+				$data['num_autorisation'] = $value['num_autorisation'];
+				$data['id_nationalite_promoteur'] = $value['id_nationalite_promoteur'];
+				$data['nb_places_repas'] = $value['nb_places_repas'];
+			}
+			
+			//Si c'est un etablissement déjà connu par l'ONTM, les données suivantes sont prioritaires
+			if (!$is_ontm) {
+				$data['nb_chambres'] = $value['nb_chambres'];
+				$data['id_classement_etablissement'] = $value['id_classement_etablissement'];
+			}
+			
+		}
+		
+        $query->fields($data)
+      	->execute();
+    } else {
         $query = db_insert('siit_etablissement');
+        $query->fields($value)
+      	->execute();
     }
-    $query
-      ->fields($value)
-      ->execute();
+    
 }
 function import_data_ontm_01($value){
     $value['dt_autorisation'] = '2015-01-01';
@@ -1396,11 +1434,13 @@ function controle_error_int($code,$val,$row,$col, $msg=''){
 		$msg = $msg. " ";
 	}
 	
-	if(!filter_var($val, FILTER_VALIDATE_INT)){
+	
+	
+	if(filter_var($val, FILTER_VALIDATE_INT) === false){
         form_set_error($code , t($msg. $val." n'est pas un entier positif (".getCellule($row, $col).") ."));
         return false;
     } else {
-    	if ($val < 0) {
+		if ($val < 0) {
     		form_set_error($code , t($msg. $val." n'est pas un entier positif (".getCellule($row, $col).") ."));
     		return false;
     	}
@@ -1492,16 +1532,35 @@ function getPeriodAndStatutImport($idImportation) {
 
 
 function get_id_etablissement($value) {
-	$libelle = str_replace( "'", "\\'", $value["li_etablissement"] );
-	$id_etab =0;
-	$sql = "SELECT id_etablissement FROM {siit_etablissement} p WHERE 
-			lower(p.li_enseigne) = '".strtolower(escape($value["li_etablissement"]))."' and p.id_region = ".$value["id_region"].""; 
+	$libelle = str_replace( "'", "\\'", trim($value["li_etablissement"]));
 	
-	$results = db_query($sql);	
+	if (empty($libelle)) {
+		$libelle = str_replace( "'", "\\'", trim($value["li_enseigne"]));
+	}
+	
+	$id_etab =0;
+	$sql = "SELECT id_etablissement, annee, is_cnaps, is_edbm, is_ontm FROM {siit_etablissement} p WHERE 
+			(lower(p.li_etablissement) = '".trim(strtolower(escape($libelle)))."' 
+			OR lower(p.li_enseigne) = '".trim(strtolower(escape($libelle)))."') 
+			and p.id_region = ".$value["id_region"].""; 
+	
+	$results = db_query($sql);
+	$id_etablissement = 0;
+	$annee = 0;
+	$is_cnaps = '0';
+	$is_edbm = '0';
+	$is_ontm = '0';
+	
  	foreach($results as $result) {
-		$id_etab = $result->id_etablissement;
-	}		   
-	return $id_etab;	
+		$id_etablissement = $result->id_etablissement;
+		$annee = $result->annee;
+		$is_cnaps = $result->is_cnaps;
+		$is_edbm = $result->is_edbm;
+		$is_ontm = $result->is_ontm;
+	}	
+	
+		   
+	return array($id_etablissement,$annee, $is_cnaps, $is_edbm, $is_ontm);	
 }
 
 

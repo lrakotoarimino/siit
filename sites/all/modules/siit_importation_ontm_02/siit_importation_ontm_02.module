@@ -1467,7 +1467,7 @@ function import_data_etablissement_ontm_02($value){
 	//$li_etablissement = str_replace( "'", "\'", $li_etablissement );
 	
 	
-	$id_etablissement = get_id_etablissement($value);
+	list($id_etablissement,$annee) = get_id_etablissement($value);
 	
 	if($id_etablissement==0){
         $id_etablissement =   db_insert('siit_etablissement')
