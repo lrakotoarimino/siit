@@ -383,8 +383,8 @@ function update_etablissement($value, $id_etablissement) {
 	//On met à jour le nb d'emploies et l'année dans la table des établissements
 	$data = array();
 	$data["annee"] = $value["annee"];
-	$data["nb_emplois_nationaux"] = $value["nbr_emplois_nationaux"];
-	$data["nb_emplois_etrangers"] = $value["nbr_emplois_etrangers"];
+	$data["nb_emplois_nationaux"] = $value["nbr_emplois_nationaux"] ? intVal($value["nbr_emplois_nationaux"]):0;
+	$data["nb_emplois_etrangers"] = $value["nbr_emplois_etrangers"] ? intVal($value["nbr_emplois_etrangers"]):0;
 	$data["is_cnaps"] = '1';
 	$query = db_update('siit_etablissement')
         ->condition('id_etablissement', $id_etablissement);
@@ -412,9 +412,9 @@ function import_data_cnaps_01($value, $id_etablissement){
 				->values(array(
 					'id_etablissement' => $id_etablissement,
 					'annee' => $value["annee"],
-                    'nbr_emplois_nationaux' => $value["nbr_emplois_nationaux"] ? $value["nbr_emplois_nationaux"]:0,	           					
-					'nbr_emplois_etrangers' => $value["nbr_emplois_etrangers"] ? $value["nbr_emplois_etrangers"]:0,
-					'id_importation' => $value["id_importation"], 
+                    'nbr_emplois_nationaux' => $value["nbr_emplois_nationaux"] ? intVal($value["nbr_emplois_nationaux"]):0,	           					
+					'nbr_emplois_etrangers' => $value["nbr_emplois_etrangers"] ? intVal($value["nbr_emplois_etrangers"]):0,
+					'id_importation' => $value["id_importation"],  
 				))
 		->execute();
   
@@ -448,8 +448,8 @@ function import_data_etablissement($value){
 					'email' => '',
 					'website' => '',
 					'annee' => intVal($value["annee"]),
-					'nb_emplois_nationaux' => $value["nbr_emplois_nationaux"] ? $value["nbr_emplois_nationaux"]:0,	           					
-					'nb_emplois_etrangers' => $value["nbr_emplois_etrangers"] ? $value["nbr_emplois_etrangers"]:0,
+					'nb_emplois_nationaux' => $value["nbr_emplois_nationaux"] ? intVal($value["nbr_emplois_nationaux"]):0,	           					
+					'nb_emplois_etrangers' => $value["nbr_emplois_etrangers"] ? intVal($value["nbr_emplois_etrangers"]):0,
 					'id_importation' => $value["id_importation"],					
 				))
 			->execute();
