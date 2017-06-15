@@ -1,0 +1,5 @@
+name = SIIT ACTIVITE ETABLISSEMENT
+description = Affiche les activités possibles
+core = 7.x
+version = 7.x-0.x-dev
+package = SIIT

@@ -1,0 +1,75 @@
+<?php
+
+/**
+* @file
+* Display a Adema Importation formulaire
+*/
+
+function siit_activite_etablissement_detail_menu(){
+    $items = array();
+    $items['siit_activite_etablissement_detail'] = array(
+        'title'            => t('LISTE DES ACTIVITES DES ETABLISSEMENTS'), 
+        'page callback'    => 'drupal_get_form',
+        'page arguments' => array('siit_activite_etablissement_detail_form'),
+        'access arguments' => array('access siit_activite_etablissement_detail'),
+        'type'             => MENU_LOCAL_TASK,
+    		//'access callback' => TRUE,
+    );
+    
+    return $items;
+    
+}  
+
+function siit_activite_etablissement_detail_permission() {
+  return array( 
+    'access siit_activite_etablissement_detail' => array(
+      'title' => t('siit_activite_etablissement_detail : bcm Liste'),
+      'description' => t('Perform administration tasks for bcm.'),
+    ),
+  );
+}
+
+function siit_activite_etablissement_detail_form($form) {
+	
+	drupal_set_title(t('Liste des activités des établissements'));
+	
+	$header = array(
+			array('data' => t('Activité'), 'field' => 'li_activite_etablissement'),
+			array('data' => t('Type établissement'), 'field' => 'li_type_etablissement'),
+		);
+		
+		
+		$rows = Null;
+		$i=0;
+		
+		global $user;
+		$uid = $user->uid;
+		$results = db_query("select li_activite_etablissement, li_type_etablissement 
+			from siit_activite_etablissement etab
+			inner join siit_type_etablissement typee
+				on typee.id_type_etablissement = etab.id_type_etablissement
+		 	order by li_activite_etablissement");  							
+							
+		 foreach($results as $result) {
+
+			$rows[$i] = array(		
+								'li_activite_etablissement' => $result->li_activite_etablissement,
+								'li_type_etablissement' => $result->li_type_etablissement,
+			);
+			 $i++;        				  
+		 }
+	 
+		$form['table'] = array(
+				'#theme' => 'table',
+				'#header' => $header,
+				'#rows' => $rows,
+				'#empty' => t('Aucun r&eacute;sultat.')
+			  );
+		$form['pager'] = array('#markup' => theme('pager'));
+
+	
+	
+	return $form;
+	
+}
+

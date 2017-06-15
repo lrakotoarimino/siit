@@ -29,12 +29,21 @@ function siit_manage_nationalite_menu(){
 		'title' => t('Add Nationalité'),
 		'page callback' => 'drupal_get_form',
 		'page arguments' => array('manage_nationalite_edit_confirm', 2),
-	     'access arguments' => array('access manage_nationalite_list'),
+	    'access arguments' => array('access manage_nationalite_add'),
 	    //'access callback' => TRUE,
 		'type' => MENU_NORMAL_ITEM,
     );
 	
  return $items;
+}
+
+function siit_manage_nationalite_permission() {
+  return array(
+    'access manage_nationalite_add' => array(
+      'title' => t('siit_manage_nationalite : Permissions'),
+      'description' => t('Perform permissions to siit_manage_nationalite.'),
+    ),
+  );
 }
 
 

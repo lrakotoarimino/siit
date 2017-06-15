@@ -25,6 +25,15 @@ function siit_manage_profession_menu(){
  return $items;
 }
 
+function siit_manage_profession_permission() {
+  return array(
+    'access manage_profession' => array(
+      'title' => t('siit_manage_profession : Permissions'),
+      'description' => t('Perform manage profession.'),
+    ),
+  );
+}
+
 
 
 function manage_profession_delete_confirm($form ,&$form_state, $id_profession) {

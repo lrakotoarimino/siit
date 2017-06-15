@@ -25,6 +25,15 @@ function siit_manage_pays_menu(){
  return $items;
 }
 
+function siit_manage_pays_permission() {
+  return array(
+    'access manage_pays' => array(
+      'title' => t('siit_manage_pays : Permissions'),
+      'description' => t('Perform manage pays.'),
+    ),
+  );
+}
+
 
 
 function manage_pays_delete_confirm($form ,&$form_state, $id_pays_entite) {
