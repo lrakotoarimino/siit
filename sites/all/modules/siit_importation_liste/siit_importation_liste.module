@@ -1580,6 +1580,7 @@ function get_region_etablissement($id) {
 
 
 function get_id_mois($libelle) {
+	//Récupère le mois
 
 	$id_mois =0;
 	$sql = "SELECT id_mois FROM {siit_mois} p WHERE 

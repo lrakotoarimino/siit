@@ -852,6 +852,7 @@ function cas_fichier_2($line, &$valid, $row){
 				$nb_mois = 1;
 			}
 			
+			//On calcule le montant du mois concerné
 			$montant = intval($montant/$nb_mois);
 			$id_mois_tmp = $_POST['mois'];										
 			$annee_tmp = $_POST['annee'];				
