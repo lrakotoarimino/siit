@@ -1,23 +1,16 @@
-﻿ <?php
-
-/*include_once drupal_get_path('module', 'libraries') . '/PHPExcel.php';
-include_once drupal_get_path('module', 'libraries') . '/PHPExcel/IOFactory.php';*/
-
-ini_set('xdebug.var_display_max_depth', -1);
-ini_set('xdebug.var_display_max_children', -1);
-ini_set('xdebug.var_display_max_data', -1);
-
-header('Content-Type: text/html; charset=utf-8');
+<?php
 
 /**
 * @file
-* Display a Adema Importation formulaire
+* Display a ONTM Importation formulaire
 */
 
-function siit_importation_ontm_02_menu(){
+
+
+	function siit_importation_ontm_02_menu(){
     $items = array();
     $items['siit_importation_ontm_02'] = array(
-        'title'            => t('IMPORTATION DES VIGNETTES TOURISTIQUES (ONTM)'), 
+        'title'            => t('Formulaire importation'), 
         'page callback'    => 'drupal_get_form',
         'page arguments' => array('siit_importation_ontm_02_form'),
         'access arguments' => array('access siit_importation_ontm_02'),
@@ -32,8 +25,8 @@ function siit_importation_ontm_02_menu(){
 function siit_importation_ontm_02_permission() {
   return array( 
     'access siit_importation_ontm_02' => array(
-      'title' => t('siit_importation_ontm_02 : Ontm formulaire'),
-      'description' => t('Perform administration tasks for ontm.'),
+      'title' => t('siit_importation_ontm_02 : Ontm vignettes importation formulaire'),
+      'description' => t('Perform administration tasks for ontm importation formulaire.'),
     ),
   );
 }
@@ -72,10 +65,6 @@ function siit_importation_ontm_02_form($form, &$form_state) {
             else csv_import_ontm_02_submit($form, $form_state);
         }
 	
-	
-		
-
-	
 }
 
 function get_siit_importation_ontm_02_form($form, $form_state){
@@ -108,8 +97,8 @@ function get_siit_importation_ontm_02_form($form, $form_state){
 	        '#type' => 'submit',
 	        '#value' => t('Process'),
 	        '#attributes' => array('class' => array('button button--primary js-form-submit form-submit btn-success btn'),),
-			//'#validate' => array('csv_import_ontm_02_validate'),
-	    		'#submit' => array('csv_import_ontm_02_submit'),
+			'#validate' => array('csv_import_ontm_02_validate'),
+	    	'#submit' => array('csv_import_ontm_02_submit'),
 	 );
 	    
 	    
@@ -124,12 +113,150 @@ function get_siit_importation_ontm_02_form($form, $form_state){
 	
 }
 
-function siit_back_ontm02_submit($form, &$form_state)  {
-	$form_state['redirect'] = array(
-		'siit_importation_liste',
-		array(),
-		302,
-  );
+function csv_import_ontm_02_validate($form, &$form_state){
+
+	$region="";
+	$li_etablissement;
+	$nationaux;
+	$etrangers ;
+	$row_begin =0 ;
+	$col_begin=0;
+	$cell_="";
+	$valid = false;
+	
+	
+	if(!empty($_POST['annee']) && !empty($_POST['mois'])){
+		//Controle si un import validé existe déjà
+		list($id_importation,$question) = searchDataExist(ENTITE_ONTM02, $_POST['annee'], $_POST['mois'], STATUT_VALIDE, false);
+	}
+	
+	
+	// Récupération du fichier 
+	if($form_state['values']['csv_file'] && empty($id_importation)){	
+		$valid = true;
+					
+		$file = file_load($form_state['values']['csv_file']);
+		$uri = $file->uri;
+		$path = drupal_realpath($uri);
+		try {
+			$inputFileType = PHPExcel_IOFactory::identify($path);	
+			$objReader = PHPExcel_IOFactory::createReader($inputFileType);		
+			$objPHPExcel = $objReader->load($path);				
+		} catch (Exception $e) {}
+		
+					
+		
+		//Test champs
+		$numWorksheet = 0;
+		foreach ($objPHPExcel->getWorksheetIterator() as $worksheet) {
+			if($numWorksheet == 0) { //On importe uniquement le 1er onglet
+			
+			    $numWorksheet++;
+				$highestRow         = $worksheet->getHighestRow(); 
+				$highestColumn      = $worksheet->getHighestColumn(); 
+				$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
+				
+				if ($highestColumnIndex == 8){
+					form_set_error('edit-annee', t("L'année des données doit être indiquée en celulle I1."));
+					return;
+				}
+				
+				
+				for ($row = 1; $row <= $highestRow; ++ $row) {
+				
+					$line = array();
+					$line[0] = $worksheet->getCellByColumnAndRow(0, $row)->getValue();
+					$line[1] = $worksheet->getCellByColumnAndRow(1, $row)->getValue();
+					$line[2] = $worksheet->getCellByColumnAndRow(2, $row)->getValue();
+					$line[3] = $worksheet->getCellByColumnAndRow(3, $row)->getValue();
+					$line[4] = $worksheet->getCellByColumnAndRow(4, $row)->getValue();
+					$line[5] = $worksheet->getCellByColumnAndRow(5, $row)->getValue();
+					$line[6] = $worksheet->getCellByColumnAndRow(6, $row)->getValue();
+					$line[7] = $worksheet->getCellByColumnAndRow(7, $row)->getValue();
+					
+					
+					for ($col = 0; $col < $highestColumnIndex; ++ $col) {   
+						
+						$cell = $worksheet->getCellByColumnAndRow($col, $row)->getValue();
+						if($row == 1 && $col == 0){
+							//Vérifie la conformité du fichier
+							
+							if(trim(strtolower($cell)) == trim(strtolower("Etablissement"))){
+							  $row_begin = $row;
+							  $col_begin = $col;
+							} else if( trim(strtolower($cell)) != trim(strtolower("Etablissement"))){
+								form_set_error('edit-debut', t("Fichier non conforme. - A1 doit s'appeler : Etablissement"));
+								return;
+							}
+						}
+						if($row == 1 && $col == 1){
+							//Vérifie la conformité du fichier
+							if(trim(strtolower($cell)) == trim(strtolower("cat"))){
+							  $row_begin = $row;
+							  $col_begin = $col;
+							} else if( trim(strtolower($cell)) != trim(strtolower("cat"))){
+								form_set_error('edit-debut', t("Fichier non conforme. - B1 doit s'appeler : cat"));
+								return;
+							}
+						}
+						if($row == 1 && $col == 2){
+							//Vérifie la conformité du fichier
+							if(trim(strtolower($cell)) == trim(strtolower("Nb chb"))){
+							  $row_begin = $row;
+							  $col_begin = $col;
+							} else if( trim(strtolower($cell)) != trim(strtolower("Nb chb"))){
+								form_set_error('edit-debut', t("Fichier non conforme. - C1 doit s'appeler : Nb chb"));
+								return;
+							}
+						}
+						if($row == 1 && $col == 3){
+							//Vérifie la conformité du fichier
+							if(trim(strtolower($cell)) == trim(strtolower("Taux VT"))){
+							  $row_begin = $row;
+							  $col_begin = $col;
+							} else if( trim(strtolower($cell)) != trim(strtolower("Taux VT"))){
+								form_set_error('edit-debut', t("Fichier non conforme. - D1 doit s'appeler : Taux VT"));
+								return;
+							}
+						}
+						if($row == 1 && $col == 4){
+							//Vérifie la conformité du fichier
+							if(trim(strtolower($cell)) == trim(strtolower("Mois"))){
+							  $row_begin = $row;
+							  $col_begin = $col;
+							} else if( trim(strtolower($cell)) != trim(strtolower("Mois"))){
+								form_set_error('edit-debut', t("Fichier non conforme. - D1 doit s'appeler : Mois"));
+								return;
+							}
+						}
+						if($row == 1 && $col == 5){
+							//Vérifie la conformité du fichier
+							if(trim(strtolower($cell)) == trim(strtolower("Montant (50%)"))){
+							  $row_begin = $row;
+							  $col_begin = $col;
+							} else if( trim(strtolower($cell)) != trim(strtolower("Montant (50%)"))){
+								form_set_error('edit-debut', t("Fichier non conforme. - E1 doit s'appeler : Montant (50%)"));
+								return;
+							}
+						}
+					}
+					
+					if ($row >1) {
+						$data = cas_fichier_2($line, $valid, $row);
+					}
+						
+				}
+			}
+			
+		}
+		
+	}
+	
+	if (!$valid) {
+		//Si il y a une seule erreur, on affiche les erreurs sans aller plus loin
+		form_set_error('edit-error', t("Merci de corriger les erreurs ci-dessus avant de réimporter le fichier"));
+		return false;
+	}
 }
 
 
@@ -137,7 +264,7 @@ function csv_import_ontm_02_submit($form, &$form_state){
 
 	if(!isset($form_state['storage']['confirm'])) {
 			
-        list($id_importation,$question) = searchDataExist(ENTITE_ONTM02, $_POST['annee'], $_POST['mois'], STATUT_VALIDE, true) ;
+		list($id_importation,$question) = searchDataExist(ENTITE_ONTM02, $_POST['annee'],0, STATUT_VALIDE, true) ;
 		
         if($id_importation){
             $form_state['storage']['confirm'] = TRUE;
@@ -147,7 +274,7 @@ function csv_import_ontm_02_submit($form, &$form_state){
             $form_state['storage']['uri'] = $file->uri;
         } else {
             $file = file_load($form_state['values']['csv_file']);
-            traitement_ontm02($file->uri,$form_state);
+            traitement_ONTM02($file->uri,$form_state);
         }
     } else {
         if(isset($_POST["chemin"])) $chemin = $_POST["chemin"];
@@ -155,1307 +282,103 @@ function csv_import_ontm_02_submit($form, &$form_state){
             $file = file_load($form_state['values']['csv_file']);
             $chemin = $file->uri;
         }
-        traitement_ontm02($chemin,$form_state);
+        traitement_ONTM02($chemin,$form_state);
     }
 
-} //fin function
+}
 
 
-function traitement_ontm02($chemin, &$form_state)
-{
-	
-	$valid = true;
-	
-	$annee_form  = $form_state['values']['annee'];
-	$id_mois_form = $form_state['values']['mois'];
-
-    $handle = fopen(drupal_realpath($chemin), 'r') or die(t('Unable to open the temp file.'));
-    $i = 0;
-    $error = false;
-    
-    $firstData = fgetcsv($handle, 0, ';');
-    //  drupal_set_message(t("count(firstData)".count($firstData)), $type = '', $repeat = FALSE);
-    if (count($firstData) == 11  || count($firstData) == 10  || count($firstData) == 14 || count($firstData) == 7 || count($firstData) == 9) {
-    	$delimiterLine = ";";
-    } else {
-	    	$handle = fopen(drupal_realpath($chemin), 'r') or die(t('Unable to open the temp file.'));
-	    	//$firstData = fgetcsv($handle, 0, ',', '"');
-	    	$firstData = fgetcsv($handle, 0, ',');
-			//drupal_set_message(t("count(firstData)".count($firstData)), $type = '', $repeat = FALSE);
-	    	if (count($firstData) == 11  || count($firstData) == 10  || count($firstData) == 14 || count($firstData) == 7 || count($firstData) == 9) {
-	    		$delimiterLine = ",";
-			} else {
-			 	//Pour la première ligne, on vérifie que l'en-tête est incorrecte
-			 	drupal_set_message(t("Fichier non conforme."), $type = 'error', $repeat = FALSE);
-				$valid=false;
-				return;
-			}
-    }
-    
-	
-	//Test deja validé
-	$user = db_query("select * from siit_importation imp,siit_type_fichier t where t.id_type_fichier=imp.id_type_fichier and annee=".$_POST['annee']." and id_mois =".$_POST['mois'].
-							" and id_statut=2 and li_type_fichier = '".ENTITE_ONTM02."'" );
-    $id_importation = 0;
-    foreach($user as $u) {
-       	$id_importation = $u->id_importation;
-    }
-    if($id_importation){
-        form_set_error('edit-valide', t("Un import a été déjà validé pour la période ".get_lib_mois($_POST['mois'])." ".$_POST['annee']."."));
-		$valid=false;
-		return;
-    } 	
-	
-	if(count($firstData) == 7 || count($firstData) == 9){
-		$data = cas_fichier_2($handle , $delimiterLine, $valid);
-	}else {
-		$data = cas_fichier_1($handle , $delimiterLine, $valid);
-	}
-	
-	
-    
-	//UPDATE AND SAVE	 
-	if(!$valid){
-		header("Refresh:0");
-	}
-	else{
+function traitement_ONTM02($chemin, &$form_state){
+			
+	// Récupération du fichier  
+	if($form_state['values']['csv_file']){
+				
+		$path = drupal_realpath($chemin);
+		try {
 		
-			//Sortir du boucle si toute la ligne est vide
-			$i = 0;
-			foreach($data as $key=>$val){
-				if($val == ""){
-					$i = $i + 1;
-				}
-			}
-						
-			if($i == sizeof($data)){
-				drupal_set_message(t("Aucune donnée correspondante à l'année '$annee_form' 
-										ou le mois de '".get_lib_mois($id_mois_form)."' saisi dans le fichier."), $type = 'error', $repeat = true);	
-				return;
-			}
+			$inputFileType = PHPExcel_IOFactory::identify($path);	
+			$objReader = PHPExcel_IOFactory::createReader($inputFileType);		
+			$objPHPExcel = $objReader->load($path);				
 			
-			//INSERTION siit_importation		
-			// rechecher importation avec dt_import et li_fichier et id_type_fichier
-			$data_import = array();
-			$data_import['annee'] = $annee_form;
-			$data_import['id_mois'] = $id_mois_form;
-			$data_import["li_fichier"] = basename($chemin);
-			$data_import["id_statut"] = STATUT_AVALIDER;
-			$data_import["id_type_fichier"] = TYPE_FICHIER_ONTM02;
-
-			//On supprime l'importation existante pour l'équivalent
-			controleDoublonImportation($annee_form, $id_mois_form, ENTITE_ONTM02, $data_import["li_fichier"]); //NON PAS POUR PAF01
-			$id_importation = insert_importation($data_import);
+		} catch (Exception $e) {
 			
-			// INSERTION import_data_ontm_02
-			$id_etab=0;						
-			foreach ($data as $value) {					
-						
-					if($value["li_etablissement"]!="" && $value["id_etablissement"]==0 ){
-						//insert 			
-						$id_etab = import_data_etablissement_ontm_02($value,$id_importation);
-						import_data_ontm_02($value,$id_importation,$id_etab);
-					}
-					else{
-						//update 
-						import_data_ontm_02($value,$id_importation,0);
-					}		 
-			}
-			
-			drupal_set_message("L'import a été effectué avec succès.", $type = 'status');
-			$form_state['redirect'] ="siit_importation_fusion_etablissement";
-	}
-
-}
-
-
-
-//Cas fichier 1 avec entete Simulation Recettes Vignettes
- /*
-	0 ..
-	1 ..
-	2 REGION
-	3 CAT;
-	4 NBRE CH;
-	5 VT;
-	6 NOM DE L ETABLISSEMENT;
-	7 MOIS;
-	8 Montant;
-	9 VT part ONTM 50%;
-	10 Taux d'occupation;
-	11 ..
-	12 ..
-	13 ..
-	14 ..	
- */
- 
-function cas_fichier_1($handle , $delimiterLine, &$valid){
-	
-	$data = array();
-    $i=1;$mois;
-	$str_final="";
-	$li_etablissement="";
-	$id_etablissement=0;
-    
-   
-    //if (!$error) {
-		while(($line = fgetcsv($handle, 0, $delimiterLine, '"')) !== FALSE) {
-		        $id_mois_min=0; $id_mois_max=0; $annee_min=0;$annee_max=0;
-				$annee_min_actif =false;$is_montant_set=false;	$annee_tmp=0;	
-				$max_au = false;$max_et= false;
-
-				$i++;
-				
-				if(isset($line[2]) && ( $i<4 || strpos($line[2], 'Moyenne') !== false )) continue;
-				//if($i==5000) break;
-				
-				if(isset($line[7]) && $line[7]=="TOTAL") break;
-				if(isset($line[7]) && $line[7]!== "" ){
-					
-					//drupal_set_message(t("Champs mois".$line[7]), $type = '', $repeat = true);
-					//cas 2 JANVIER AU FEVRIER 2016
-					if(strpos(strtolower($line[7]), strtolower('AU')) !== false || strpos(strtolower($line[7]), strtolower(' A '))){
-						//drupal_set_message(t("Cas 2".$line[7]), $type = '', $repeat = true);
-						//cas 3 DECEMBRE x AU FEVRIER 2016
-						$j=0;
-						$step_2 = false;
-						$step_3 = false;
-						
-						//ici cas 2 JANVIER A FEVRIER 2016
-						if(strpos(strtolower($line[7]), strtolower(' A '))){
-							$str_date2 = multiexplode(array(" ",strtolower(' A ')),strtolower($line[7]));	
-							foreach($str_date2 as $str){
-							
-									if($j==0){
-										$id_mois = get_id_mois(trim($str));
-										if($id_mois == 0){
-											drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier le mois du début '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);
-											$valid = false;
-										}else if($id_mois > 0){	
-											$id_mois_min = $id_mois;
-										}
-									}
-
-									if($j==1){
-										if(!empty($str)){
-											if(!is_numeric($str)){
-												
-												$id_mois = get_id_mois(trim($str));
-												if($id_mois == 0){
-													drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier le mois ou l'année de fin '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);											
-													$valid = false;
-												}else {
-													$id_mois_max = $id_mois;													
-												}
-											}else {
-												$annee_min = $str;
-												$step_2 = true;
-											}
-										}
-									}															
-									
-									if($step_2 == true){
-										if($j==2){
-											if(!empty($str)){
-												$id_mois = get_id_mois(trim($str));
-												if($id_mois == 0){
-													drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier le mois de fin '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);												
-													$valid = false;
-												}else if($id_mois>0){
-													$id_mois_max = $id_mois;
-												}
-											}
-										}
-										if($j==3){
-											if(!is_numeric($str)){
-												drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année de fin '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);
-												$valid = false;
-											}else {
-												$annee_max = $str;
-											}	
-										}
-									}else {
-										if($j==2){
-											if(!empty($str)){
-												if(!is_numeric($str)){
-													drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année de fin '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);
-													$valid = false;
-												}else {
-													$annee_max = $str;
-													$annee_min = $annee_max;
-												}		
-											}
-										}
-									}
-									$j++;
-							}	
-						}else if(strpos(strtolower($line[7]), strtolower('AU')) !== false) {
-							$str_date2 = multiexplode(array(" ",strtolower("AU")),strtolower($line[7]));	
-							foreach($str_date2 as $str){
-							
-									if($j==0){
-										$id_mois = get_id_mois(trim($str));
-										if($id_mois == 0){
-											drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier le mois du début '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);
-											$valid = false;
-										}else if($id_mois > 0){	
-											$id_mois_min = $id_mois;
-										}
-									}
-
-									if($j==1){
-										if(!empty($str)){
-											if(!is_numeric($str)){
-												drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année du début '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);
-												$valid = false;
-											}else {
-												$annee_min = $str;
-											}
-										}
-									}
-									
-									if($j==3){
-										if(!empty($str)){
-											$id_mois = get_id_mois(trim($str));
-											if($id_mois == 0){
-												drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier le mois de fin '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);											
-												$valid = false;
-											}else if($id_mois>0){
-												$id_mois_max = $id_mois;
-											}
-										}else {
-											$step_3 = true;
-										}
-									}
-									
-									if($step_3 == true){
-										if($j==4){
-											if(!empty($str)){
-												$id_mois = get_id_mois(trim($str));
-												if($id_mois == 0){
-													drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier le mois de fin '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);												
-													$valid = false;
-												}else if($id_mois>0){
-													$id_mois_max = $id_mois;
-												}
-											}
-										}
-										if($j==5){
-											if(!is_numeric($str)){
-												drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année de fin '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);
-												$valid = false;
-											}else {
-												$annee_max = $str;
-											}	
-										}
-									}else {
-										if($j==4){
-											if(!empty($str)){
-												if(!is_numeric($str)){
-													drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année de fin '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);
-													$valid = false;
-												}else {
-													$annee_max = $str;
-													$annee_min = $annee_max;
-												}		
-											}
-										}
-									}
-									$j++;
-							}	
-						}											
-											
-						//$mois_tmp = $_POST['mois'];
-						
-						//drupal_set_message(t("($id_mois_min, $annee_min | $id_mois_max, $annee_max (".real_line($i).")"), $type = '', $repeat = true);								
-						
-						if($annee_max < $annee_min ){
-							drupal_set_message(t("Intervalle de date incoherente avec la période : '$line[7]'. (".real_line($i).")"), $type = 'error', $repeat = true);									
-							$valid = false;
-						}else{
-							
-							$str_dt_saisie =  $_POST['annee'].'-'.$_POST['mois'].'-01';
-							$date_saisie = new Datetime($str_dt_saisie);
-							$date_saisie = $date_saisie->format("Y-m-d");
-							
-							if( ($annee_min == $annee_max) && ($id_mois_min >  $id_mois_max) ) {
-								$str_dt_debut = $annee_max.'-'.$id_mois_max.'-01'; 
-								$str_dt_fin = $annee_max.'-'.$id_mois_min.'-01';
-								/*$temp = $id_mois_max;
-								$id_mois_max = $id_mois_min;
-								$id_mois_min = $temp;*/
-							}else {
-								$str_dt_debut = $annee_min.'-'.$id_mois_min.'-01';
-								$str_dt_fin = $annee_max.'-'.$id_mois_max.'-01'; 
-							}
-												
-							$list_date = getinterval($str_dt_debut,$str_dt_fin);
-
-							if (in_array($date_saisie, $list_date)) {
-							  
-							   if($annee_max!== 0 && $annee_min!== 0){						        
-									$nb_mois = ($annee_max - $annee_min) * 12 + $id_mois_max - $id_mois_min + 1;							
-							   }else $nb_mois = $id_mois_max - $id_mois_min + 1;
-							   
-								// Montant final : cas 87 000,00  | "33,000.00"
-								if($line[8]!== ""){
-									$montant = manage_montant($line[8]);
-
-									if($montant === "0" || empty($line[8])){
-										/*drupal_set_message(t("Le montant du fichier est égale à 0 ou vide. (".real_line($i).")"), $type = 'error', $repeat = true);									
-										$valid = false;	*/
-										$montant = 0;	
-									}
-									
-									if(!is_numeric($montant)){
-										drupal_set_message(t("Le montant '$montant' du fichier n'est pas un nombre. (".real_line($i).")"), $type = 'error', $repeat = true);
-										$valid = false;
-									}		
-									
-									$montant = intval($montant/$nb_mois);										
-									if($montant<0){
-										drupal_set_message(t("Intervalle de date incoherente avec la période : '$line[7]'. (".real_line($i).")"), $type = 'error', $repeat = true);									
-										$valid = false;
-									}
-															
-									$id_mois_tmp = $_POST['mois'];										
-									$annee_tmp = $_POST['annee'];
-									$is_montant_set = true;
-								}
-							}
-							
-						}
-						
-					}//cas 4 JUIN ET JUILLET 2016 et longeur sup 13 > car faut pas prendre Juillet xxxx
-					else if(strpos(strtolower($line[7]), strtolower('ET')) !== false && strlen($line[7]) > 13 ){
-						$j=0;
-						$step_3 = false;
-						//????? Double espace comment faire???
-						$str_date = explode(" ", $line[7]);
-						foreach($str_date as $str){
-								
-								if($j==0){
-									$id_mois = get_id_mois(trim($str));
-									if($id_mois == 0){
-										drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier le mois du début '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);
-										$valid = false;
-									}else if($id_mois > 0){	
-										$id_mois_min = $id_mois;
-									}
-								}
-								
-								if($j==1){
-									if(!empty($str) && trim(strtolower($str)) !== trim(strtolower('ET')) ){
-										if(!is_numeric($str)){
-											drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année du début  '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);
-											$valid = false;
-										}else {
-											$annee_min = $str;
-											$step_3 = true;
-										}									
-									}										
-								}
-								
-								if($step_3 === true ){
-									if($j==3){
-										if(!empty($str) ){
-											$id_mois = get_id_mois(trim($str));
-											if($id_mois == 0){
-												drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier le mois de fin '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);
-												$valid = false;
-											}else if($id_mois > 0){	
-												$id_mois_max = $id_mois;												
-											}
-										}
-									}	
-									
-									if($j==4){
-										if(!empty($str)){
-											if(!is_numeric($str)){
-												drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année de fin '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);
-												$valid = false;
-											}else {
-												$annee_max = $str;
-											}		
-										}
-									}
-									
-								}else {
-									if($j==2){
-										if(!empty($str)){
-											$id_mois = get_id_mois(trim($str));
-											if($id_mois == 0){
-												drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier le mois de fin '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);
-												$valid = false;
-											}else if($id_mois > 0){	
-												$id_mois_max = $id_mois;												
-											}
-										}
-									}
-									
-									if($j==3){
-											if(!empty($str)){
-												if(!is_numeric($str)){
-													drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année de fin '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);
-													$valid = false;
-												}else {
-													$annee_max = $str;
-													$annee_min = $annee_max;
-												}		
-											}
-									}
-									
-								}
-
-								
-							$j++;
-						}	
-						
-						/*if($annee_max < $annee_min ){
-							drupal_set_message(t("Intervalle de date incoherente avec la période : '$line[7]'. (".real_line($i).")"), $type = 'error', $repeat = false);									
-							$valid = false;
-						}*/
-							
-						//Mois .. ET Mois Annee 
-						//Mois Annee ET Mois Annee										
-						if( ($id_mois_min == $_POST['mois'] && $annee_min == $_POST['annee'] ) ||  ( $_POST['mois'] == $id_mois_max && $annee_max == $_POST['annee']) ){
-						  
-						   //$nb_mois = ($annee_max - $annee_min) * 12 + $id_mois_max - $id_mois_min + 1
-							//   Montant final : Montant / nb_mois 
-							if($line[8]!== ""){
-								$montant = manage_montant($line[8]);
-								
-								if($montant === "0" || empty($line[8])){
-									/*drupal_set_message(t("Le montant du fichier est égale à 0 ou vide. (".real_line($i).")"), $type = 'error', $repeat = true);									
-									$valid = false;	*/
-									$montant = 0;	
-								}
-								
-								if(!is_numeric($montant)){
-									drupal_set_message(t("Le montant '$line[8]' du fichier n'est pas un nombre. (".real_line($i).")"), $type = 'error', $repeat = true);									
-									$valid = false;
-								}	
-								
-								$montant = $montant/2;	
-								 
-								$id_mois_tmp = $_POST['mois'];										
-								$annee_tmp = $_POST['annee'];
-								$is_montant_set = true;
-							}
-						}
-					}//Cas 1  FEVRIER 2016
-					else {
-						
-						$mois = substr(trim($line[7]), 0, -4);	
-						$id_mois_tmp = get_id_mois($mois);	
-						if($id_mois_tmp == 0){
-							drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier le mois '$mois'. (".real_line($i).")"), $type = 'error', $repeat = true);							
-							$valid = false;
-						}
-						
-						$annee_tmp = substr(trim($line[7]),strlen($mois),4);
-						if(!is_numeric($annee_tmp)){
-							drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année '$annee_tmp'. (".real_line($i).")"), $type = 'error', $repeat = true);									
-							$valid = false;
-						}
-						
-						//ne pas tout tester si le fichier n'est pas bon
-						if($annee_tmp < $_POST['annee'] && $i <= 5 ){
-							drupal_set_message(t("L'année du fichier '$annee_tmp' et l'année saisie '".$_POST['annee']."' sont différentes. (".real_line($i).")"), $type = 'error', $repeat = true);									
-							$valid = false;
-							return;						
-						}else
-						if($annee_tmp < $_POST['annee'] ){
-							drupal_set_message(t("L'année du fichier '$annee_tmp' est inférieure à l'année saisie '".$_POST['annee']."'. (".real_line($i).")"), $type = 'error', $repeat = true);									
-							$valid = false;							
-						}
-					}
-					
-				} //if($line[7]!== "")								
-				
-				$li_etablissement  ="";
-				$province = "";
-				$district = "";
-				$id_region = 0;
-			    //On teste toutes les lignes pas la periode concerné seulement
-				//if($annee_tmp == $annee_form && $id_mois_tmp == $id_mois_form  ){
-				if(isset($line[7])){
-					//REGION
-						$cell_region = $line[2];
-						
-						if(empty($cell_region) && !empty($line[7])){
-							drupal_set_message(t("Le champs région est vide. (".real_line($i).")"), $type = 'error', $repeat = true);													
-							$valid = false;
-						}else{
-						
-							// Cas 9- FIANARANTSOA:Ranohira-Isalo:xx
-							if(strpos(trim(strtolower($cell_region)), trim(strtolower('Ranohira-Isalo'))) !== false ){
-								
-								$str_final = "FIANARANTSOA:Ranohira-Isalo";
-								$id_region = get_id_region_ontm02($str_final);
-								if($id_region==0){
-									drupal_set_message(t("La région '$str_final' n'existe pas en base. (".real_line($i).")"), $type = 'error', $repeat = true);									
-									$valid = false;
-								}
-								// 31 = longueur 9-FIANARANTSOA:Ranohira-Isalo:
-								$len =  strlen($cell_region)-31;
-								$li_etablissement = substr($cell_region,31,$len);
-								  
-							}else {
-								
-								if(strpos($cell_region, ':') !== false){
-									
-								}else {
-									drupal_set_message(t("Erreur sur le format de la région '$cell_region'. (".real_line($i).")"), $type = 'error', $repeat = true);														
-									$valid = false;
-								}
-								
-								$str_region = explode("-", $cell_region);
-								$k=0;
-								//$region_1 = $str_region[0];
-								foreach($str_region as $str1){
-									if($k==1){
-										$str_reg_1 = explode(":", $str1);	
-										
-										$j=0;
-										foreach($str_reg_1 as $str2){
-											if($j == 0){
-												$province = $str2;
-											}else if($j == 1){
-												$district = $str2;														
-											}else if($j == 2){
-												$li_etablissement = $str2;
-											}
-											$j++;
-										}
-										
-										if($li_etablissement == "" && $province !== "" && $district !== ""){
-											//Cas  5- TOLAGNARO:ROVA HOTEL
-											$str_region = $province;
-											$str_final = str_replace("'","''",$str_region);
-											$id_region = get_id_region_ontm02($str_final);
-											if($id_region==0){
-												drupal_set_message(t("La région '$str_final' n'existe pas en base. (".real_line($i).")"), $type = 'error', $repeat = true);														
-												$valid = false;
-											}
-											
-											$li_etablissement = $district;															
-											
-										}else{
-											// Cas 9- FIANARANTSOA:Manakara:LA VANILLE
-											$str_region = $province.":".$district;
-											$str_final = str_replace("'","''",$str_region);
-											//drupal_set_message(t("region : $str_final"), $type = '', $repeat = true);
-											$id_region = get_id_region_ontm02($str_final);
-											if($id_region==0){
-												drupal_set_message( t("La région '$str_final' n'existe pas en base. (".real_line($i).")"), $type = 'error', $repeat = true);													
-												$valid = false;
-											}
-										}	
-									}
-								   $k++;
-								}
-							}					
-						}
-				}	
-					
-				//ETABLISSEMENT					
-				if(isset($line[6]) && $line[6]!== ""){
-					$li_etablissement = $line[6];						
-				}
-					
-				//Classement de l'hotel
-				if(isset($line[3])){
-					$classement = $line[3];
-					$id_classement_etablissement = get_id_classement_etablissement($classement);
-				}
-					
-				//MONTANT 
-				//cas 87 000,00  | "33,000.00"
-				if(isset($line[8]) && !$is_montant_set){
-					$string = $line[8];
-					$montant = manage_montant($string);	
-					
-					if($montant === "0" || empty($line[8])){														
-						$montant = 0;	
-					}
-						
-					if(!is_numeric($montant)){
-						drupal_set_message(t("Le montant '$montant' du fichier n'est pas un nombre. (".real_line($i).")"), $type = 'error', $repeat = true);
-						$valid = false;
-					}						
-				}	
-					
-									
-					
-				//NB_CH 										
-				$nb_chambre=0;
-				if(isset($line[4])){
-					if(!is_numeric($line[4]) && $line[4] !== "" ){
-						drupal_set_message(t("Le nombre de chambre '$line[4]' du fichier n'est pas un nombre. (".real_line($i).")"), $type = 'error', $repeat = true);
-						$valid = false;
-					}else {
-						$nb_chambre = $line[4]!==""?$line[4]:0;
-					}
-				}
-					
-				/*if(!is_numeric($montant)){
-						drupal_set_message(t("$str_final, $id_region, ($li_etablissement,$id_etablissement), $montant"), $type = '', $repeat = true);
-				}*/
-				
-				if($annee_tmp == $_POST['annee'] && $id_mois_tmp == $_POST['mois']  ){	
-				
-					if($montant!==0 && $id_region !==0 && $id_mois_tmp!==0 && $annee_tmp!==0 && $nb_chambre!==0){
-						$data[] = array(
-							'id_region' =>  $id_region,
-							'nb_chambres' => $nb_chambre,
-							'li_etablissement' => $li_etablissement,
-							'id_etablissement' => $id_etablissement,
-							'id_mois' => $id_mois_tmp,
-							'id_classement_etablissement' => $id_classement_etablissement,
-							'annee' => $annee_tmp,
-							'montant' => $montant,						
-						);
-					}
-					
-					
-				}
-				//reset
-				$li_etablissement  ="";
-				$province = "";
-				$district = "";
-				$annee_tmp = 0;
-				$id_mois_tmp = 0;
-		}	
-	//}
-	fclose($handle);
-	
-	return $data;
-	
-}
-
-//Cas fichier 2 sans entete Simulation Recettes Vignettes
-	/*
-	0 Etablissement
-	1 CAT
-	2 NBRE CH;
-	3 Taux VT;
-	4 Mois;
-	5 Montant (50%);
-	6 Taux d'occupation	
-*/
-
-function cas_fichier_2($handle , $delimiterLine, &$valid){
-	
-	
-	$data = array();
-    $i=1;$mois;
-	$str_final="";
-	$li_etablissement="";
-	$id_etablissement=0;
-	$id_classement_etablissement=0;
-    
-   
-    //if (!$error) {
-		while(($line = fgetcsv($handle, 0, $delimiterLine, '"')) !== FALSE) {
-		        $id_mois_min=0; $id_mois_max=0; $annee_min=0;$annee_max=0;
-				$annee_min_actif =false;$is_montant_set=false;	$annee_tmp=0;	
-				$max_au = false;$max_et= false;
-
-				$i++;
-				
-				if(isset($line[0]) && ( strpos($line[0], 'Moyenne') !== false )) continue;
-				//if($i==5000) break;
-				
-				if(isset($line[4]) && $line[4]=="TOTAL") break;
-				if(isset($line[4]) && $line[4]!== "" ){
-					
-					//drupal_set_message(t("Champs mois".$line[4]), $type = '', $repeat = true);
-					//cas 2 JANVIER AU FEVRIER 2016
-					if(strpos(strtolower($line[4]), strtolower('AU')) !== false || strpos(strtolower($line[4]), strtolower(' A '))){
-						//drupal_set_message(t("Cas 2".$line[4]), $type = '', $repeat = true);
-						//cas 3 DECEMBRE x AU FEVRIER 2016
-						$j=0;
-						$step_2 = false;
-						$step_3 = false;
-						
-						//ici cas 2 JANVIER A FEVRIER 2016
-						if(strpos(strtolower($line[4]), strtolower(' A '))){
-							$str_date2 = multiexplode(array(" ",strtolower(' A ')),strtolower($line[4]));	
-							foreach($str_date2 as $str){
-							
-									if($j==0){
-										$id_mois = get_id_mois(trim($str));
-										if($id_mois == 0){
-											drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier le mois du début '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);
-											$valid = false;
-										}else if($id_mois > 0){	
-											$id_mois_min = $id_mois;
-										}
-									}
-
-									if($j==1){
-										if(!empty($str)){
-											if(!is_numeric($str)){
-												
-												$id_mois = get_id_mois(trim($str));
-												if($id_mois == 0){
-													drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier le mois ou l'année de fin '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);											
-													$valid = false;
-												}else {
-													$id_mois_max = $id_mois;													
-												}
-											}else {
-												$annee_min = $str;
-												$step_2 = true;
-											}
-										}
-									}															
-									
-									if($step_2 == true){
-										if($j==2){
-											if(!empty($str)){
-												$id_mois = get_id_mois(trim($str));
-												if($id_mois == 0){
-													drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier le mois de fin '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);												
-													$valid = false;
-												}else if($id_mois>0){
-													$id_mois_max = $id_mois;
-												}
-											}
-										}
-										if($j==3){
-											if(!is_numeric($str)){
-												drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année de fin '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);
-												$valid = false;
-											}else {
-												$annee_max = $str;
-											}	
-										}
-									}else {
-										if($j==2){
-											if(!empty($str)){
-												if(!is_numeric($str)){
-													drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année de fin '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);
-													$valid = false;
-												}else {
-													$annee_max = $str;
-												}		
-											}
-										}
-									}
-									$j++;
-							}	
-						}else if(strpos(strtolower($line[4]), strtolower('AU')) !== false) {
-							$str_date2 = multiexplode(array(" ",strtolower("AU")),strtolower($line[4]));	
-							foreach($str_date2 as $str){
-							
-									if($j==0){
-										$id_mois = get_id_mois(trim($str));
-										if($id_mois == 0){
-											drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier le mois du début '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);
-											$valid = false;
-										}else if($id_mois > 0){	
-											$id_mois_min = $id_mois;
-										}
-									}
-
-									if($j==1){
-										if(!empty($str)){
-											if(!is_numeric($str)){
-												drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année du début '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);
-												$valid = false;
-											}else {
-												$annee_min = $str;
-											}
-										}
-									}
-									
-									if($j==3){
-										if(!empty($str)){
-											$id_mois = get_id_mois(trim($str));
-											if($id_mois == 0){
-												drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier le mois de fin '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);											
-												$valid = false;
-											}else if($id_mois>0){
-												$id_mois_max = $id_mois;
-											}
-										}else {
-											$step_3 = true;
-										}
-									}
-									
-									if($step_3 == true){
-										if($j==4){
-											if(!empty($str)){
-												$id_mois = get_id_mois(trim($str));
-												if($id_mois == 0){
-													drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier le mois de fin '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);												
-													$valid = false;
-												}else if($id_mois>0){
-													$id_mois_max = $id_mois;
-												}
-											}
-										}
-										if($j==5){
-											if(!is_numeric($str)){
-												drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année  de fin '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);
-												$valid = false;
-											}else {
-												$annee_max = $str;
-											}	
-										}
-									}else {
-										if($j==4){
-											if(!empty($str)){
-												if(!is_numeric($str)){
-													drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année  de fin '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);
-													$valid = false;
-												}else {
-													$annee_max = $str;
-													$annee_min = $annee_max;
-												}		
-											}
-										}
-									}
-									$j++;
-							}	
-						}											
-											
-						if($annee_max < $annee_min ){
-							drupal_set_message(t("Intervalle de date incoherente avec la période : '$line[4]'. (".real_line($i).")"), $type = 'error', $repeat = true);									
-							$valid = false;
-						}else{
-							
-							$str_dt_saisie =  $_POST['annee'].'-'.$_POST['mois'].'-01';
-							$date_saisie = new Datetime($str_dt_saisie);
-							$date_saisie = $date_saisie->format("Y-m-d");
-							
-							if(($annee_min == $annee_max) && ($id_mois_min >  $id_mois_max) ) {
-								
-								$str_dt_debut = $annee_max.'-'.$id_mois_max.'-01'; 
-								$str_dt_fin = $annee_max.'-'.$id_mois_min.'-01';
-								
-								/*$temp = $id_mois_max;
-								$id_mois_max = $id_mois_min;
-								$id_mois_min = $temp;*/
-								
-							}else {
-								$str_dt_debut = $annee_min.'-'.$id_mois_min.'-01';
-								$str_dt_fin = $annee_max.'-'.$id_mois_max.'-01'; 
-							}
-												
-							$list_date = getinterval($str_dt_debut,$str_dt_fin);
-							
-							if (in_array($date_saisie, $list_date)) {	
-								
-							   if($annee_max!== 0 && $annee_min!== 0){						        
-									$nb_mois = ($annee_max - $annee_min) * 12 + $id_mois_max - $id_mois_min + 1;							
-							   }else $nb_mois = $id_mois_max - $id_mois_min + 1;
-							   
-								// Montant final : cas 87 000,00  | "33,000.00"
-								if($line[5]!== ""){
-									$montant = manage_montant($line[5]);
-
-									if($montant === "0" || empty($line[5])){
-										/*drupal_set_message(t("Le montant du fichier est égale à 0 ou vide. (".real_line($i).")"), $type = 'error', $repeat = true);									
-										$valid = false;	*/
-										$montant = 0;	
-									}
-									
-									if(!is_numeric($montant)){
-										drupal_set_message(t("Le montant '$montant' du fichier n'est pas un nombre. (".real_line($i).")"), $type = 'error', $repeat = true);
-										$valid = false;
-									}		
-									
-									$montant = intval($montant/$nb_mois);										
-									if($montant<0){
-										drupal_set_message(t("Intervalle de date incoherente avec la période : '$line[4]'. (".real_line($i).")"), $type = 'error', $repeat = true);									
-										$valid = false;
-									}
-															
-									$id_mois_tmp = $_POST['mois'];										
-									$annee_tmp = $_POST['annee'];
-									$is_montant_set = true;
-								}
-							}
-							
-						}
-							
-						
-					}//cas 4 JUIN ET JUILLET 2016 et longeur sup 13 > car faut pas prendre Juillet xxxx
-					else if(strpos(strtolower($line[4]), strtolower('ET')) !== false && strlen($line[4]) > 13 ){
-						$j=0;
-						$step_3 = false;
-						//????? Double espace comment faire???
-						$str_date = explode(" ", $line[4]);
-						foreach($str_date as $str){
-								
-								if($j==0){
-									$id_mois = get_id_mois(trim($str));
-									if($id_mois == 0){
-										drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier le mois  du début '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);
-										$valid = false;
-									}else if($id_mois > 0){	
-										$id_mois_min = $id_mois;
-									}
-								}
-								
-								if($j==1){
-									if(!empty($str) && trim(strtolower($str)) !== trim(strtolower('ET')) ){										
-										if(!is_numeric($str)){
-											drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année du début '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);
-											$valid = false;
-										}else {
-											$annee_min = $str;
-											$step_3 = true;
-										}									
-									}										
-								}
-								
-								if($step_3 === true ){
-									if($j==3){
-										if(!empty($str) ){
-											$id_mois = get_id_mois(trim($str));
-											if($id_mois == 0){
-												drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier le mois de fin '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);
-												$valid = false;
-											}else if($id_mois > 0){	
-												$id_mois_max = $id_mois;												
-											}
-										}
-									}	
-									
-									if($j==4){
-										if(!empty($str)){
-											if(!is_numeric($str)){
-												drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année de fin '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);
-												$valid = false;
-											}else {
-												$annee_max = $str;
-											}		
-										}
-									}
-									
-								}else {
-									
-									if($j==2){
-										if(!empty($str)){
-											$id_mois = get_id_mois(trim($str));
-											if($id_mois == 0){
-												drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier le mois de fin '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);
-												$valid = false;
-											}else if($id_mois > 0){	
-												$id_mois_max = $id_mois;												
-											}
-										}
-									}
-									
-									if($j==3){
-											if(!empty($str)){
-												if(!is_numeric($str)){
-													drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année de fin '$str' de l'intervalle. (".real_line($i).")"), $type = 'error', $repeat = true);
-													$valid = false;
-												}else {
-													$annee_max = $str;
-													$annee_min = $annee_max;
-												}		
-											}
-									}
-								}
-
-								
-							$j++;
-						}	
-						
-						/*if($annee_max < $annee_min ){
-							drupal_set_message(t("Intervalle de date incoherente avec la période : '$line[4]'. (".real_line($i).")"), $type = 'error', $repeat = false);									
-							$valid = false;
-						}*/
-						
-
-						//Mois .. ET Mois Annee 
-						//Mois Annee ET Mois Annee
-						/*drupal_set_message(t("$id_mois_min = ".$_POST['mois'].", $annee_min = ".$_POST['annee'].
-										" | $id_mois_max = ".$_POST['mois'].", $annee_max = ".$_POST['annee']."(".real_line($i).")"), $type = '', $repeat = true);	*/					
-						if( ($id_mois_min == $_POST['mois'] && $annee_min == $_POST['annee'] ) ||  ( $_POST['mois'] == $id_mois_max && $annee_max == $_POST['annee']) ){
-						  
-						   //$nb_mois = ($annee_max - $annee_min) * 12 + $id_mois_max - $id_mois_min + 1
-							//   Montant final : Montant / nb_mois 
-							if($line[5]!== ""){
-								$montant = manage_montant($line[5]);
-								
-								if($montant === "0" || empty($line[5])){
-									/*drupal_set_message(t("Le montant du fichier est égale à 0 ou vide. (".real_line($i).")"), $type = 'error', $repeat = true);									
-									$valid = false;	*/
-									$montant = 0;	
-								}
-								
-								if(!is_numeric($montant)){
-									drupal_set_message(t("Le montant '$line[5]' du fichier n'est pas un nombre. (".real_line($i).")"), $type = 'error', $repeat = true);									
-									$valid = false;
-								}	
-								
-								$montant = $montant/2;	
-								 
-								$id_mois_tmp = $_POST['mois'];										
-								$annee_tmp = $_POST['annee'];
-								$is_montant_set = true;
-							}
-						}
-					}//Cas 1  FEVRIER 2016
-					else {
-						
-						$mois = substr(trim($line[4]), 0, -4);	
-						$id_mois_tmp = get_id_mois($mois);	
-						if($id_mois_tmp == 0){
-							drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier le mois '$mois'. (".real_line($i).")"), $type = 'error', $repeat = true);							
-							$valid = false;
-						}
-						
-						$annee_tmp = substr(trim($line[4]),strlen($mois),4);
-						if(!is_numeric($annee_tmp)){
-							drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année '$annee_tmp'. (".real_line($i).")"), $type = 'error', $repeat = true);									
-							$valid = false;
-						}
-						
-						//ne pas tout tester si le fichier n'est pas bon
-						if($annee_tmp < $_POST['annee'] && $i <= 5 ){
-							drupal_set_message(t("L'année du fichier '$annee_tmp' et l'année saisie '".$_POST['annee']."' sont différentes. (".real_line($i).")"), $type = 'error', $repeat = true);									
-							$valid = false;
-							return;						
-						}else
-						if($annee_tmp < $_POST['annee'] ){
-							drupal_set_message(t("L'année du fichier '$annee_tmp' est inférieure à l'année saisie '".$_POST['annee']."'. (".real_line($i).")"), $type = 'error', $repeat = true);									
-							$valid = false;							
-						}
-					}
-					
-				} //if($line[4]!== "")								
-				
-				$li_etablissement  ="";
-				$province = "";
-				$district = "";
-				$id_region  = 0;
-			    //On teste toutes les lignes pas la periode concerné seulement
-				//if($annee_tmp == $annee_form && $id_mois_tmp == $id_mois_form  ){
-				if(isset($line[4])){
-					//REGION
-						$cell_region = $line[0];
-						
-						if(empty($cell_region) && !empty($line[4])){
-							drupal_set_message(t("Le champs région est vide. (".real_line($i).")"), $type = 'error', $repeat = true);													
-							$valid = false;
-						}else{
-						
-							// Cas 9- FIANARANTSOA:Ranohira-Isalo:xx
-							if(strpos(trim(strtolower($cell_region)), trim(strtolower('Ranohira-Isalo'))) !== false ){
-								
-								$str_final = "FIANARANTSOA:Ranohira-Isalo";
-								$id_region = get_id_region_ontm02($str_final);
-								if($id_region==0){
-									drupal_set_message(t("La région '$str_final' n'existe pas en base. (".real_line($i).")"), $type = 'error', $repeat = true);									
-									$valid = false;
-								}
-								// 31 = longueur 9-FIANARANTSOA:Ranohira-Isalo:
-								$len =  strlen($cell_region)-31;
-								$li_etablissement = substr($cell_region,31,$len);
-								  
-							}else {
-								
-								if(strpos($cell_region, ':') !== false){
-									
-								}else {
-									drupal_set_message(t("Erreur sur le format de la région '$cell_region'. (".real_line($i).")"), $type = 'error', $repeat = true);														
-									$valid = false;
-								}
-								
-								$str_region = explode("-", $cell_region);								
-								
-								$k=0;
-								//$region_1 = $str_region[0];
-								foreach($str_region as $str1){
-									
-									
-									if($k==1){
-										$str_reg_1 = explode(":", $str1);	
-										
-										$j=0;
-										foreach($str_reg_1 as $str2){
-											
-											if($j == 0){
-												$province = $str2;
-											}else if($j == 1){
-												$district = $str2;														
-											}else if($j == 2){
-												$li_etablissement = $str2;
-											}
-											$j++;
-																						
-										}
-										
-										
-										
-										if($li_etablissement == "" && $province !== "" && $district !== ""){
-											//Cas  5- TOLAGNARO:ROVA HOTEL
-											$str_region = $province;
-											$str_final = str_replace("'","''",$str_region);
-											$id_region = get_id_region_ontm02($str_final);
-											if($id_region==0){
-												drupal_set_message(t("La région '$str_final' n'existe pas en base. (".real_line($i).")"), $type = 'error', $repeat = true);														
-												$valid = false;
-											}
-											
-											$li_etablissement = $district;															
-											
-										}else{
-											// Cas 9- FIANARANTSOA:Manakara:LA VANILLE
-											$str_region = $province.":".$district;
-											$str_final = str_replace("'","''",$str_region);
-											//drupal_set_message(t("region : $str_final"), $type = '', $repeat = true);
-											$id_region = get_id_region_ontm02($str_final);
-											if($id_region==0){
-												drupal_set_message( t("La région '$str_final' n'existe pas en base. (".real_line($i).")"), $type = 'error', $repeat = true);													
-												$valid = false;
-											}
-										}	
-									}
-								   $k++;
-								}
-							}					
-						}
-				}	
-					
-				/*	//ETABLISSEMENT					
-					if(isset($line[6]) && $line[6]!== ""){
-						$li_etablissement = $line[6];						
-					}
-				*/	
-				//Classement de l'hotel
-				if(isset($line[1])){
-					$classement = $line[1];
-					$id_classement_etablissement = get_id_classement_etablissement($classement);
-				}
-					
-				//MONTANT 
-				//cas 87 000,00  | "33,000.00"
-				if(isset($line[5]) && !$is_montant_set){
-					$string = $line[5];
-					$montant = manage_montant($string);	
-						
-					if($montant === "0" || empty($line[5])){														
-						$montant = 0;	
-					}
-						
-					if(!is_numeric($montant)){
-						drupal_set_message(t("Le montant '$montant' du fichier n'est pas un nombre. (".real_line($i).")"), $type = 'error', $repeat = true);
-						$valid = false;
-					}						
-				}	
-					
-									
-					
-				//NB_CH 										
-				$nb_chambre=0;
-				if(isset($line[2])){
-					if(!is_numeric($line[2]) && $line[2] !== "" ){
-						drupal_set_message(t("Le nombre de chambre '$line[2]' du fichier n'est pas un nombre. (".real_line($i).")"), $type = 'error', $repeat = true);
-						$valid = false;
-					}else {
-						$nb_chambre = $line[2]!==""?$line[2]:0;
-					}
-				}
-					
-				/*if(!is_numeric($montant)){
-						drupal_set_message(t("$str_final, $id_region, ($li_etablissement,$id_etablissement), $montant"), $type = '', $repeat = true);
-				}*/
-				
-				if($annee_tmp == $_POST['annee'] && $id_mois_tmp == $_POST['mois']  ){	
-				
-					if($montant!==0 && $id_region !==0 && $id_mois_tmp!==0 && $annee_tmp!==0 && $nb_chambre!==0){
-						$data[] = array(
-							'id_region' =>  $id_region,
-							'nb_chambres' => $nb_chambre,
-							'li_etablissement' => $li_etablissement,
-							'id_etablissement' => $id_etablissement,
-							'id_mois' => $id_mois_tmp,
-							'id_classement_etablissement' => $id_classement_etablissement,
-							'annee' => $annee_tmp,
-							'montant' => $montant,						
-						);
-					}
-					
-					
-				}
-				//reset
-				$li_etablissement  ="";
-				$province = "";
-				$district = "";
-				$annee_tmp = 0;
-				$id_mois_tmp = 0;
-		}	
-	//}
-	fclose($handle);
-	
-	return $data;
-	
-}
-
-function multiexplode ($delimiters,$string) {
-    
-    $ready = str_replace($delimiters, $delimiters[0], $string);
-    $launch = explode($delimiters[0], $ready);
-    return  $launch;
-}
-
-function real_line($i){
-	return $_POST['annee'] !== '2013' ? $i :($i*2)-1;
-}
-
-function manage_montant($string){
-
-	if($string!==0 || empty($string)){
-		if(strpos($string, ',') !== false ){ 
-			$str = substr(trim($string), 0, -3);
-			$mt = str_replace(",", "", $str);
-			$mt = str_replace(" ", "", $mt);
-		}else{ 				
-			$mt = str_replace(" ", "", $string);
 		}
-	}		
+		
+		//INSERTION siit_importation		
+		// rechercher importation avec dt_import et li_fichier et id_type_fichier
+		$data_import = array();
+		//recup année list	
+		$annee  = $form_state['values']['annee'];
+		$id_mois_form = $form_state['values']['mois'];
 	
-	return $mt;
+		$name_file = basename($path);
+					
+		$data_import['annee'] = $annee;
+		$data_import['id_mois'] = $id_mois_form;
+		$data_import["li_fichier"] = basename($path);
+		$data_import["id_statut"] = STATUT_AVALIDER;
+		$data_import["id_type_fichier"] = TYPE_FICHIER_ONTM02;
+			
+		//On supprime l'importation existante pour l'équivalent
+		controleDoublonImportation($annee, 0,ENTITE_ONTM02);
+		$id_importation = insert_importation($data_import);
+		
+		$data = array();
+		$region="";
+		$li_etablissement = "";
+		$id_etablissement = 0;
+		$nationaux;
+		$etrangers;
+		$row_begin =0; 
+		$col_begin=0;
+		$cell_="";
+		
+		foreach ($objPHPExcel->getWorksheetIterator() as $worksheet) {
+		   
+			$highestRow         = $worksheet->getHighestRow(); 
+			$highestColumn      = $worksheet->getHighestColumn(); 
+			$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
+			
+			//drupal_set_message(t($highestRow."ligne ".$highestColumnIndex), $type = '', $repeat = FALSE);
+			
+			for ($row = 2; $row <= $highestRow; ++ $row) {
+			
+				$line = array();
+				$line[0] = $worksheet->getCellByColumnAndRow(0, $row)->getValue();
+				$line[1] = $worksheet->getCellByColumnAndRow(1, $row)->getValue();
+				$line[2] = $worksheet->getCellByColumnAndRow(2, $row)->getValue();
+				$line[3] = $worksheet->getCellByColumnAndRow(3, $row)->getValue();
+				$line[4] = $worksheet->getCellByColumnAndRow(4, $row)->getValue();
+				$line[5] = $worksheet->getCellByColumnAndRow(5, $row)->getValue();
+				$line[6] = $worksheet->getCellByColumnAndRow(6, $row)->getValue();
+				$line[7] = $worksheet->getCellByColumnAndRow(7, $row)->getValue();
+				$valid = true;
+				$dataLine = cas_fichier_2($line, $valid, $row);
+				if ($dataLine) {
+					$value = $dataLine[0];
+					
+					if (isset($value["li_etablissement"])) {
+						if($value["li_etablissement"] != "" && $value["id_etablissement"] == 0 ){
+							//insert 			
+							$id_etab = import_data_etablissement_ontm_02($value,$id_importation);
+							import_data_ontm_02($value,$id_importation,$id_etab);
+						} else{
+							//update 
+							import_data_ontm_02($value,$id_importation,0);
+						}
+					}	
+				}
+			}
+		}
+			
+	
+		drupal_set_message("L'import a été effectué avec succès.", $type = 'status');
+		$form_state['redirect'] ="siit_importation_fusion_etablissement";
+	}				
 }
 
-function get_id_region_ontm02($libelle) {
-	
-	if ( mb_detect_encoding($libelle, 'UTF-8', true) === false ){
-		$str = utf8_encode(trim(strtolower($libelle)));
-	}else {
-		$str = trim(strtolower($libelle));
-	}
-	
-	
-	$id_region =0;
-	$sql = "SELECT id_region FROM siit_region  
-			WHERE lower(li_region) = '".$str."'"; 
-		
-	$results = db_query($sql);
-	foreach($results as $result) {
-		$id_region = $result->id_region;
-	}	
-		
-	if (empty($id_region)) {
-		$sql = "SELECT id_region FROM {siit_region_entite} p WHERE 
-				 lower(li_region) ='".$str."'"; 
-		$results = db_query($sql);
-		foreach($results as $result) {
-			$id_region = $result->id_region;
-		}
-	}	   
-		
-	return $id_region;	
-}
+
+
 
 function import_data_etablissement_ontm_02($value){
 	
@@ -1501,7 +424,6 @@ function import_data_etablissement_ontm_02($value){
 	return 	 $id_etablissement;	
 }
 
-
 function import_data_ontm_02($value,$id_importation,$id_etab){
     
 		$id_etablissement = $id_etab!=0?$id_etab:$value["id_etablissement"];
@@ -1530,7 +452,6 @@ function import_data_ontm_02($value,$id_importation,$id_etab){
   
 }
 
-
 function getinterval($strDate1,$strDate2){
 	$date3=new Datetime($strDate1);
 	$date4=new Datetime($strDate2);
@@ -1553,3 +474,414 @@ function getinterval($strDate1,$strDate2){
 	return $listdate;
 }
 
+
+function multiexplode($delimiters,$string) {
+   
+    $string = str_replace("  ", " ",$string);
+    $string = explode($delimiters, $string);
+    return  $string;
+    
+   /* $ready = str_replace($delimiters, $delimiters[0], $string);
+    $launch = explode($delimiters[0], $ready);
+    return  $launch;*/
+}
+
+function real_line($row){
+	return 'Ligne n° '.$row;
+}
+
+function manage_montant($string){
+
+	if($string!==0 || empty($string)){
+		if(strpos($string, ',') !== false ){ 
+			$str = substr(trim($string), 0, -3);
+			$mt = str_replace(",", "", $str);
+			$mt = str_replace(" ", "", $mt);
+		}else{ 				
+			$mt = str_replace(" ", "", $string);
+		}
+	}		
+	
+	return $mt;
+}
+
+function get_id_region_ontm02($libelle) {
+	
+	if (mb_detect_encoding($libelle, 'UTF-8', true) === false ){
+		$str = utf8_encode(trim(strtolower($libelle)));
+	}else {
+		$str = trim(strtolower($libelle));
+	}
+	
+	
+	$id_region =0;
+	$sql = "SELECT id_region FROM siit_region  
+			WHERE lower(li_region) = '".$str."'"; 
+		
+	$results = db_query($sql);
+	foreach($results as $result) {
+		$id_region = $result->id_region;
+	}	
+		
+	if (empty($id_region)) {
+		$sql = "SELECT id_region FROM {siit_region_entite} p WHERE 
+				 lower(li_region) ='".$str."'"; 
+		$results = db_query($sql);
+		foreach($results as $result) {
+			$id_region = $result->id_region;
+		}
+	}	   
+		
+	return $id_region;	
+}
+
+
+	/*
+	0 Etablissement
+	1 CAT
+	2 NBRE CH;
+	3 Taux VT;
+	4 Mois;
+	5 Montant (50%);
+	6 Taux d'occupation	
+*/
+
+function cas_fichier_2($line, &$valid, $row){
+	
+	$data = array();
+    
+    $mois;
+	$str_final="";
+	$li_etablissement="";
+	$id_etablissement=0;
+	$id_classement_etablissement=0;
+    
+   
+    $id_mois_min=0; 
+    $id_mois_max=0; 
+    $annee_min=0;
+    $annee_max=0;
+	$annee_min_actif =false;
+	$is_montant_set=false;
+	$annee_tmp=0;	
+	$max_au = false;
+	$max_et= false;
+	
+	if(isset($line[0]) && (strpos($line[0], 'Moyenne') !== false )) {
+		return false;	
+	}
+
+	
+	if(isset($line[4]) && $line[4]=="TOTAL") {
+		return false;	
+	}
+	
+	if(isset($line[4]) && $line[4]!== "" ){
+	
+		//Les différents cas sont :
+		//Mai 2016
+		//Novembre 2015 A Mai 2016
+		//Novembre A Mai 2016
+		//Mars A Mai 2016
+		//Mars 2015 A Mai 2016
+		//AVRIL ET Mai 2016
+		//Novembre 2015 AU Mai 2016
+		//Novembre AU Mai 2016
+		//Mars AU Mai 2016
+		//Mars 2015 AU Mai 2016
+		$str = str_replace("  ", " ", $line[4]);
+		$str = str_replace(" AU ", "/", $str);
+		$str = str_replace(" ET ", "/", $str);
+		$str = str_replace(" A ", "/", $str);
+		$str = explode("/",$str); //==> On a mois min et mois max
+		$annee_min = 0;
+		$annee_max = 0;
+		if (isset($str[0])) {
+			$dateMin = explode(" ",$str[0]);
+			$id_mois_min = $dateMin[0];
+			$id_mois_min = get_id_mois($id_mois_min);
+			if (isset($dateMin[1])) {
+				$annee_min = $dateMin[1];
+			}
+		}
+		
+		$intervalle = true;
+		if (isset($str[1])) {
+			$dateMax = explode(" ",$str[1]);
+			$id_mois_max = $dateMax[0];
+			$id_mois_max = get_id_mois($id_mois_max);
+			if (isset($dateMax[1])) {
+				$annee_max = $dateMax[1];
+			}
+		} else {
+			$intervalle = false; //Juste un mois sans intervalle de période
+			$id_mois_max = $id_mois_min;
+			$annee_max = $annee_min;
+		}
+		
+		
+		if ($id_mois_min < $id_mois_max) {
+			if (empty($annee_min) && !empty($annee_max)) {
+				$annee_min = $annee_max;
+			}
+		}
+		
+		if ($intervalle && empty($id_mois_max)) {
+			drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier le mois de fin '$line[4]' de l'intervalle. (".real_line($row).")"), $type = 'error', $repeat = true);											
+			$valid = false;
+		}
+		
+		if ($intervalle && empty($annee_max)) {
+			drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année de fin '$line[4]' de l'intervalle. (".real_line($row).")"), $type = 'error', $repeat = true);											
+			$valid = false;
+		}
+		
+		if (empty($id_mois_min)) {
+			drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier le mois du début '$line[4]' de l'intervalle. (".real_line($row).")"), $type = 'error', $repeat = true);
+			$valid = false;
+		}
+		
+		
+		if ($intervalle && $id_mois_min > $id_mois_max) {
+			if (empty($annee_min)) {
+				drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année du début '$line[4]' de l'intervalle. (".real_line($row).")"), $type = 'error', $repeat = true);
+				$valid = false;
+			}
+		}
+		
+		if($intervalle && !is_numeric($annee_max)){
+			drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année de fin '$line[4]' de l'intervalle. (".real_line($row).")"), $type = 'error', $repeat = true);
+			$valid = false;
+		}
+		if(!is_numeric($annee_min)){
+			drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année de début '$line[4]' de l'intervalle. (".real_line($row).")"), $type = 'error', $repeat = true);
+			$valid = false;
+		}
+		
+		if ($intervalle && $annee_max < $annee_min ){
+			drupal_set_message(t("Intervalle de date incoherente avec la période : '$line[4]'. (".real_line($row).")"), $type = 'error', $repeat = true);									
+			$valid = false;
+		}
+		
+		   
+		// Montant final : cas 87 000,00  | "33,000.00"
+		if($line[5]!== ""){
+			$montant = manage_montant($line[5]);
+
+			if($montant === "0" || empty($line[5])){
+				$montant = 0;	
+			}
+			
+			if(!is_numeric($montant)){
+				drupal_set_message(t("Le montant '$montant' du fichier n'est pas un nombre. (".real_line($row).")"), $type = 'error', $repeat = true);
+				$valid = false;
+			}		
+			
+			if ($montant < 0){
+				drupal_set_message(t("Le montant calculé ".$nb_mois." n'est pas cohérent : '$line[5]'. (".real_line($row).")"), $type = 'error', $repeat = true);									
+				$valid = false;
+			}
+			
+			$is_montant_set = true;
+		}
+	
+				
+			
+	}
+	
+	
+
+
+	$li_etablissement = "";
+	$province = "";
+	$district = "";
+	$id_region  = 0;
+    //On teste toutes les lignes par la periode concerné seulement
+
+	if(isset($line[4])){
+		//REGION
+			$cell_region = $line[0];
+			
+			if(empty($cell_region) && !empty($line[4])){
+				drupal_set_message(t("Le champs région est vide. (".real_line($row).")"), $type = 'error', $repeat = true);													
+				$valid = false;
+			}else{
+			
+				// Cas 9- FIANARANTSOA:Ranohira-Isalo:xx
+				if(strpos(trim(strtolower($cell_region)), trim(strtolower('Ranohira-Isalo'))) !== false ){
+					
+					$str_final = "FIANARANTSOA:Ranohira-Isalo";
+					$id_region = get_id_region_ontm02($str_final);
+					if($id_region==0){
+						drupal_set_message(t("La région '$str_final' n'existe pas en base. (".real_line($row).")"), $type = 'error', $repeat = true);									
+						$valid = false;
+					}
+					// 31 = longueur 9-FIANARANTSOA:Ranohira-Isalo:
+					$len =  strlen($cell_region)-31;
+					$li_etablissement = substr($cell_region,31,$len);
+					  
+				}else {
+					
+					if(strpos($cell_region, ':') !== false){
+						
+					}else {
+						drupal_set_message(t("Erreur sur le format de la région '$cell_region'. (".real_line($row).")"), $type = 'error', $repeat = true);														
+						$valid = false;
+					}
+					
+					$str_region = explode("-", $cell_region);								
+					
+					$k=0;
+					//$region_1 = $str_region[0];
+					foreach($str_region as $str1){
+						
+						
+						if($k==1){
+							$str_reg_1 = explode(":", $str1);	
+							
+							$j=0;
+							foreach($str_reg_1 as $str2){
+								
+								if($j == 0){
+									$province = $str2;
+								}else if($j == 1){
+									$district = $str2;														
+								}else if($j == 2){
+									$li_etablissement = $str2;
+								}
+								$j++;
+																			
+							}
+							
+							
+							
+							if($li_etablissement == "" && $province !== "" && $district !== ""){
+								//Cas  5- TOLAGNARO:ROVA HOTEL
+								$str_region = $province;
+								$str_final = str_replace("'","''",$str_region);
+								$id_region = get_id_region_ontm02($str_final);
+								if($id_region==0){
+									drupal_set_message(t("La région '$str_final' n'existe pas en base. (".real_line($row).")"), $type = 'error', $repeat = true);														
+									$valid = false;
+								}
+								
+								$li_etablissement = $district;															
+								
+							}else{
+								// Cas 9- FIANARANTSOA:Manakara:LA VANILLE
+								$str_region = $province.":".$district;
+								$str_final = str_replace("'","''",$str_region);
+								//drupal_set_message(t("region : $str_final"), $type = '', $repeat = true);
+								$id_region = get_id_region_ontm02($str_final);
+								if($id_region==0){
+									drupal_set_message( t("La région '$str_final' n'existe pas en base. (".real_line($row).")"), $type = 'error', $repeat = true);													
+									$valid = false;
+								}
+							}	
+						}
+					   $k++;
+					}
+				}					
+			}
+	}	
+		
+
+	//Classement de l'hotel
+	if(isset($line[1])){
+		$classement = $line[1];
+		$id_classement_etablissement = get_id_classement_etablissement($classement);
+	}
+		
+	//MONTANT 
+	//cas 87 000,00  | "33,000.00"
+	if(isset($line[5]) && !$is_montant_set){
+		$string = $line[5];
+		$montant = manage_montant($string);	
+			
+		if($montant === "0" || empty($line[5])){														
+			$montant = 0;	
+		}
+			
+		if(!is_numeric($montant)){
+			drupal_set_message(t("Le montant '$montant' du fichier n'est pas un nombre. (".real_line($row).")"), $type = 'error', $repeat = true);
+			$valid = false;
+		}						
+	}	
+		
+						
+		
+	//NB_CH 										
+	$nb_chambre=0;
+	if(isset($line[2])){
+		if(!is_numeric($line[2]) && $line[2] !== "" ){
+			drupal_set_message(t("Le nombre de chambre '$line[2]' du fichier n'est pas un nombre. (".real_line($row).")"), $type = 'error', $repeat = true);
+			$valid = false;
+		}else {
+			$nb_chambre = $line[2]!==""?$line[2]:0;
+		}
+	}
+	
+	if ($valid) {
+		
+					
+		$str_dt_saisie =  $_POST['annee'].'-'.$_POST['mois'].'-01';
+		$date_saisie = new Datetime($str_dt_saisie);
+		$date_saisie = $date_saisie->format("Y-m-d");
+		
+		$id_mois_min_str = $id_mois_min<10 ? '0'.$id_mois_min:$id_mois_min;
+		if ($intervalle) {
+			$id_mois_max_str = $id_mois_max<10 ? '0'.$id_mois_max:$id_mois_max;
+		} else {
+			$id_mois_max_str = $id_mois_min_str;
+		}
+		
+		$str_dt_debut = $annee_min.'-'.$id_mois_min_str.'-01';
+		$str_dt_fin = $annee_max.'-'.$id_mois_max_str.'-01'; 
+		
+							
+		$list_date = getinterval($str_dt_debut,$str_dt_fin);
+			
+			
+		
+		if (in_array($date_saisie, $list_date)) {	
+			
+			if ($intervalle) {
+				$nb_mois = ($annee_max - $annee_min) * 12 + $id_mois_max - $id_mois_min + 1;							
+				//$nb_mois = $id_mois_max - $id_mois_min + 1;
+			} else {
+				$nb_mois = 1;
+			}
+			
+			$montant = intval($montant/$nb_mois);
+			$id_mois_tmp = $_POST['mois'];										
+			$annee_tmp = $_POST['annee'];				
+			
+		}
+	}
+
+	
+	if($annee_tmp == $_POST['annee'] && $id_mois_tmp == $_POST['mois']){	
+	
+		if($montant!==0 && $id_region !==0 && $id_mois_tmp!==0 && $annee_tmp!==0 && $nb_chambre!==0){
+			$data[] = array(
+				'id_region' =>  $id_region,
+				'nb_chambres' => $nb_chambre,
+				'li_etablissement' => $li_etablissement,
+				'id_etablissement' => $id_etablissement,
+				'id_mois' => $id_mois_tmp,
+				'id_classement_etablissement' => $id_classement_etablissement,
+				'annee' => $annee_tmp,
+				'montant' => $montant,						
+			);
+		}
+	}
+	//reset
+	$li_etablissement  ="";
+	$province = "";
+	$district = "";
+	$annee_tmp = 0;
+	$id_mois_tmp = 0;
+
+	return $data;
+	
+}

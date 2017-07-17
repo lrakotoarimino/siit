@@ -1581,8 +1581,8 @@ function get_region_etablissement($id) {
 
 function get_id_mois($libelle) {
 
-  $id_mois =0;
-  $sql = "SELECT id_mois FROM {siit_mois} p WHERE 
+	$id_mois =0;
+	$sql = "SELECT id_mois FROM {siit_mois} p WHERE 
 			lower(p.li_mois)='".strtolower($libelle)."'"; 
 		
 	$results = db_query($sql);

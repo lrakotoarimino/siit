@@ -121,9 +121,12 @@ function get_siit_importation_cnaps_01_form($form, &$form_state){
 
 function csv_import_cnaps_01_validate($form, &$form_state){
 
-	$region="";$li_etablissement;
-	$nationaux;$etrangers ;
-	$row_begin =0 ; $col_begin=0;
+	$region="";
+	$li_etablissement;
+	$nationaux;
+	$etrangers ;
+	$row_begin =0 ;
+	$col_begin=0;
 	$cell_="";
 	
 	
@@ -163,7 +166,6 @@ function csv_import_cnaps_01_validate($form, &$form_state){
 			for ($row = 1; $row <= $highestRow; ++ $row) {
 				for ($col = 0; $col < $highestColumnIndex; ++ $col) {   
 					
-					//reperer colonne region
 					$cell = $worksheet->getCellByColumnAndRow($col, $row)->getValue();
 					if($row == 1 && $col == 0){
 						//Vérifie la conformité du fichier
@@ -292,7 +294,7 @@ function traitement_cnaps01($chemin, &$form_state){
 			}
 			
 			//INSERTION siit_importation		
-			// rechecher importation avec dt_import et li_fichier et id_type_fichier
+			// rechercher importation avec dt_import et li_fichier et id_type_fichier
 			$data_import = array();
 			//recup année list	
 			$annee  = $form_state['values']['annee'];

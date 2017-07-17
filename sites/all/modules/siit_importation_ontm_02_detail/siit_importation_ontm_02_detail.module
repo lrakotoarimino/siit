@@ -35,7 +35,7 @@ function siit_importation_ontm_02_detail_form_submit($form, &$form_state){
 		// $path
 		'siit_importation_ontm_02_detail',
 		// $options
-		array('query' => array('employeur' => $form_state['values']['employeur'],
+		array('query' => array('etablissement' => $form_state['values']['etablissement'],
 			'region' => $form_state['values']['region'],
 			'classement' => $form_state['values']['classement'],
 			'idImportation' => $form_state['values']['idImportation'],)),
@@ -64,13 +64,13 @@ function siit_importation_ontm_02_detail_form($form) {
 			'#attributes' => array('class' => array('container-inline'))
 	);
 	
-	$form['criteria']['employeur'] = array(
+	$form['criteria']['etablissement'] = array(
         '#type' => 'textfield',
-        '#title' => t('Employeur :'),
+        '#title' => t('Etablissement :'),
         
     );
-    if (isset($_REQUEST['employeur'])) {
-		$form['criteria']['employeur']['#default_value'] = $_REQUEST['employeur'];
+    if (isset($_REQUEST['etablissement'])) {
+		$form['criteria']['etablissement']['#default_value'] = $_REQUEST['etablissement'];
 	}
 	
     
@@ -146,9 +146,9 @@ function siit_importation_ontm_02_detail_form($form) {
 	if (isset($_REQUEST['region']) && !empty($_REQUEST['region'])) {
 		$sql .= " AND etab.id_region = ".$_REQUEST['region'];
 	}
-	if (isset($_REQUEST['employeur']) && !empty($_REQUEST['employeur'])) {
-		$sql .= " AND (lower(etab.li_etablissement) like '%".strtolower($_REQUEST['employeur'])."%'
-		OR lower(etab.li_enseigne) like '%".strtolower($_REQUEST['employeur'])."%')";
+	if (isset($_REQUEST['etablissement']) && !empty($_REQUEST['etablissement'])) {
+		$sql .= " AND (lower(etab.li_etablissement) like '%".strtolower($_REQUEST['etablissement'])."%'
+		OR lower(etab.li_enseigne) like '%".strtolower($_REQUEST['etablissement'])."%')";
 	}
 	if (isset($_REQUEST['classement']) && !empty($_REQUEST['classement'])) {
 		$sql .= " AND etab.id_classement_etablissement = ".$_REQUEST['classement'];
