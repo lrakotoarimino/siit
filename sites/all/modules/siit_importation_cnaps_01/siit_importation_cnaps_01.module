@@ -153,6 +153,11 @@ function csv_import_cnaps_01_validate($form, &$form_state){
 			$highestColumn      = $worksheet->getHighestColumn(); 
 			$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
 			
+			if ($highestColumnIndex == 8){
+				form_set_error('edit-annee', t("L'année des données doit être indiquée en celulle I1."));
+				return;
+			}
+			
 			//drupal_set_message(t($highestRow."ligne ".$highestColumnIndex), $type = '', $repeat = FALSE);
 			
 			for ($row = 1; $row <= $highestRow; ++ $row) {
@@ -160,8 +165,8 @@ function csv_import_cnaps_01_validate($form, &$form_state){
 					
 					//reperer colonne region
 					$cell = $worksheet->getCellByColumnAndRow($col, $row)->getValue();
-					if($row==1 && $col == 0 ){
-					
+					if($row == 1 && $col == 0){
+						//Vérifie la conformité du fichier
 						if(trim(strtolower($cell)) == trim(strtolower("EMPLOYEUR NOM"))){
 						  $row_begin = $row;
 						  $col_begin = $col;
@@ -170,6 +175,21 @@ function csv_import_cnaps_01_validate($form, &$form_state){
 							form_set_error('edit-debut', t("Fichier non conforme."));
 							return;
 						}
+					}
+					
+					if($row == 1 && $col == 8 && empty(strtolower($cell))){
+						//L'année doit être positionnée dans cette cellule
+						form_set_error('edit-annee', t("L'année des données doit être indiquée en celulle I1."));
+						return;
+						
+					}
+					if($row == 1 && $col == 8 && strtolower($cell)){
+						controle_error_int('edit-annee'.$row, $cell, $row, $col, "L'année");
+					}
+					
+					if($row == 1 && $col == 8 && intVal($cell) != $_POST['annee']){
+						form_set_error('edit-annee', t("L'année des données ne correspond pas à celle sélectionnée dans le formulaire."));
+						return;
 					}
 					
 					if($row > $row_begin && $row_begin>0){//get_value

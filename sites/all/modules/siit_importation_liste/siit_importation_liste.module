@@ -1639,7 +1639,7 @@ function searchDataExist($type_fichier, $annee, $mois = 0, $statut = STATUT_VALI
 		}
 		
 		if ($statut == STATUT_AVALIDER) {
-			$question = "Il existe déjà des données en attente de validation pour la période ".$mois.$annee.". Souhaitez vous remplacer les données avec celles de ce fichier ?";
+			$question = "Il existe déjà des données en attente de validation pour la période ".$mois.$annee.". Souhaitez-vous remplacer les données avec celles de ce fichier ?";
                   
 		}
 	} 
