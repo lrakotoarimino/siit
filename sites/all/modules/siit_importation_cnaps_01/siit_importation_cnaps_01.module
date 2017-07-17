@@ -182,7 +182,6 @@ function csv_import_cnaps_01_validate($form, &$form_state){
 					}
 					
 					if($row == 1 && $col == 8){
-						if () 
 						if (!isset(strtolower($cell)) || empty(strtolower($cell))) {
 							//L'année doit être positionnée dans cette cellule
 							form_set_error('edit-annee', t("L'année des données doit être indiquée en celulle I1."));
