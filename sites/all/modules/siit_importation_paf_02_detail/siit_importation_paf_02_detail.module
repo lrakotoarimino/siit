@@ -145,7 +145,7 @@ function siit_importation_paf_02_detail_form($form) {
 	} else {
 		//$sql .= " order by li_enseigne";
 	}
-	var_dump($sqlList.$sql);
+	
 	$results = db_query($sqlList.$sql);
 	
 

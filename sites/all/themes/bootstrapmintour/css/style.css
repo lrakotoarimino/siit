@@ -391,3 +391,6 @@ label.control-label {
 button#edit-submit {
     font-size: 12px!important;
 }
+input#edit-li-fichier {
+    width: 150px;
+}
