@@ -1468,12 +1468,12 @@ function controle_error_int($code,$val,$row,$col, $msg=''){
  		'Avril' => 4,
  		'Mai' => 5, 
  		'Juin' => 6,
- 		'Juillet' => 6,
- 		'Aout' => 6,
- 		'Septembre' => 6,
- 		'Octobre' => 6,
- 		'Novembre' => 6,
- 		'Décembre' => 6,
+ 		'Juillet' => 7,
+ 		'Aout' => 8,
+ 		'Septembre' => 9,
+ 		'Octobre' => 10,
+ 		'Novembre' => 11,
+ 		'Décembre' => 12,
  		);
  		
  	$moisAttendu = array(1 => 'Janvier',
@@ -1489,6 +1489,8 @@ function controle_error_int($code,$val,$row,$col, $msg=''){
  		11 => 'Novembre',
  		12 => 'Décembre',
  		);
+ 		
+ 		
  	if (is_null($val) || !isset($mois[$val]) || (isset($mois[$val]) && $mois[$val] != $col)) {
  		form_set_error($code , t($val." n'est pas le libellé du mois attendu ".$moisAttendu[$col]." (".getCellule($row, $col).") ."));
 	}
