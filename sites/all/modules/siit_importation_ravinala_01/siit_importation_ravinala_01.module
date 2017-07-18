@@ -77,6 +77,17 @@ function siit_importation_ravinala_01_form($form) {
 		//	$form['importation']['periodSelect']['#default_value'] = $period;
 		//	$form['importation']['period']['#default_value'] = $period;
 
+
+
+	//$form['importation']["template"] = array(
+	//    "#markup" => "Cliquez ici pour télécharger un exemple de <a href='sites/default/files/templates/SIIT_PAF_02.xlsx' target='_blank'>template</a>",      
+	//    );
+	  
+	  $form['importation']["template"] = array(
+	    "#markup" => "<font color='red'>Import en attente de la proposition de template de RAVNALA</font>",      
+	    );
+	  
+
 	$form['importation']['csv_file'] = array(
 	        '#title' => 'Importer Fichier :', // Titre dans la page d'importation du fichier
 	        '#description' => 'Seuls ces fichiers csv, xlsx sont valides.',
@@ -87,12 +98,12 @@ function siit_importation_ravinala_01_form($form) {
 	        ),
 	    );
 	    
-	 $form['importation']['submit'] = array(
+	 /*$form['importation']['submit'] = array(
 	        '#type' => 'submit',
 	        '#value' => t('Process'),
 	        '#attributes' => array('class' => array('button button--primary js-form-submit form-submit btn-success btn'),),
 	    		'#submit' => array('csv_import_ravinala_submit'),
-	    );
+	    );*/
 	    
 	    
 	 $form['importation']['back'] = array('#type' => 'submit', '#value' => t('Back'));

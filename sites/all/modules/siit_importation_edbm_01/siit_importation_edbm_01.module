@@ -82,14 +82,17 @@ drupal_set_title(t('Formulaire EDBM'));
     "#required" => TRUE,
 	);
 	
+	$form['importation']["template"] = array(
+	    "#markup" => "Cliquez ici pour télécharger un exemple de <a href='sites/default/files/templates/SIIT_EDBM.xlsx' target='_blank'>template</a>",      
+	    );
 	
 	$form['importation']['csv_file'] = array(
 	        '#title' => 'Importer Fichier :', // Titre dans la page d'importation du fichier
-	        '#description' => 'Seuls ces fichiers csv, xlsx et xls sont valides.',
+	        '#description' => 'Seuls ces fichiers xlsx sont valides.',
 	        '#type' => 'managed_file',
 	        '#required' => true,
 	        '#upload_validators' => array(
-	            'file_validate_extensions' => array("csv xlsx xls"),
+	            'file_validate_extensions' => array("xlsx"),
 	        ),
 	    );
 	    

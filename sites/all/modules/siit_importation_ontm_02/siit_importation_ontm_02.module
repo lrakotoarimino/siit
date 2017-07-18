@@ -82,17 +82,23 @@ function get_siit_importation_ontm_02_form($form, $form_state){
 	    "#options" => optionMonth(false),
 	    "#required" => TRUE,
 	    );	
+	    
+	 $form['importation']["template"] = array(
+	    "#markup" => "Cliquez ici pour télécharger un exemple de <a href='sites/default/files/templates/SIIT_ONTM.xlsx' target='_blank'>template</a>",      
+	    );	
+	    
 	
    $form['importation']['csv_file'] = array(
 	        '#title' => 'Importer Fichier :', // Titre dans la page d'importation du fichier
-	        '#description' => 'Seuls ces fichiers csv, xlsx sont valides.',
+	        '#description' => 'Seuls ces fichiers xlsx sont valides.',
 	        '#type' => 'managed_file',
 	        '#required' => TRUE,
 	        '#upload_validators' => array(
-	            'file_validate_extensions' => array('xlsx csv'),
+	            'file_validate_extensions' => array('xlsx'),
 	        ),
 	    );
 	    
+	
 	 $form['importation']['submit'] = array(
 	        '#type' => 'submit',
 	        '#value' => t('Process'),

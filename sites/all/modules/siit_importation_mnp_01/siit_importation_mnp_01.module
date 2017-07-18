@@ -53,14 +53,16 @@ function get_siit_importation_mnp_01_form($form, &$form_state){
     //"#description" => t("La ville de depart de la carte ?"),
     );
     
-   
+   $form['importation']["template"] = array(
+	    "#markup" => "Cliquez ici pour télécharger un exemple de <a href='sites/default/files/templates/SIIT_MNP.xlsx' target='_blank'>template</a>",      
+	    );
     
     $form['importation']['csv_file'] = array(
 	        '#title' => 'Importer Fichier', // Titre dans la page d'importation du fichier
-	        '#description' => 'Seuls ces fichiers csv, xlsx sont valides.',
+	        '#description' => 'Seuls ces fichiers xlsx sont valides.',
 	        '#type' => 'managed_file',
 	        '#upload_validators' => array(
-	            'file_validate_extensions' => array('csv xlsx'),
+	            'file_validate_extensions' => array('xlsx'),
 	        ),
             '#required' => TRUE,
 	    );

@@ -315,6 +315,15 @@ function siit_importation_liste_form($form) {
 		$form['criteria']['type_fichier']['#default_value'] = $_REQUEST['type_fichier'];
 	}
 	
+	$form['criteria']['li_fichier'] = array(
+			'#type' => 'textfield',
+			'#title' => t('Nom du fichier :'),
+			'#required' => false,
+	);
+	if (isset($_REQUEST['li_fichier'])) {
+		$form['criteria']['li_fichier']['#default_value'] = $_REQUEST['li_fichier'];
+	}
+	
 	$form['criteria']['submit'] = array(
 			'#type' => 'submit',
 			'#value' => t('Rechercher'),
@@ -358,6 +367,9 @@ function siit_importation_liste_form($form) {
 	}
 	if (isset($_REQUEST['type_fichier']) && !empty($_REQUEST['type_fichier'])) {
 		$sql .= " AND imp.id_type_fichier = ".$_REQUEST['type_fichier'];
+	}
+	if (isset($_REQUEST['li_fichier']) && !empty($_REQUEST['li_fichier'])) {
+		$sql .= " AND imp.li_fichier like '%".$_REQUEST['li_fichier']."%'";
 	}
 	
 	if (isset($_REQUEST['statut']) && !empty($_REQUEST['statut'])) {
@@ -1237,7 +1249,8 @@ function siit_importation_liste_form_submit($form, &$form_state){
 		array('query' => array('statut' => $form_state['values']['statut'],
 							   'annee' => $form_state['values']['annee'],
 							   'mois' => $form_state['values']['mois'],
-							   'type_fichier' => $form_state['values']['type_fichier'],)),
+							   'type_fichier' => $form_state['values']['type_fichier'],
+							   'li_fichier' => $form_state['values']['li_fichier'],)),
 		// $http_response_code
 		302,
   );

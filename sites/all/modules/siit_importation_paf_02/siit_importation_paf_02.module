@@ -106,7 +106,10 @@ function get_siit_importation_paf_02_form($form, &$form_state){
 	    "#required" => TRUE,
 	    );
 		
-    
+    $form['importation']["template"] = array(
+	    "#markup" => "Cliquez ici pour télécharger un exemple de <a href='sites/default/files/templates/SIIT_PAF_02.xlsx' target='_blank'>template</a>",      
+	    );
+	    
 	$form['importation']['csv_file'] = array(
 	        '#title' => 'Importer Fichier', // Titre dans la page d'importation du fichier
 	        '#description' => 'Seuls ces fichiers csv, xlsx et xls sont valides.',

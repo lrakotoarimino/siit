@@ -79,14 +79,17 @@ function siit_importation_paf_01_form($form) {
 	    );
 		
 		
-		
+	$form['importation']["template"] = array(
+	    "#markup" => "Cliquez ici pour télécharger un exemple de <a href='sites/default/files/templates/SIIT_PAF_01.csv' target='_blank'>template</a>. Merci de suivre la procédure d'export du fichier ACCESS en UTF-8.",      
+	    );
+	    
 	$form['importation']['csv_file'] = array(
 	        '#title' => 'Importer Fichier', // Titre dans la page d'importation du fichier
-	        '#description' => 'Seuls ces fichiers csv, xlsx sont valides.',
+	        '#description' => 'Seuls ces fichiers csv en utf-8 sont valides.',
 	        '#type' => 'managed_file',
 	        '#required' => TRUE,
 	        '#upload_validators' => array(
-	            'file_validate_extensions' => array('csv xlsx'),
+	            'file_validate_extensions' => array('csv'),
 	        ),
 	    );
 	    
