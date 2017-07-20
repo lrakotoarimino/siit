@@ -809,7 +809,7 @@ function import_data_edbm_01($value){
 		}
 		
         $query->fields($data)
-      	->execute();
+      		->execute();
     } else {
         $id_etablissement = db_insert('siit_etablissement')
         		->fields($value)
@@ -817,7 +817,7 @@ function import_data_edbm_01($value){
       	
     }
     
-	db_insert('siit_employes')
+	$id = db_insert('siit_employes')
 				->fields(array('id_etablissement', 'annee', 'nbr_emplois_nationaux',
 				'nbr_emplois_etrangers', 'id_importation'))
 				->values(array(
@@ -828,7 +828,7 @@ function import_data_edbm_01($value){
 					'id_importation' => $value["id_importation"],  
 				))
 		->execute();
-    
+   
 }
 
 
@@ -1570,12 +1570,13 @@ function get_id_etablissement($value) {
 	
 	if (empty($libelle)) {
 		$libelle = str_replace( "'", "\\'", trim($value["li_enseigne"]));
+		$libelle = str_replace(' ', '', $libelle);
 	}
 	
 	$id_etab =0;
-	$sql = "SELECT id_etablissement, annee, is_cnaps, is_edbm, is_ontm FROM {siit_etablissement} p WHERE 
-			(lower(p.li_etablissement) = '".trim(strtolower(escape($libelle)))."' 
-			OR lower(p.li_enseigne) = '".trim(strtolower(escape($libelle)))."') 
+	$sql = "SELECT id_etablissement, annee, is_cnaps, is_edbm, is_ontm FROM siit_etablissement p WHERE 
+			(replace(lower(p.li_etablissement),' ', '') = '".trim(strtolower(escape(str_replace(' ', '', $libelle))))."' 
+			OR replace(lower(p.li_enseigne),' ', '') = '".trim(strtolower(escape(str_replace(' ', '', $libelle))))."')
 			and p.id_region = ".$value["id_region"].""; 
 	
 	$results = db_query($sql);
@@ -1593,7 +1594,6 @@ function get_id_etablissement($value) {
 		$is_ontm = $result->is_ontm;
 	}	
 	
-		   
 	return array($id_etablissement,$annee, $is_cnaps, $is_edbm, $is_ontm);	
 }
 

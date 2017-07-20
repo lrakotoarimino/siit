@@ -149,11 +149,12 @@ function siit_importation_edbm_01_detail_form($form) {
     
     $sqlCount = "select count(*) as total ";  
     $sql = "from siit_etablissement etab
+  	  inner join siit_employes employes on employes.id_etablissement = etab.id_etablissement
 	   left join siit_region region on region.id_region = etab.id_region
 	   left join siit_nationalite nat on nat.id_nationalite = etab.id_nationalite_promoteur
 	   left join siit_activite_etablissement actetab on actetab.id_activite_etablissement = etab.id_activite_etablissement  
 	   left join siit_classement_etablissement classetab on classetab.id_classement_etablissement = etab.id_classement_etablissement
-       where id_importation=".$_GET["idImportation"];
+       where employes.id_importation=".$_GET["idImportation"];
 
     $order = tablesort_get_order($header);
 	$sort = tablesort_get_sort($header);
