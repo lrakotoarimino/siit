@@ -450,7 +450,6 @@ function import_data_cnaps_01($value, $id_etablissement){
 					'id_importation' => $value["id_importation"],  
 				))
 		->execute();
-  
 }
 
 

@@ -114,6 +114,7 @@ function siit_importation_cnaps_01_detail_form($form) {
     	$start = 0;
     }
     
+    
     $sqlList = "select emp.annee,li_enseigne,li_region,nbr_emplois_nationaux,nbr_emplois_etrangers ";
     $sqlCount = "select count(*) as total ";  
     $sql = "from siit_employes emp

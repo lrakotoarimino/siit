@@ -811,12 +811,27 @@ function import_data_edbm_01($value){
         $query->fields($data)
       	->execute();
     } else {
-        $query = db_insert('siit_etablissement');
-        $query->fields($value)
-      	->execute();
+        $id_etablissement = db_insert('siit_etablissement')
+        		->fields($value)
+      			->execute();
+      	
     }
     
+	db_insert('siit_employes')
+				->fields(array('id_etablissement', 'annee', 'nbr_emplois_nationaux',
+				'nbr_emplois_etrangers', 'id_importation'))
+				->values(array(
+					'id_etablissement' => $id_etablissement,
+					'annee' => $value["annee"],
+                    'nbr_emplois_nationaux' => $value["nb_emplois_nationaux"] ? intVal($value["nb_emplois_nationaux"]):0,	           					
+					'nbr_emplois_etrangers' => $value["nb_emplois_etrangers"] ? intVal($value["nb_emplois_etrangers"]):0,
+					'id_importation' => $value["id_importation"],  
+				))
+		->execute();
+    
 }
+
+
 function import_data_ontm_01($value){
     $value['dt_autorisation'] = '2015-01-01';
     $value['nb_chambres'] = 4;
@@ -910,6 +925,10 @@ function controleDoublonImportation($annee = 0, $id_mois = 0,$entite, $li_fichie
 	               break;
 	            case ENTITE_EDBM:
 	               db_delete('siit_etablissement')
+	        			    ->condition('id_importation',  $id_importation)
+	        			    ->execute();
+	        	
+	        		db_delete('siit_employes')
 	        			    ->condition('id_importation',  $id_importation)
 	        			    ->execute();
 	               break;

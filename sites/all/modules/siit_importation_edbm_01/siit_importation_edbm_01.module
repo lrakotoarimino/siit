@@ -409,4 +409,3 @@ function controle_error_activite_etablissement($code, $val,$row,$col) {
 		form_set_error($code , t("L'activité ".$val." n'est pas connue (".getCellule($row, $col).") ."));
 	}
 }
-

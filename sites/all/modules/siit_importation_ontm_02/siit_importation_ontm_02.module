@@ -403,7 +403,7 @@ function import_data_etablissement_ontm_02($value){
 				->fields(array('li_etablissement', 'li_enseigne', 'id_region', 'li_adresse', 'nb_emplois_nationaux', 'nb_emplois_etrangers',
 				'id_activite_etablissement','mt_investissement', 'dt_autorisation', 'num_autorisation', 'nb_chambres', 'nb_places_repas',
 				'fixe',	'mobile', 'email' ,'website',
-				'id_nationalite_promoteur', 'id_classement_etablissement', 'id_importation'))
+				'id_nationalite_promoteur', 'id_classement_etablissement', 'id_importation', 'is_ontm'))
 				->values(array(
 					'li_etablissement' => $li_etablissement,
 					'li_enseigne' => $li_etablissement,
@@ -424,6 +424,7 @@ function import_data_etablissement_ontm_02($value){
 					'nb_emplois_nationaux' => 0,	           					
 					'nb_emplois_etrangers' => 0,
 					'id_importation' => 0, 
+					'is_ontm' => '1'
 				))
 			->execute();
 	}
@@ -450,7 +451,8 @@ function import_data_ontm_02($value,$id_importation,$id_etab){
 		//Mettre à jour le classement
 		if($id_etablissement){
 			$num_updated = db_update('siit_etablissement')
-				->fields(array('id_classement_etablissement' => $value["id_classement_etablissement"],))
+				->fields(array('id_classement_etablissement' => $value["id_classement_etablissement"],
+				'is_ontm' => '1'))
 				->condition('id_etablissement', $id_etablissement)
 				->execute();						
 		}

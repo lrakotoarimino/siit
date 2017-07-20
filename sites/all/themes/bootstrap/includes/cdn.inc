@@ -159,6 +159,43 @@ function bootstrap_bootstrap_cdn_provider_jsdelivr_alter(&$provider, $request = 
       }
     }
   }
+  
+  $baseUrl = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") ? "https" : "http");
+  $baseUrl .= "://" . $_SERVER['HTTP_HOST'];
+  $baseUrl .= str_replace(basename($_SERVER['SCRIPT_NAME']), "", $_SERVER['SCRIPT_NAME']);
+  var_dump($baseUrl);
+  // If the main bootstrap library could not be found, then provide defaults.
+  //if (!isset($libraries[$bootstrap])) {
+  $provider['error'] = TRUE;
+  $provider['versions'][BOOTSTRAP_VERSION] = BOOTSTRAP_VERSION;
+  $provider['themes'][BOOTSTRAP_VERSION] = array(
+  		'bootstrap' => array(
+  				'title' => t('Bootstrap'),
+  				'css' => array($baseUrl.'sites/all/themes/bootstrap/css/3.3.5/bootstrap.css'),
+  				'js' => array($baseUrl.'sites/all/themes/bootstrap/js/3.3.5/bootstrap.js'),
+  				'min' => array(
+  						'css' => array($baseUrl.'sites/all/themes/bootstrap/css/3.3.5/bootstrap.min.css'),
+  						'js' => array($baseUrl.'sites/all/themes/bootstrap/js/3.3.5/bootstrap.min.js'),
+  				),
+  		),
+  );
+  
+  /*$provider['themes'][BOOTSTRAP_VERSION] = array(
+   'bootstrap' => array(
+   'title' => t('Bootstrap'),
+   'css' => array('//cdn.jsdelivr.net/bootstrap/' . BOOTSTRAP_VERSION . '/css/bootstrap.css'),
+   'js' => array('//cdn.jsdelivr.net/bootstrap/' . BOOTSTRAP_VERSION . '/js/bootstrap.js'),
+   'min' => array(
+   'css' => array('//cdn.jsdelivr.net/bootstrap/' . BOOTSTRAP_VERSION . '/css/bootstrap.min.css'),
+   'js' => array('//cdn.jsdelivr.net/bootstrap/' . BOOTSTRAP_VERSION . '/js/bootstrap.min.js'),
+   ),
+   ),
+   );*/
+  return;
+  //}
+  
+  
+  /*
 
   // If the main bootstrap library could not be found, then provide defaults.
   if (!isset($libraries[$bootstrap])) {
@@ -176,7 +213,7 @@ function bootstrap_bootstrap_cdn_provider_jsdelivr_alter(&$provider, $request = 
       ),
     );
     return;
-  }
+  }*/
 
   // Populate the provider array with the versions and themes available.
   foreach (array_keys($libraries[$bootstrap]) as $version) {
