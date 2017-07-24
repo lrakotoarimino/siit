@@ -155,7 +155,7 @@ function siit_importation_edbm_01_detail_form($form) {
     	$start = 0;
     }
     $sqlList = "select li_etablissement,li_enseigne,li_adresse,li_region,   
-	   li_activite_etablissement,nb_emplois_nationaux,
+	   li_activite_etablissement,nb_emplois_nationaux, li_type_etablissement,
 	   nb_emplois_etrangers,mt_investissement,dt_autorisation,
 	   num_autorisation,li_nationalite,li_classement_etablissement,nb_chambres,nb_places_repas,fixe,mobile,email,website ";
     
