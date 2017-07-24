@@ -28,6 +28,7 @@ function siit_importation_cnaps_01_detail_form_submit($form, &$form_state){
 		array('query' => array('employeur' => $form_state['values']['employeur'],
 			'region' => $form_state['values']['region'],
 			'type_etablissement' => $form_state['values']['type_etablissement'],
+			'activite_etablissement' => $form_state['values']['activite_etablissement'],
 			'idImportation' => $form_state['values']['idImportation'],)),
 		// $http_response_code
 		302,
