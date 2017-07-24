@@ -187,7 +187,7 @@ function siit_importation_cnaps_01_detail_form($form) {
 	    $rows[$i] = array(
 			    'li_enseigne' => $result->li_enseigne,
 			    'li_type_etablissement' => $result->li_type_etablissement,
-			    'li_activite_etablissement' => $result->li_activite_etablissement
+			    'li_activite_etablissement' => $result->li_activite_etablissement,
 			    'li_region' => $result->li_region,
 			    'emp.annee' => $result->annee,
 			    'emplois_nationaux' => $result->nbr_emplois_nationaux,
