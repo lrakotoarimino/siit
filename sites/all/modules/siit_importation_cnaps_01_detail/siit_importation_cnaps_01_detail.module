@@ -96,6 +96,17 @@ function siit_importation_cnaps_01_detail_form($form) {
 		$form['criteria']['type_etablissement']['#default_value'] = $_REQUEST['type_etablissement'];
 	}
 	
+	$options = getOptions('siit_activite_etablissement', 'id_activite_etablissement', 'li_activite_etablissement');
+	$form['criteria']['activite_etablissement'] = array(
+        '#type' => 'select',
+        '#title' => t('Activité :'),
+        '#options' => $options,
+        //'#required' => $required,
+    );
+    if (isset($_REQUEST['activite_etablissement'])) {
+		$form['criteria']['activite_etablissement']['#default_value'] = $_REQUEST['activite_etablissement'];
+	}
+	
 	
 	$form['criteria']['submit'] = array(
 			'#type' => 'submit',
@@ -106,6 +117,7 @@ function siit_importation_cnaps_01_detail_form($form) {
 	$header = array(
 		array('data' => t('Nom employeur'), 'field' => 'li_enseigne'),
 		array('data' => t('Type établissement'), 'field' => 'li_type_etablissement'),
+		array('data' => t('Activite'), 'field' => 'li_activite_etablissement'),
 	    array('data' => t('Région'), 'field' => 'li_region'/*, 'sort' => 'desc'*/),
 	    array('data' => t('Année'), 'field' => 'emp.annee'),	
 	    array('data' => t('Nombre employés nationaux'), 'field' => 'nbr_emplois_nationaux'/*, 'sort' => 'desc'*/),
@@ -130,7 +142,7 @@ function siit_importation_cnaps_01_detail_form($form) {
     
     
     $sqlList = "select emp.annee,li_enseigne,li_region,nbr_emplois_nationaux,nbr_emplois_etrangers,
-    	li_type_etablissement ";
+    	li_type_etablissement, li_activite_etablissement ";
     $sqlCount = "select count(*) as total ";  
     $sql = "from siit_employes emp
 							left join siit_etablissement etab on etab.id_etablissement = emp.id_etablissement  
@@ -153,6 +165,9 @@ function siit_importation_cnaps_01_detail_form($form) {
 	if (isset($_REQUEST['type_etablissement']) && !empty($_REQUEST['type_etablissement'])) {
 		$sql .= " AND type_etablissement.id_type_etablissement = ".$_REQUEST['type_etablissement'];
 	}
+	if (isset($_REQUEST['activite_etablissement']) && !empty($_REQUEST['activite_etablissement'])) {
+		$sql .= " AND activite_etablissement.id_activite_etablissement = ".$_REQUEST['activite_etablissement'];
+	}
 	
 	if (isset($order["sql"]) && !empty($order['sql'])) {
 		$sql .= " order by ".$order["sql"]." ".$sort;
@@ -172,6 +187,7 @@ function siit_importation_cnaps_01_detail_form($form) {
 	    $rows[$i] = array(
 			    'li_enseigne' => $result->li_enseigne,
 			    'li_type_etablissement' => $result->li_type_etablissement,
+			    'li_activite_etablissement' => $result->li_activite_etablissement
 			    'li_region' => $result->li_region,
 			    'emp.annee' => $result->annee,
 			    'emplois_nationaux' => $result->nbr_emplois_nationaux,
