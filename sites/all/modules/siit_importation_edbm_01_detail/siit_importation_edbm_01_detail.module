@@ -40,6 +40,7 @@ function siit_importation_edbm_01_detail_form_submit($form, &$form_state){
 		array('query' => array('employeur' => $form_state['values']['employeur'],
 			'region' => $form_state['values']['region'],
 			'activite' => $form_state['values']['activite'],
+			'type_etablissement' => $form_state['values']['type_etablissement'],
 			'idImportation' => $form_state['values']['idImportation'],)),
 		// $http_response_code
 		302,
@@ -92,8 +93,18 @@ function siit_importation_edbm_01_detail_form($form) {
 	}
 	
 	
-    $options = getOptions('siit_activite_etablissement', 'id_activite_etablissement', 'li_activite_etablissement');
+	$options = getOptions('siit_type_etablissement', 'id_type_etablissement', 'li_type_etablissement');
+	$form['criteria']['type_etablissement'] = array(
+        '#type' => 'select',
+        '#title' => t('Type établissement :'),
+        '#options' => $options,
+        //'#required' => $required,
+    );
+    if (isset($_REQUEST['type_etablissement'])) {
+		$form['criteria']['type_etablissement']['#default_value'] = $_REQUEST['type_etablissement'];
+	}
 	
+    $options = getOptions('siit_activite_etablissement', 'id_activite_etablissement', 'li_activite_etablissement');
 	$form['criteria']['activite'] = array(
         '#type' => 'select',
         '#title' => t('Activité :'),
@@ -115,6 +126,7 @@ function siit_importation_edbm_01_detail_form($form) {
 	    array('data' => t('Enseigne'), 'field' => 'li_enseigne', 'sort' => 'asc'),
 	    array('data' => t('Adresse'), 'field' => 'li_adresse'),
 		array('data' => t('Région'), 'field' => 'li_region'),
+		array('data' => t('Type établissement'), 'field' => 'li_type_etablissement'),
 		array('data' => t('Activités'), 'field' => 'li_activite_etablissement'),
 		array('data' => t('Nombre emplois nationaux'), 'field' => 'nb_emplois_nationaux'),
 		array('data' => t('Nombre emplois étrangers'), 'field' => 'nb_emplois_etrangers'/*, 'sort' => 'desc'*/),
@@ -153,6 +165,7 @@ function siit_importation_edbm_01_detail_form($form) {
 	   left join siit_region region on region.id_region = etab.id_region
 	   left join siit_nationalite nat on nat.id_nationalite = etab.id_nationalite_promoteur
 	   left join siit_activite_etablissement actetab on actetab.id_activite_etablissement = etab.id_activite_etablissement  
+	   left join siit_type_etablissement AS type_etablissement ON type_etablissement.id_type_etablissement = actetab.id_type_etablissement
 	   left join siit_classement_etablissement classetab on classetab.id_classement_etablissement = etab.id_classement_etablissement
        where employes.id_importation=".$_GET["idImportation"];
 
@@ -198,6 +211,7 @@ function siit_importation_edbm_01_detail_form($form) {
     				'li_enseigne' => $result->li_enseigne,
     				'li_adresse' => $result->li_adresse,
 					'li_region' => $result->li_region,
+					'li_type_etablissement' => $result->li_type_etablissement,
 					'li_activite_etablissement' => $result->li_activite_etablissement,
 		      		'nb_emplois_nationaux' => $result->nb_emplois_nationaux,
 		      		'nb_emplois_etrangers' => $result->nb_emplois_etrangers,
