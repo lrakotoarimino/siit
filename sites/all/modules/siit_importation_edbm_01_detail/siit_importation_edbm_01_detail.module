@@ -182,6 +182,9 @@ function siit_importation_edbm_01_detail_form($form) {
 		$sql .= " AND (lower(etab.li_etablissement) like '%".strtolower($_REQUEST['employeur'])."%'
 		OR lower(etab.li_enseigne) like '%".strtolower($_REQUEST['employeur'])."%')";
 	}
+	if (isset($_REQUEST['type_etablissement']) && !empty($_REQUEST['type_etablissement'])) {
+		$sql .= " AND type_etablissement.id_type_etablissement = ".$_REQUEST['type_etablissement'];
+	}
 	
 	if (isset($order["sql"]) && !empty($order['sql'])) {
 		$sql .= " order by ".$order["sql"]." ".$sort;
