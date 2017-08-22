@@ -213,12 +213,3 @@ function siit_importation_ravinala_01_detail_form($form) {
 	
 }
 
-function siit_importation_liste_back_submit($form, &$form_state)  {
-
-	$form_state['redirect'] = array(
-			'siit_importation_liste',
-			array(),
-			// $http_response_code
-			302,
-	);
-}
