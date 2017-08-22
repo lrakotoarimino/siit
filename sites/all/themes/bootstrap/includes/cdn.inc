@@ -163,7 +163,7 @@ function bootstrap_bootstrap_cdn_provider_jsdelivr_alter(&$provider, $request = 
   $baseUrl = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") ? "https" : "http");
   $baseUrl .= "://" . $_SERVER['HTTP_HOST'];
   $baseUrl .= str_replace(basename($_SERVER['SCRIPT_NAME']), "", $_SERVER['SCRIPT_NAME']);
-  var_dump($baseUrl);
+  //var_dump($baseUrl);
   // If the main bootstrap library could not be found, then provide defaults.
   //if (!isset($libraries[$bootstrap])) {
   $provider['error'] = TRUE;
