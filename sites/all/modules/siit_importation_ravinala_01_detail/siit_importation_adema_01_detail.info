@@ -1,0 +1,5 @@
+name = SIIT RAVINALA : Liste des données pour RAVINALA
+description = SIIT RAVINALA : Liste des données pour RAVINALA
+core = 7.x
+version = 7.x-0.x-dev
+package = SIIT
