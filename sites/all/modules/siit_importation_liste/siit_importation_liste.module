@@ -12,6 +12,7 @@ define('ENTITE_PAF01','PAF01');
 define('ENTITE_PAF02','PAF02');
 define('ENTITE_CNAPS01','CNAPS01');
 define('ENTITE_ADEMA','ADEMA');
+define('ENTITE_RAVINALA','RAVINALA');
 define('ENTITE_BCM','BCM');
 define('MNP_NB_COL','26');
 define('ONTM01_NB_COL','11');
@@ -24,6 +25,7 @@ define('TYPE_FICHIER_PAF01','1');
 define('TYPE_FICHIER_PAF02','2');
 define('TYPE_FICHIER_EDBM','5');
 define('TYPE_FICHIER_ADEMA','9');
+define('TYPE_FICHIER_RAVINALA','4');
 define('TYPE_FICHIER_BCM','8');
 define('STATUT_AVALIDER','1');
 define('STATUT_VALIDE','2');
@@ -897,14 +899,20 @@ function import_data_mnp($value, $rowType, $iCol=0){
     }
     
 }
-function controleDoublonImportation($annee = 0, $id_mois = 0,$entite, $li_fichier='') {
+function controleDoublonImportation($annee = 0, $id_mois = 0,$entite, $li_fichier='', $id_aeroport = 0) {
 	$id_importation=0;
 	if ($entite != ENTITE_PAF01) {
 	    $sql = "SELECT * from siit_importation imp,siit_type_fichier t 
 	    	WHERE t.id_type_fichier = imp.id_type_fichier 
 	    	AND id_statut <> 2 AND li_type_fichier = '$entite'";
-	    if($annee > 0) $sql .= " and annee=".$annee;
-	    if($id_mois > 0) $sql .= " and id_mois=".$id_mois;
+	   
+	    if($annee > 0) $sql .= " AND annee = ".$annee;
+	   
+	    if($id_mois > 0) $sql .= " AND id_mois = ".$id_mois;
+	    
+	    if($id_aeroport > 0) $sql .= " AND id_importation IN (SELECT id_importation
+	    	FROM siit_adema WHERE id_aeroport = ".$id_aeroport.")";
+	    
 	    $user = db_query($sql);
 		
 		foreach($user as $u) {
@@ -933,8 +941,8 @@ function controleDoublonImportation($annee = 0, $id_mois = 0,$entite, $li_fichie
 	        			    ->execute();
 	               break;
 	            case ENTITE_ADEMA:
-				    
-	               db_delete('siit_adema')
+	            case ENTITE_RAVINALA:
+				   db_delete('siit_adema')
 	        			    ->condition('id_importation',  $id_importation)
 	        			    ->execute();
 	               break;
@@ -1227,6 +1235,26 @@ function import_data_adema($value){
 			->execute();
     
 }
+
+function import_data_ravinala($value){
+	//On utilise la meme table que adema
+    db_insert('siit_adema')
+					->fields(array('annee', 'id_mois', 'id_aeroport','id_type_vol', 
+						 'nb_vols','nb_passagers','id_arrivee_depart', 'id_importation'))
+					->values(array(
+						'annee' => $value["annee"],
+			            'id_mois' => $value["id_mois"],
+			        	'id_aeroport' => $value["id_aeroport"],
+			            'id_type_vol' => $value["id_type_vol"],
+			        	'nb_vols' => null,
+		                'nb_passagers' => $value["nb_passagers"],
+		                'id_arrivee_depart' => $value["id_arrivee_depart"],
+						'id_importation' => $value["id_importation"],
+							))
+			->execute();
+    
+}
+
 function escape($value) {
     $return = '';
     for($i = 0; $i < strlen($value); ++$i) {
@@ -1639,19 +1667,24 @@ function get_lib_mois($id_mois) {
 	return $li_mois;
 }
 
-function searchDataExist($type_fichier, $annee, $mois = 0, $statut = STATUT_VALIDE, $isDiff = false) {
+function searchDataExist($type_fichier, $annee, $mois = 0, $statut = STATUT_VALIDE, $isDiff = false, $idAeroport = 0) {
 	//Permet de vérifier si il existe déjà une importation dans le type de fichier pour
 	//meme année / meme mois
-	$sql = "select * from siit_importation imp,siit_type_fichier t 
-				where t.id_type_fichier=imp.id_type_fichier 
-				and annee = ".$annee."
-				and id_mois = ".$mois." 
-				and li_type_fichier = '".$type_fichier."'";
+	$sql = "SELECT * FROM siit_importation imp,siit_type_fichier t 
+				WHERE t.id_type_fichier=imp.id_type_fichier 
+				AND annee = ".$annee."
+				AND id_mois = ".$mois." 
+				AND li_type_fichier = '".$type_fichier."'";
+	
+	if ($type_fichier == ENTITE_RAVINALA && !empty($idAeroport)) {
+		$sql .= " AND id_importation in (SELECT id_importation FROM siit_adema
+			WHERE id_aeroport = ".$idAeroport.")";
+	}
 	
 	if (!$isDiff) {
-		$sql .= " and id_statut = ".$statut;
+		$sql .= " AND id_statut = ".$statut;
 	} else {
-		$sql .= " and id_statut <> ".$statut;
+		$sql .= " AND id_statut <> ".$statut;
 	}
 	$datas= db_query($sql);
 	
