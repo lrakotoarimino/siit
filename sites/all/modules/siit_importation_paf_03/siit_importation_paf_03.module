@@ -140,7 +140,7 @@ function csv_import_paf_03_submit($form, &$form_state) {
     $i = 0;
     $error = false;
    
-    
+   
     $firstData = fgetcsv($handle, 0, ';');
     //drupal_set_message(t("count(firstData)".count($firstData)), $type = '', $repeat = FALSE);
 	
