@@ -1,0 +1,648 @@
+<?php
+
+/**
+* @file
+* Display a Adema Importation formulaire
+*/
+
+function siit_importation_paf_03_menu(){
+    $items = array();
+    $items['siit_importation_paf_03'] = array(
+        'title'            => t('Importation des données de la PAF Ivato'), 
+        'page callback'    => 'drupal_get_form',
+        'page arguments' => array('siit_importation_paf_03_form'),
+        'access arguments' => array('access siit_importation_paf_03'),
+        'type'             => MENU_LOCAL_TASK,
+    	//'access callback' => TRUE,
+    );
+    
+    return $items;
+    
+}  
+
+function siit_importation_paf_03_permission() {
+  return array( 
+    'access siit_importation_paf_03' => array(
+      'title' => t('siit_importation_paf_03 : paf03 importation formulaire'),
+      'description' => t('Perform administration tasks for paf01 importation.'),
+    ),
+  );
+}
+
+function siit_importation_paf_03_form($form) {
+	
+	drupal_set_title(t('Importation des données de la PAF Ivato'));
+
+	
+/*	$form['datevol'] = array(
+		//'#title' => t('Date du vol'),
+		'#type' => 'date_popup',
+		'#date_format' => 'd/m/Y',
+         "#required" => TRUE,
+		//'#description' => t('Field description'),
+	);
+*/
+	
+	/*$options = optionYear();
+	$form['annee'] = array(
+	    "#type" => "select",      
+	    "#title" => t("Année :"),
+	    "#options" => $options,
+	    //"#default_value" => $settings[""],
+	    "#required" => TRUE,
+		);
+	
+	
+	$form["mois"] = array(
+	    "#type" => "select",      
+	    "#title" => t("Mois :"),
+	    "#options" => optionMonth(false),
+	    "#required" => TRUE,
+	    //"#description" => t("La ville de depart de la carte ?"),
+	    );*/
+	
+	$options = get_all_pays_03(false, 'paf01');
+	
+/*	$form['paysembarquement'] = array(
+	    "#type" => "select",      
+	    "#title" => t("Pays d'embarquement :"),
+	    "#options" => $options,    
+	    "#required" => TRUE,
+	    );
+*/	
+	
+	$form["aeroport"] = array(
+	    "#type" => "select",      
+	    "#title" => t("Aéroport d'arrivée :"),
+	    "#options" => get_all_aeroport_03(false,1),
+	    "#default_value" => "1",
+	    "#required" => TRUE,
+	    );
+		
+		
+	$form['importation']["template"] = array(
+	    "#markup" => "Cliquez ici pour télécharger un exemple de <a href='sites/default/files/templates/SIIT_PAF_01.csv' target='_blank'>template</a>. Merci de suivre la procédure d'export du fichier ACCESS en UTF-8.",      
+	    );
+	    
+	$form['importation']['csv_file'] = array(
+	        '#title' => 'Importer Fichier', // Titre dans la page d'importation du fichier
+	        '#description' => 'Seuls ces fichiers csv en utf-8 sont valides.',
+	        '#type' => 'managed_file',
+	        '#required' => TRUE,
+	        '#upload_validators' => array(
+	            'file_validate_extensions' => array('csv'),
+	        ),
+	    );
+	    
+	 $form['importation']['submit'] = array(
+	        '#type' => 'submit',
+	        '#value' => t('Process'),
+	        '#attributes' => array('class' => array('button button--primary js-form-submit form-submit btn-success btn'),),
+	    	'#submit' => array('csv_import_paf_03_submit'),
+	    );
+	    
+	    
+	 $form['importation']['back'] = array('#type' => 'submit', '#value' => t('Retour'));
+   	 $form['importation']['back']['#submit'] = array('siit_back_submit_03');
+	 $form['importation']['back']['#limit_validation_errors'] = array();
+	 $form['importation']['back']['#name'] = 'back';
+	 $form['#attributes']['class'][] = 'import-form';
+	 return $form;
+	
+}
+
+function siit_back_submit_03($form, &$form_state)  {
+	$form_state['redirect'] = array(
+		'siit_importation_liste',
+		array(),
+		302,
+  );
+}
+
+
+
+function csv_import_paf_03_submit($form, &$form_state) {
+	
+	$valid = true;
+/*RICO*///	$datevol  = $form_state['values']['datevol'];
+	/*$annee  = $form_state['values']['annee'];
+	$mois = $form_state['values']['mois'];*/
+/*RICO*///$pays =  $form_state['values']['paysembarquement'];
+/*RICO*///	$id_pays_embarquement = $pays;
+	$id_aeroport_arrivee  = $form_state['values']['aeroport'];
+	
+	
+	// Récupération du fichier
+    $file = file_load($form_state['values']['csv_file']);
+    $uri = $file->uri;
+	
+    $handle = fopen(drupal_realpath($uri), 'r') or die(t('Unable to open the temp file.'));
+    $i = 0;
+    $error = false;
+    
+    
+    $firstData = fgetcsv($handle, 0, ';');
+    //drupal_set_message(t("count(firstData)".count($firstData)), $type = '', $repeat = FALSE);
+	
+	
+    if (count($firstData) == 14) {
+    	$delimiterLine = ";";
+    } else {
+	    	$handle = fopen(drupal_realpath($uri), 'r') or die(t('Unable to open the temp file.'));
+	    	//$firstData = fgetcsv($handle, 0, ',', '"');
+	    	$firstData = fgetcsv($handle, 0, ',');
+	    	if (count($firstData) == 14) {
+	    		$delimiterLine = ";";
+			} else {
+			 	//Pour la première ligne, on vérifie que l'en-tête est incorrecte
+			 	drupal_set_message(t("Fichier non conforme!"), $type = 'error', $repeat = FALSE);
+				$valid=false;
+				return;
+			}
+    }
+
+    $id = str_replace('"','',$firstData[0]); $id = (string)$id;
+    
+    if ( $id != $id) {
+    	$error = true;
+    	drupal_set_message(t("Mauvaise entete 'id'. (Col 1)"), $type = 'error', $repeat = FALSE);
+    }
+    
+    if ($firstData[1] != 'civilite') {
+    	$error = true;
+    	drupal_set_message(t("Mauvaise entete 'civilite'. (Col 2)"), $type = 'error', $repeat = FALSE);
+    }
+    
+    if ($firstData[2] != 'nationalite') {
+    	$error = true;
+    	drupal_set_message(t("Mauvaise entete 'nationalite'. (Col 3)"), $type = 'error', $repeat = FALSE);
+    }
+    
+    if ($firstData[3] != 'dat_naiss') {
+    	$error = true;
+    	drupal_set_message(t("Mauvaise entete 'dat_naiss'. (Col 4)"), $type = 'error', $repeat = FALSE);
+    }
+    
+    if ($firstData[4] != 'lieu_naiss') {
+    	$error = true;
+    	drupal_set_message(t("Mauvaise entete 'lieu_naiss'. (Col 5)"), $type = 'error', $repeat = FALSE);
+    }
+	
+	if ($firstData[5] != 'profession') {
+    	$error = true;
+    	drupal_set_message(t("Mauvaise entete 'profession'. (Col 6)"), $type = 'error', $repeat = FALSE);
+    }
+	
+	if ($firstData[6] != 'numvol') {
+    	$error = true;
+    	drupal_set_message(t("Mauvaise entete 'numvol'. (Col 7)"), $type = 'error', $repeat = FALSE);
+    }
+	
+	if ($firstData[7] != 'compavol') {
+    	$error = true;
+    	drupal_set_message(t("Mauvaise entete 'compavol'. (Col 8)"), $type = 'error', $repeat = FALSE);
+    }
+	
+	if ($firstData[8] != 'provenance_vol') {
+    	$error = true;
+    	drupal_set_message(t("Mauvaise entete 'Provenance'. (Col 9)"), $type = 'error', $repeat = FALSE);
+    }
+	
+	if ($firstData[9] != 'dat_arr') {
+    	$error = true;
+    	drupal_set_message(t("Mauvaise entete 'dat_arr'. (Col 10)"), $type = 'error', $repeat = FALSE);
+    }
+	
+	if ($firstData[10] != 'pays') {
+    	$error = true;
+    	drupal_set_message(t("Mauvaise entete 'pays'. (Col 11)"), $type = 'error', $repeat = FALSE);
+    }
+	
+	if ($firstData[11] != "hebergement") {
+    	$error = true;
+    	drupal_set_message(t("Mauvaise entete 'hebergement'. (Col 12)"), $type = 'error', $repeat = FALSE);
+    }
+	
+	if ($firstData[12] != "dat_retor") {
+    	$error = true;
+    	drupal_set_message(t("Mauvaise entete 'dat_retor'. (Col 13)"), $type = 'error', $repeat = FALSE);
+    }
+	
+	if ($firstData[13] != "objvoyag") {
+    	$error = true;
+    	drupal_set_message(t("Mauvaise entete 'objvoyag'. (Col 14)"), $type = 'error', $repeat = FALSE);
+    }
+	
+    /*0 Titre_Civilité;
+	1 Nom;
+	2 Prénoms;
+	3 Nom_de_jeune_fille;
+	4 Date_de_naissance;
+	5 Lieu_de_naissance;
+	6 Nationalit‚;
+	7 Profession;
+	8 Num‚ro_du_passeport;
+	9 Date_de_d‚livrance_passeport;
+	10 Fin_de_validit‚_passeport;
+	11 Lieu_d'‚mission_passeport;
+	12 Nombre_d'enfants;
+	13 Enfant_1;
+	14 Enfant_2;
+	15 Enfant_3;
+	16 Enfant_4;
+	17 Num‚ro_du_vol;
+	18 Compagnie;
+	19 Date_du_vol;
+	20 Date_de_retour;
+	21 Num‚ro_du_visa;
+	22 Visa_d‚livr‚_…;
+	23 Visa_d‚livr‚_le;
+	24 Autorit‚_‚metteur;
+	25 Dur‚e_du_s‚jour(mois);
+	26 Dur‚e_du_s‚jour(jours);
+	27 A‚roport_d'embarquement;
+	28 Lieu_de_r‚sidence;
+	29 Adresse;
+	30 Ville;
+	31 Pays;
+	32 En_transit;
+	33 Lieu_de_destination;
+	34 A‚roport_de_destination;
+	35 Date_de_d‚part;
+	36 Voyage_en_groupe;
+	37 Objet_du_voayage;
+	38 H‚bergement    */
+	
+    $data = array();
+    $i=1;
+   
+   
+    if (!$error) {
+		while(($line = fgetcsv($handle, 0, $delimiterLine, '"')) !== FALSE) {
+		
+				// VERIFICATION DONNEES	
+				
+				//"d/m/Y H:i:s"
+				if (empty($line[3]) || $line[3] == '00') {
+					$line[4] = '01/01/1980';
+				}
+				
+				$line[3] = formatDate_03($line[3]);
+				
+				if(!validateDate_03($line[3],"d/m/Y")){
+				
+			    	drupal_set_message(t("Date naissance non conforme! '".$line[3]."' Ligne ".$i), $type = 'error', $repeat = FALSE);				
+					$valid = false;				
+			    }else  {
+					 $date_naiss =  substr($line[3],6,4)."-".substr($line[3],3,2)."-".substr($line[3],0,2)." ".substr($line[3],11,8);
+				}
+				
+				
+				/*if(!validateDate_03($line[20],"d/m/Y")){		    	
+					drupal_set_message(t("Champ de date retour non conforme!".$line[20]), $type = 'error', $repeat = FALSE);
+					$valid = false;
+			    }*/
+	
+				$id_civilite = get_id_civilite_03($line[1]);
+				if(!$id_civilite){
+					//drupal_set_message(t("La civilité '".$line[0]."' est introuvable dans la base."." Ligne ".$i), $type = 'error', $repeat = FALSE);				
+					//$valid = false;
+					//On ne va pas bloquer
+					$id_civilite = 1;
+				}
+	/*RICO*/	$id_pays_embarquement = get_id_pays_embarquement_03($line[8]);
+				if(!$id_pays_embarquement)
+				{
+					$id_pays_embarquement=0;
+				}
+				
+				if (trim($line[2]) == 'v' ||  trim($line[2]) == 'V') {
+					$line[2] = 'Inconnu';
+				}
+				$id_nat = get_id_nationalite(trim($line[2]),ENTITE_PAF01);
+				
+				if(!$id_nat && !empty($line[2])){
+					drupal_set_message(t("La nationalité '".$line[2]."' est introuvable dans la base."." Ligne ".$i), $type = 'error', $repeat = FALSE);
+					$valid = false;
+				}
+				
+				if ($line[10] == '' || trim($line[10]) == '=' || trim($line[10]) == '22/5' || trim($line[10]) == 'v' || trim($line[10]) == 'V' || trim($line[10]) == 'a') {
+					$line[10] = 'INCONNU';
+				}
+				$id_pays = get_id_pays_03(trim($line[10]),ENTITE_PAF01);
+				if(!$id_pays){
+					drupal_set_message(t("Le pays '".$line[10]."' est introuvable dans la base."." Ligne ".$i), $type = 'error', $repeat = FALSE);
+					$valid = false;				
+				}
+	  	
+				
+				$id_heb = get_id_hebergement_03($line[11]);
+				if(!$id_heb){
+					//drupal_set_message(t("L'hébergement '".$line[38]."' est introuvable dans la base."." Ligne ".$i), $type = 'error', $repeat = FALSE);
+					//$valid = false;
+					$id_heb = 4; //Hotel			
+				}
+				
+				$id_obj_voyage = get_id_obj_voyage_03($line[13]);
+				if(!$id_obj_voyage){
+					//drupal_set_message(t("L'objet de voyage '".$line[38]."' est introuvable dans la base."." Ligne ".$i), $type = 'error', $repeat = FALSE);
+					//$valid = false;
+					$id_obj_voyage	= 1;//Tourisme
+				}
+				
+				
+				$id_profession = get_id_profession_03($line[5]);
+				
+				//remplir le data array pour la sauvegarde
+				if($valid){	
+					
+					//$str_date = explode("-", substr($line[9],0,10));
+					$str_date = explode("/", substr($line[9],0,10));
+					$annee = $str_date[2];
+					$mois = $str_date[1];
+					$jour = $str_date[0];
+					$datevol = $annee.'-'.$mois.'-'.$jour;
+					$datevol = date_create($datevol);
+					$datevol = date_format($datevol,'Y-m-d');
+					//drupal_set_message(t("$str_date[0], $str_date[1], $str_date[2]"), $type = '', $repeat = true);
+					
+					if (!empty($line[12])) {
+						$line[12] =  formatDate_03($line[12]);
+						$dt_retour = substr($line[12],6,4)."-".substr($line[12],3,2)."-".substr($line[12],0,2)." ".substr($line[12],11,8);
+					} else {
+						//On fige la date du retour au 28 du mois
+						$dt_retour = $annee."-".$mois."-28";
+					}
+									
+					$cd_mois = get_cd_mois($mois);
+					//$dt_vol = $annee."-".$cd_mois."-01";
+					
+					$dt_vol = $datevol ;
+					$data[] = array(
+						'id_civilite' =>  $id_civilite,
+						'is_resident' => '0',
+						'id_nationalite' => $id_nat,
+						'dt_naissance' => $date_naiss,
+						'lieu_naissance' => $line[4],
+						'id_pays' => $id_pays,
+						//'lieu_residence' => $line[28],
+						//'is_voyage_groupe' => $line[36] == ' ' ? $line[36] : '0',
+						//'is_transit' => $line[32] == ' ' ? $line[32] : '0',
+						'lieu_residence' => '', /*RICO*/
+						'is_voyage_groupe' => '0',/*RICO*/
+						'is_transit' => '0',/*RICO*/
+						'li_lieu_destination' => 'Antananarivo',
+						'id_profession' => $id_profession,
+						'dt_vol' => $dt_vol,
+						'dt_retour' => $dt_retour,
+						'id_hebergement' => $id_heb,
+						'id_objet_voyage' => $id_obj_voyage,
+						'id_pays_embarquement' => $id_pays_embarquement,
+						'id_aeroport_arrivee' => $id_aeroport_arrivee,
+					);
+				}	
+				//drupal_set_message(t("i=".$i.", valeur data 'li_lieu_destination'".$data[$i]["li_lieu_destination"]), $type = '', $repeat = FALSE);
+	        $i++;
+	        
+	    }
+	    fclose($handle);
+	    
+		
+		//UPDATE AND SAVE	 
+		if(!$valid){
+			//drupal_set_message(t("Arret processus !"), $type = 'errors', $repeat = FALSE);
+			header("Refresh:0");
+		}
+		else{
+			
+			//INSERTION siit_importation		
+			// rechecher importation avec dt_import et li_fichier et id_type_fichier
+			$data_import = array();
+			$data_import['annee'] = $annee;
+			$data_import['id_mois'] = $mois;
+			$data_import["li_fichier"] = $file->filename/*basename($path)*/;
+			$data_import["id_statut"] = STATUT_AVALIDER;
+			$data_import["id_type_fichier"] = TYPE_FICHIER_PAF01;
+			
+			//On supprime l'importation existante pour l'équivalent
+			controleDoublonImportation($annee, $mois,ENTITE_PAF01, $data_import["li_fichier"]); //NON PAS POUR PAF01
+			$id_importation = insert_importation($data_import);
+		
+			// INSERTION siit_passager
+			foreach ($data as $value) {
+			 insert_passager_paf_03($value,$id_importation);			
+			}
+			
+			drupal_set_message("L'import a été effectué avec succès.", $type = 'status');
+			$form_state['redirect'] ="siit_importation_liste";
+		}	
+	}
+}
+
+function insert_passager_paf_03($value,$id_importation){
+			if (!empty($value["lieu_naissance"]) && !empty($value["id_nationalite"]) 
+				&& !empty($value["id_pays"])) {
+				db_insert('siit_passager')
+				->fields(array('id_civilite', 'is_resident', 'id_nationalite', 
+							'dt_naissance', 'lieu_naissance', 'id_pays', 'lieu_residence',
+							'is_voyage_groupe', 'is_transit', 'id_vol', 'id_profession',
+							'id_compagnie', 'li_lieu_destination', 'dt_vol', 'dt_retour', 'id_hebergement', 
+							'id_objet_voyage', 'id_importation', 'id_pays_embarquement', 'id_aeroport_arrivee'))
+				->values(array(							
+		            'id_civilite' => $value["id_civilite"],
+		        	'is_resident' => $value["is_resident"],
+		            'id_nationalite' => $value["id_nationalite"],
+		        	'dt_naissance' => $value["dt_naissance"],
+		            'lieu_naissance' => $value["lieu_naissance"],
+		        	'id_pays' => $value["id_pays"],
+		            'lieu_residence' => $value["lieu_residence"],
+		        	'is_voyage_groupe' => $value["is_voyage_groupe"],
+		        	'is_transit' => $value["is_transit"],
+		            'id_vol' => null,
+		            'id_profession' => $value["id_profession"],
+		        	'id_compagnie' => null,
+		            'li_lieu_destination' => $value["li_lieu_destination"],
+		        	'dt_vol' => $value["dt_vol"],
+		            'dt_retour' => $value["dt_retour"],
+		        	'id_hebergement' => $value["id_hebergement"],
+		            'id_objet_voyage' => $value["id_objet_voyage"],
+					'id_importation' => $id_importation,
+					'id_pays_embarquement' => $value["id_pays_embarquement"],
+					'id_aeroport_arrivee' => $value["id_aeroport_arrivee"],))
+				->execute();	
+				}
+}		
+
+function validateDate_03($date,$format){
+    $d = DateTime::createFromFormat($format, $date);
+    return $d && $d->format($format) === $date;
+}
+
+function get_id_civilite_03($libelle) {
+  $id_civ = 0;
+  $sql = "SELECT id_civilite FROM {siit_civilite} cv WHERE 
+			lower(cv.li_civilite) ='".strtolower($libelle)."'"; 
+		
+	$results = db_query($sql);
+	foreach($results as $result) {
+		$id_civ = $result->id_civilite;
+	}		
+	return $id_civ;		
+}
+
+
+function get_id_pays_03($libelle,$entite) {
+
+  switch ($entite) {
+        case ENTITE_MNP:
+          $idType = 3;
+          break;
+        case ENTITE_EDBM:
+          $idType = 5;
+          break;
+        case ENTITE_PAF01:
+        case ENTITE_PAF02:
+          $idType = 1;
+          break;
+        default:
+          $idType = 1;
+          break;
+    }
+
+  $id_pays = 0;
+  $sql = "SELECT id_pays FROM {siit_pays_entite} p WHERE 
+			lower(li_pays) ='".strtolower(str_replace("'", "''", $libelle))."'"; 
+		
+	$results = db_query($sql);
+	foreach($results as $result) {
+		$id_pays = $result->id_pays;
+	}
+	if (empty($id_pays)) {
+		$sql = "SELECT id_pays FROM {siit_pays} p WHERE 
+			lower(li_pays) ='".strtolower(str_replace("'", "''", $libelle))."'"; 
+		$results = db_query($sql);
+		foreach($results as $result) {
+			$id_pays = $result->id_pays;
+		}
+	}	   
+	return $id_pays;	
+
+}
+
+function get_id_hebergement_03($libelle) {
+
+  $id_hebergement =0;
+  $sql = "SELECT id_hebergement FROM {siit_hebergement} heb WHERE 
+			lower(heb.li_hebergement)='".strtolower(str_replace("'", "''", $libelle))."'"; 
+		
+	$results = db_query($sql);
+	foreach($results as $result) {
+		$id_hebergement = $result->id_hebergement;
+	}		   
+	return $id_hebergement;	
+	
+}
+/*RICO*/ function get_id_pays_embarquement_03($libelle)
+		 {
+		 	$id_pe = 0;
+		 	$sql = "SELECT id_pays FROM {siit_pays} pe WHERE
+		 	lower(pe.li_pays) = '".strtolower(str_replace("'", "''", $libelle))."'";
+		 	$results = db_query($sql);
+			foreach($results as $result) {
+					$id_pe = $result->id_pays;
+										}		   
+			return $id_pe;	
+		 }
+
+function get_id_obj_voyage_03($libelle) {
+
+  $id_obj_voyage =0;
+  $sql = "SELECT id_objet_voyage FROM {siit_objet_voyage} ov WHERE 
+			lower(ov.li_objet_voyage)='".strtolower(str_replace("'", "''", $libelle))."'"; 
+		
+	$results = db_query($sql);
+	foreach($results as $result) {
+		$id_obj_voyage = $result->id_objet_voyage;
+	}		   
+	return $id_obj_voyage;	
+}
+
+function get_id_profession_03($libelle) {
+
+  $id_profession =0;
+  $sql = "SELECT id_profession FROM {siit_profession} p WHERE 
+			lower(p.li_profession) = '".strtolower(str_replace("'", "''", $libelle))."'"; 
+		
+	$results = db_query($sql);
+	foreach($results as $result) {
+		$id_profession = $result->id_profession;
+	}
+	/*RICO if (empty($id_profession)) {
+		$sql2 = "INSERT INTO siit_profession (li_profession, id_categorie_professionnelle)
+			VALUES ($libelle, ID_CATEGORIE_PROFESSIONNELLE_INCONNU)";
+			
+			
+		db_insert('siit_profession')
+					->fields(array('li_profession', 'id_categorie_professionnelle'))
+					->values(array(							
+	            	'li_profession' => str_replace("'", "''", $libelle),
+	        		'id_categorie_professionnelle' => ID_CATEGORIE_PROFESSIONNELLE_INCONNU))
+	    ->execute();
+	    
+	    
+	}	 */
+	return $id_profession;	
+}
+
+function get_all_pays_03($vide = false, $entite=''){
+    $sql = "SELECT id_pays,li_pays FROM siit_pays WHERE 1=1 "; 
+    
+    if (!empty($entite)) {
+    	if ($entite == 'paf01') {
+    		$sql .= " AND is_paf01 = true ";
+    	}
+    }
+    $sql .= " ORDER BY li_pays";
+    
+	$results = db_query($sql);
+	
+	$options = array();
+	foreach($results as $result){
+	  $options[$result->id_pays] = $result->li_pays;
+	}
+	return $options;
+}
+
+function get_all_aeroport_03($vide = false, $id=0){
+    $sql = "SELECT id_aeroport,li_aeroport FROM siit_aeroport WHERE is_imported = 'O'"; 
+    if (!empty($id)) {
+   	 $sql .= " and id_aeroport = ".$id;
+    }
+    
+	$results = db_query($sql);
+	
+	$options = array();
+	foreach($results as $result){
+	  $options[$result->id_aeroport] = $result->li_aeroport;
+	}
+	return $options;
+}
+
+function formatDate_03($dt) {
+	$dt = str_split($dt);
+	
+	if ($dt[2] != "/") {
+		array_splice($dt, 0, 0, array('0'));
+	}
+	
+	if ($dt[5] != "/") {
+		array_splice($dt, 3, 0, array('0'));
+	}
+	if (count($dt) > 10) {
+		array_splice($dt,10,count($dt));
+	}
+	
+	$dt = implode("",$dt);
+	
+	return $dt;
+}

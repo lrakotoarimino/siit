@@ -206,7 +206,8 @@ function siit_importation_liste_cron_job($job) {
 				
 				//function envoi mail 
 				$to = $email;
-				$from = 'siit_mail';
+				//$from = 'siit_mail';
+				$from = 'mailer@siit.mg';
 				$language = language_default('language');//user_preferred_language($user);				
 				
 				$params = array(
@@ -492,7 +493,7 @@ function siit_importation_liste_form($form) {
 			   
 			        				  
 	     $i++;        				  
-	 }
+	 } // end foreach
  
  	$nbStart = ($page)*$limit +1;
  	$nbEnd = ($page+1)*$limit;
@@ -1112,6 +1113,8 @@ function get_id_nationalite($libelle,$entite) {
 	}	   
 	return $id_nationalite;	
 }
+
+
 
 function get_user_by_id($id) {
 	$user_name="";
