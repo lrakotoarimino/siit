@@ -4,7 +4,6 @@
 * @file
 * Display a Adema Importation
 */
-
 define('ENTITE_MNP','MNP');
 define('ENTITE_ONTM01','ONTM01');
 define('ENTITE_ONTM02','ONTM02');
@@ -207,8 +206,7 @@ function siit_importation_liste_cron_job($job) {
 				
 				//function envoi mail 
 				$to = $email;
-				//$from = 'siit_mail';
-				$from = 'mailer@siit.mg';
+				$from = 'siit_mail';
 				$language = language_default('language');//user_preferred_language($user);				
 				
 				$params = array(
@@ -494,7 +492,7 @@ function siit_importation_liste_form($form) {
 			   
 			        				  
 	     $i++;        				  
-	 } // end foreach
+	 }
  
  	$nbStart = ($page)*$limit +1;
  	$nbEnd = ($page+1)*$limit;
@@ -902,8 +900,9 @@ function import_data_mnp($value, $rowType, $iCol=0){
     
 }
 function controleDoublonImportation($annee = 0, $id_mois = 0,$entite, $li_fichier='', $id_aeroport = 0) {
+	
 	$id_importation=0;
-	if ($entite != ENTITE_PAF01) {
+	if (!in_array($entite, array(ENTITE_PAF01))) {
 	    $sql = "SELECT * from siit_importation imp,siit_type_fichier t 
 	    	WHERE t.id_type_fichier = imp.id_type_fichier 
 	    	AND id_statut <> 2 AND li_type_fichier = '$entite'";
@@ -993,32 +992,45 @@ function controleDoublonImportation($annee = 0, $id_mois = 0,$entite, $li_fichie
 	       db_delete('siit_importation')
 				    ->condition('id_importation',  $id_importation)
 				    ->execute();
-	} else { //if ($entite != ENTITE_PAF01) {
+	} else { 
+	
 		
-			 $sql = "select * from siit_importation imp,siit_type_fichier t 
-			 	where t.id_type_fichier=imp.id_type_fichier 
-			 	and id_statut=1 
-			 	and li_type_fichier = '$entite'
-			 	and li_fichier = '$li_fichier'
-			    and annee=".$annee."
-			    and id_mois=".$id_mois;
-			 $res = db_query($sql);
-		     if ($res) {
-		     	$id_importation = 0;
-		    	foreach($res as $import) {
-					$id_importation = $import->id_importation;
-				}
-				
-				if (!empty($id_importation)) {
-			    	db_delete('siit_passager')
-	        			    ->condition('id_importation',  $id_importation)
-	        			    ->execute();
-	        		db_delete('siit_importation')
-				    ->condition('id_importation',  $id_importation)
-				    ->execute();
-				 }
-		    } //if ($res)
-	} //} else { et if ($entite != ENTITE_PAF01) {
+		
+		/*$sql = "select * from siit_importation imp,siit_type_fichier t 
+		 	where t.id_type_fichier=imp.id_type_fichier 
+		 	and id_statut=1 
+		 	and li_type_fichier = '$entite'
+		 	and li_fichier = '$li_fichier'
+		    and annee=".$annee."
+		    and id_mois=".$id_mois;
+		*/
+	
+		$sql = "select * from siit_importation imp,siit_type_fichier t 
+		 	where t.id_type_fichier=imp.id_type_fichier 
+		 	and id_statut=1 
+		 	and li_type_fichier = '$entite'
+		 	and li_fichier = '$li_fichier'";
+			    
+		
+			
+		$res = db_query($sql);
+		if ($res) {
+	     	$id_importation = 0;
+	     	foreach($res as $import) {
+				$id_importation = $import->id_importation;
+			}
+		}
+			
+		if (!empty($id_importation)) {
+		    	db_delete('siit_passager')
+	    			    ->condition('id_importation',  $id_importation)
+	    			    ->execute();
+	    		db_delete('siit_importation')
+			    ->condition('id_importation',  $id_importation)
+			    ->execute();
+		 }
+	}
+
 		
 }
 
@@ -1094,9 +1106,25 @@ function setField($row, $col,$val,$entite,$data,$lastVal = '') {
 	return $id_nationalite;
 }*/
 
+function clean_ms_word($original)
+{
+	$crap =
+		array(chr(0x82),chr(0x83),chr(0x84),chr(0x85),chr(0x86),chr(0x87),chr(0x88),chr(0x89),chr(0x8a),chr(0x8b),chr(0x8c),chr(0x91),chr(0x92),chr(0x93),chr(0x94),chr(0x95),chr(0x96),chr(0x97),chr(0x98),chr(0x99),chr(0x9a),chr(0x9b),chr(0x9c),chr(0x9f));
+	$clean =
+		array('&lsquor;','&fnof;','&ldquor;','&ldots;','&dagger;','&Dagger;','','&permil;','&Scaron;','&lsaquo;','&OElig;','&lsquo;','&rsquo;','&quot;','&quot;','&bull;','&ndash;','&mdash;','&tilde;','&trade;','&scaron;','&rsaquo;','&oelig;','&Yuml;');
+	$content = str_replace($crap,$clean,$original);
+	/*$content = preg_replace('#[^[:alnum:]]#u', " ", $original);*/
+	
+	return $content;
+}
+
+
 function get_id_nationalite($libelle,$entite) {
     $id_nationalite = 0;
-	
+   
+    $libelle = clean_ms_word($libelle);
+    $libelle = str_replace("’","''", $libelle);
+	$libelle = utf8_encode($libelle);
   	$sql = "SELECT id_nationalite FROM {siit_nationalite} p WHERE 
 			lower(li_nationalite) ='".strtolower(str_replace("'", "''", $libelle))."'"; 
 	
@@ -1114,8 +1142,6 @@ function get_id_nationalite($libelle,$entite) {
 	}	   
 	return $id_nationalite;	
 }
-
-
 
 function get_user_by_id($id) {
 	$user_name="";
@@ -1671,6 +1697,41 @@ function get_lib_mois($id_mois) {
 	return $li_mois;
 }
 
+function searchFileExist($filename, $statut = STATUT_VALIDE, $isDiff = false) {
+	$sql = "SELECT * FROM siit_importation WHERE li_fichier = '".$filename."'";
+	if (!$isDiff) {
+		$sql .= " AND id_statut = ".$statut;
+	} else {
+		$sql .= " AND id_statut <> ".$statut;
+	}
+	$datas= db_query($sql);
+	
+	$id_importation = 0;
+	$question = "";
+	
+	if (!empty($datas)) {
+		foreach($datas as $data) {
+			$id_importation = $data->id_importation;
+		}
+	}
+	
+	if (!empty($id_importation) && (!$isDiff)){
+		if ($statut == STATUT_VALIDE) {
+			form_set_error('edit-valid', t("Un import a déjà été validé pour ce fichier ".$filename));
+		}
+		
+		if ($statut == STATUT_AVALIDER) {
+			$question = "Il existe déjà des données en attente de validation pour ce fichier ".$filename.". Souhaitez-vous remplacer les données avec celles de ce fichier ?";
+                  
+		}
+	} 
+		
+	
+	return array($id_importation,$question);
+	
+}
+
+
 function searchDataExist($type_fichier, $annee, $mois = 0, $statut = STATUT_VALIDE, $isDiff = false, $idAeroport = 0) {
 	//Permet de vérifier si il existe déjà une importation dans le type de fichier pour
 	//meme année / meme mois
@@ -1725,5 +1786,3 @@ function delete_importation($id_importation){
 		->condition('id_importation',  $id_importation)
 		->execute();	
 }
-
-
