@@ -182,14 +182,15 @@ function manage_nationalite_edit_confirm_submit($form, &$form_state)
 
 	
 	if ($form_state['values']['confirm']) {
-	    
+	   
 		$id_nationalite_entite = $form_state['input']['id_nationalite_entite'];
 	    $id_nationalite = $form_state['input']['id_nationalite'];
-	    $li_nationalite = $form_state['input']['li_nationalite'];
-	    
+	    $li_nationalite = clean_ms_word($form_state['input']['li_nationalite']);
+	    $li_nationalite = str_replace("'", "''", $li_nationalite);
+	    var_dump($li_nationalite);
 	    if (empty($li_nationalite)) {
-	    	drupal_set_message(t('Le libellé ne peut être vide.'), 'error');
-	    	drupal_goto("siit_nationalite_entite");
+		    	drupal_set_message(t('Le libellé ne peut être vide.'), 'error');
+		    	drupal_goto("siit_nationalite_entite");
 	    }
 		
 		if ($id_nationalite_entite && !empty($id_nationalite_entite)) {
@@ -217,10 +218,12 @@ function manage_nationalite_edit_confirm_submit($form, &$form_state)
 			 }
 		 } else {
 		 	//On vérifie que le libellé n'existe pas déjà pour une autre nationalité
+		 	
 			$results = db_query("SELECT n.li_nationalite FROM siit_nationalite n
 				INNER JOIN siit_nationalite_entite ne ON ne.id_nationalite = n.id_nationalite
 				WHERE (n.li_nationalite = '".$li_nationalite."'
 					OR ne.li_nationalite = '".$li_nationalite."')");
+					
 			$existeDeja = false;
 			foreach($results as $key) {
 				$li_nationalite_prev = $key->li_nationalite;

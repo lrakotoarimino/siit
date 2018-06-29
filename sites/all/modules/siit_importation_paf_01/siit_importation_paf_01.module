@@ -552,7 +552,7 @@ function csv_import_paf_01_submit($form, &$form_state) {
 }
 
 function insert_passager_paf_01($value,$id_importation){
-			if (!empty($value["lieu_naissance"]) && !empty($value["id_nationalite"]) 
+			if (!empty($value["id_nationalite"]) 
 				&& !empty($value["id_pays"])) {
 				db_insert('siit_passager')
 				->fields(array('id_civilite', 'is_resident', 'id_nationalite', 
@@ -605,6 +605,7 @@ function get_id_civilite($libelle) {
 
 function get_id_pays($libelle,$entite) {
 
+
   switch ($entite) {
         case ENTITE_MNP:
           $idType = 3;
@@ -622,6 +623,9 @@ function get_id_pays($libelle,$entite) {
     }
 
   $id_pays = 0;
+  $libelle = clean_ms_word($libelle);
+  $libelle = str_replace("’","''", $libelle);
+  $libelle = utf8_encode($libelle);
   $sql = "SELECT id_pays FROM {siit_pays} p WHERE 
 			lower(li_pays) ='".strtolower(str_replace("'", "''", $libelle))."'"; 
 		
@@ -644,6 +648,8 @@ function get_id_pays($libelle,$entite) {
 function get_id_hebergement($libelle) {
 
   $id_hebergement =0;
+  $libelle = str_replace("’","''", $libelle);
+  $libelle = utf8_encode($libelle);
   $sql = "SELECT id_hebergement FROM {siit_hebergement} heb WHERE 
 			lower(heb.li_hebergement)='".strtolower(str_replace("'", "''", $libelle))."'"; 
 		
@@ -671,6 +677,8 @@ function get_id_obj_voyage($libelle) {
 function get_id_profession($libelle) {
 
   $id_profession =0;
+  $libelle = str_replace("’","''", $libelle);
+  $libelle = utf8_encode($libelle);
   $sql = "SELECT id_profession FROM {siit_profession} p WHERE 
 			lower(p.li_profession) = '".strtolower(str_replace("'", "''", $libelle))."'"; 
 		

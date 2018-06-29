@@ -15,7 +15,7 @@ ini_set('xdebug.var_display_max_data', -1);
 * Display a Adema Importation formulaire
 */
 
-	function siit_importation_paf_02_menu(){
+function siit_importation_paf_02_menu(){
     $items = array();
     $items['siit_importation_paf_02'] = array(
         'title'            => t('Importation des données de la PAF Nosy Be'), 
@@ -45,11 +45,12 @@ function siit_importation_paf_02_form($form, &$form_state) {
 	        return get_siit_importation_paf_02_form($form, $form_state);
 	    }
         else{
+        		//Si on sait qu'il existe un import avec statut diff de validé, on vérifie si il en existe un qui est à valider !
             list($id_importation,$question) = searchDataExist(ENTITE_PAF02, $_POST['annee'], $_POST['mois'], STATUT_AVALIDER, false);
 			
             if($id_importation){
-            	
-            	  drupal_get_messages('error'); //Reset les messages
+            		//Si il en existe un à valider, on va poser la question
+            	  	 drupal_get_messages('error'); //Reset les messages
                   $path = 'siit_importation_paf_02';
                   $description = '';
                   $yes = 'Oui';
@@ -288,10 +289,11 @@ function csv_import_paf_02_validate($form, &$form_state) {
 function csv_import_paf_02_submit($form, &$form_state){
 	
 	if(!isset($form_state['storage']['confirm'])) {
-			
+		//Vérifie si existe avec un statut diff de valide
         list($id_importation,$question) = searchDataExist(ENTITE_PAF02, $_POST['annee'], $_POST['mois'], STATUT_VALIDE, true) ;
 		
         if($id_importation){
+        		//Si oui, on va repartir sur le form initial
             $form_state['storage']['confirm'] = TRUE;
             $form_state['rebuild'] = TRUE;
             $form_state['storage']['csv_file'] = $form_state['values']['csv_file'];
