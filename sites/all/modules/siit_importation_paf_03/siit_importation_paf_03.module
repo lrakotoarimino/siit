@@ -365,6 +365,7 @@ function traitement_paf_03($chemin,$form_state, $id_aeroport_arrivee, $filename)
 					$valid = false;
 				}
 				
+				
 				if ($line[10] == '' || trim($line[10]) == '=' || trim($line[10]) == '22/5' || trim($line[10]) == 'v' || trim($line[10]) == 'V' || trim($line[10]) == 'a') {
 					$line[10] = 'INCONNU';
 				}
