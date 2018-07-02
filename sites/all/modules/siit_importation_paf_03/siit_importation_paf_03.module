@@ -370,7 +370,8 @@ function traitement_paf_03($chemin,$form_state, $id_aeroport_arrivee, $filename)
 					$line[10] = 'INCONNU';
 				}
 				
-				if (empty(trim($line[9]))) {
+				$line[9] = trim($line[9]);
+				if (empty($line[9])) {
 					//Prendre la nationalité
 					$line[9] = trim($line[2]);
 				}
