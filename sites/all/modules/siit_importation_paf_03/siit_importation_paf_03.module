@@ -337,6 +337,18 @@ function traitement_paf_03($chemin,$form_state, $id_aeroport_arrivee, $filename)
 					}
 				} else $date_naiss = "1980-01-01";
 				
+				if (!empty($line[8])) {
+				    $line[8] = formatDate($line[8]); //date arrivee
+				    if(!validateDate($line[8],"d/m/Y")){
+				        drupal_set_message(t("Date arrivee non conforme! '".$line[8]."' Ligne ".$i), $type = 'error', $repeat = FALSE);
+				        $valid = false;
+				    }
+				} else {
+				    $valid = false;
+				    drupal_set_message(t("Date arrivee non conforme! '".$line[8]."' Ligne ".$i), $type = 'error', $repeat = FALSE);
+				    
+				}
+				
 				
 				
 	
@@ -412,8 +424,10 @@ function traitement_paf_03($chemin,$form_state, $id_aeroport_arrivee, $filename)
 					//drupal_set_message(t("$str_date[0], $str_date[1], $str_date[2]"), $type = '', $repeat = true);
 					
 					if (!empty($line[11])) {
-						$line[12] =  formatDate($line[11]);
-						$dt_retour = substr($line[11],6,4)."-".substr($line[11],3,2)."-".substr($line[11],0,2)." ".substr($line[11],11,8);
+					    //date de retour
+					   
+						  $line[12] =  formatDate($line[11]);
+						  $dt_retour = substr($line[11],6,4)."-".substr($line[11],3,2)."-".substr($line[11],0,2)." ".substr($line[11],11,8);
 					} else {
 						//On fige la date du retour au 28 du mois
 						$dt_retour = $annee."-".$mois."-28";
