@@ -185,9 +185,9 @@ function manage_nationalite_edit_confirm_submit($form, &$form_state)
 	   
 		$id_nationalite_entite = $form_state['input']['id_nationalite_entite'];
 	    $id_nationalite = $form_state['input']['id_nationalite'];
-	    $li_nationalite = clean_ms_word($form_state['input']['li_nationalite']);
+	    //$li_nationalite = clean_ms_word($form_state['input']['li_nationalite']);
 	    $li_nationalite = str_replace("'", "''", $li_nationalite);
-	    var_dump($li_nationalite);
+	   // var_dump($li_nationalite);
 	    if (empty($li_nationalite)) {
 		    	drupal_set_message(t('Le libellé ne peut être vide.'), 'error');
 		    	drupal_goto("siit_nationalite_entite");
