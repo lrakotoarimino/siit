@@ -5,31 +5,30 @@ function siit_manage_nationalite_menu(){
 		'title' => t('Nationalités'),
 		'page callback' => 'manage_nationalite_list',
 		//'page arguments' => array('siit_importation_paf_01_form'),
-        'access arguments' => array('access manage_nationalite_list'),
+        'access arguments' => array('access manage_nationalite'),
 		
 	);
 	$items['manage_nationalite_form/delete/%'] = array(
 		'title' => t('Delete Nationalité'),
 		'page callback' => 'drupal_get_form',
 		'page arguments' => array('manage_nationalite_delete_confirm', 2),
-		 'access arguments' => array('access manage_nationalite_list'),
+		 'access arguments' => array('access manage_nationalite'),
 		//'access callback' => TRUE,
 		'type' => MENU_CALLBACK, 
 	);
 	$items['manage_nationalite_form/edit/%'] = array(
 		'title' => t('Edit Nationalité'),
-		'page callback' => 'drupal_get_form',
-		'page arguments' => array('manage_nationalite_edit_confirm', 2),
-	    //'access callback' => TRUE,
-		 'access arguments' => array('access manage_nationalite_list'),
-		'type' => MENU_NORMAL_ITEM,
+	    'page callback' => 'drupal_get_form',
+	    'page arguments' => array('manage_nationalite_edit_confirm', 2),
+	    'access arguments' => array('access manage_nationalite'),
+	    
     );
     
     $items['manage_nationalite_form/add'] = array(
 		'title' => t('Add Nationalité'),
 		'page callback' => 'drupal_get_form',
 		'page arguments' => array('manage_nationalite_edit_confirm', 2),
-	    'access arguments' => array('access manage_nationalite_add'),
+	    'access arguments' => array('access manage_nationalite'),
 	    //'access callback' => TRUE,
 		'type' => MENU_NORMAL_ITEM,
     );
@@ -39,7 +38,7 @@ function siit_manage_nationalite_menu(){
 
 function siit_manage_nationalite_permission() {
   return array(
-    'access manage_nationalite_add' => array(
+    'access manage_nationalite' => array(
       'title' => t('siit_manage_nationalite : Permissions'),
       'description' => t('Perform permissions to siit_manage_nationalite.'),
     ),
