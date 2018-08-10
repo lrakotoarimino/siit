@@ -178,7 +178,7 @@ function manage_pays_edit_confirm_submit($form, &$form_state)
 			} else {
 		
 				$rs = db_query("UPDATE {siit_pays_entite} 
-					SET li_pays= '".str_replace("'", "''", $li_pays)."' , , id_pays = $id_pays
+					SET li_pays= '".str_replace("'", "''", $li_pays)."' , id_pays = $id_pays
 					WHERE  id_pays_entite='{$id_pays_entite}'");
 			 	drupal_set_message(t('La Pays a été mise à jour.'));
 			 }
