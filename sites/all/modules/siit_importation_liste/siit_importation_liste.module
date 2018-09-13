@@ -1603,7 +1603,8 @@ function getPeriodAndStatutImport($idImportation) {
 		
 		
 		//Si c'est un type PAF01, on ajoute le vol
-		if ($li_type_fichier == 'PAF01') {
+		//20180913 : on ne fait plus
+		if ($li_type_fichier == 'PAF01XXX') {
 			//On récupère le pays d'embarquement dans la table passager
 			$sql = "SELECT li_pays FROM siit_passager p 
 				LEFT JOIN siit_pays pa ON p.id_pays_embarquement = pa.id_pays
