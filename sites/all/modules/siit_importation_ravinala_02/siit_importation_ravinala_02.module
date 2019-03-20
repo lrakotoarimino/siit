@@ -1,0 +1,319 @@
+<?php
+
+/**
+* @file
+* Display a Ravinala Importation formulaire
+*/
+
+	function siit_importation_ravinala_02_menu(){
+    $items = array();
+    $items['siit_importation_ravinala_02'] = array(
+        'title'            => t('Formulaire importation'), 
+        'page callback'    => 'drupal_get_form',
+        'page arguments' => array('siit_importation_ravinala_02_form'),
+        'access arguments' => array('access siit_importation_ravinala_02'),
+        'type'             => MENU_LOCAL_TASK,
+    		//'access callback' => TRUE,
+    );
+    
+    return $items;
+    
+}  
+
+function siit_importation_ravinala_02_permission() {
+  return array( 
+    'access siit_importation_ravinala_02' => array(
+      'title' => t('siit_importation_ravinala_02 : ravinala importation formulaire'),
+      'description' => t('Perform administration tasks for Ravinala importation formulaire.'),
+    ),
+  );
+}
+
+
+
+function siit_importation_ravinala_02_form($form, &$form_state) {
+	
+	    if(!isset($form_state['storage']['confirm'])){			 
+	        return get_siit_importation_ravinala_02_form($form, $form_state);
+	    }
+        else{
+			
+			if(!empty($_POST['annee']) && !empty($_POST['mois'])){
+				//Controle si un import validé existe déjà
+				list($id_importation,$question) = searchDataExist(ENTITE_RAVINALA, $_POST['annee'], $_POST['mois'], STATUT_AVALIDER, false);
+			}
+	
+			
+            if($id_importation){
+                  $path = 'siit_importation_ravinala_02';
+                  $description = '';
+                  $yes = 'Oui';
+                  $no = 'Non';
+                  $form = confirm_form($form, $question, $path, $description, $yes, $no);
+                  $form['annee'] = array('#type' => 'hidden', '#value' => $_POST['annee']);
+				  $form['mois'] = array('#type' => 'hidden', '#value' => $_POST['mois']);
+                  $form['csv_file'] = array('#type' => 'hidden', '#value' => $_POST['csv_file']);
+                  $form['chemin'] = array('#type' => 'hidden', '#value' => $form_state['storage']['uri']);
+                  $form['actions']['submit'] = array(
+                    '#type' => 'submit',
+                    '#value' => $yes,
+                    '#attributes' => array('class' => array('button button--primary js-form-submit form-submit btn-success btn'),),
+            	    '#submit' => array('csv_import_ravinala_02_submit'),
+                  );  
+                  $form['#attached']['css'] = array(
+                      drupal_get_path('module', 'siit_importation_ravinala_02') . '/css/ravinala.css'
+                  );
+                  return $form;
+            }
+            else csv_import_ravinala_02_submit($form, $form_state);
+        }
+	
+
+	
+}
+
+function get_siit_importation_ravinala_02_form($form, &$form_state){
+	
+	drupal_set_title(t('Formulaire RAVINALA'));
+	
+	$options = optionYear();
+	$form['annee'] = array(
+    "#type" => "select",   
+    '#default_value' => date("Y"),   
+    "#title" => t("Année :"),
+    "#options" => $options,
+    "#required" => TRUE,
+	);
+	
+	
+	$form["mois"] = array(
+    "#type" => "select",      
+    "#title" => t("Mois :"),
+    "#options" => optionMonth(false),
+    "#required" => TRUE,
+    );
+
+	$form['importation']["template"] = array(
+	    "#markup" => "Cliquez ici pour télécharger un exemple de <a href='sites/default/files/templates/SIIT_RAVINALA.xlsx' target='_blank'>template</a>",      
+	    );
+	    
+	$form['importation']['csv_file'] = array(
+	        '#title' => 'Importer Fichier :', // Titre dans la page d'importation du fichier
+	        '#description' => 'Seuls ces fichiers xlsx sont valides.',
+	        '#type' => 'managed_file',
+	        '#required' => true,
+	        '#upload_validators' => array(
+	            'file_validate_extensions' => array("xlsx"),
+	        ),
+	    );
+	    
+	 $form['importation']['submit'] = array(
+	        '#type' => 'submit',
+	        '#value' => t('Process'),
+	        '#attributes' => array('class' => array('button button--primary js-form-submit form-submit btn-success btn'),),
+            '#validate' => array('csv_import_ravinala_02_validate'),
+	    		'#submit' => array('csv_import_ravinala_02_submit'),
+	    );
+	    
+	    
+	$form['importation']['back'] = array('#type' => 'submit', '#value' => t('Retour'));
+    $form['importation']['back']['#submit'] = array('siit_back_submit');
+    $form['importation']['back']['#limit_validation_errors'] = array();
+    $form['importation']['back']['#name'] = 'back';
+
+	$form['#attributes']['class'][] = 'import-form';
+	
+	return $form;
+}
+
+function csv_import_ravinala_02_validate($form, &$form_state){
+	
+    global $libMois;
+    
+    if(!empty($_POST['annee']) && !empty($_POST['mois'])){
+		//Controle si un import validé existe déjà
+		list($id_importation,$question) = searchDataExist(ENTITE_RAVINALA, $_POST['annee'], $_POST['mois'], STATUT_VALIDE, false);
+	}
+    
+    
+    
+    if($form_state['values']['csv_file']){
+        $file = file_load($form_state['values']['csv_file']);
+        $uri = $file->uri;
+        $path = drupal_realpath($uri);
+        try {
+            $inputFileType = PHPExcel_IOFactory::identify($path);
+            $objReader = PHPExcel_IOFactory::createReader($inputFileType);
+            $objPHPExcel = $objReader->load($path);
+        } catch (Exception $e) {
+            
+        }
+        $annee = $_POST['annee'];
+        $mois = $_POST['mois'];
+        
+        
+        foreach ($objPHPExcel->getWorksheetIterator() as $worksheet) {
+            $highestRow         = $worksheet->getHighestRow(); 
+            $highestColumn      = $worksheet->getHighestColumn(); 
+            $highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
+            for ($row = 1; $row <= $highestRow; ++ $row) {
+                for ($col = 0; $col < $highestColumnIndex; ++ $col) {
+                    $cell = $worksheet->getCellByColumnAndRow($col, $row);
+                    $val = $cell->getValue();
+					if($row==1 && $col==0){//A1
+                        if($val!=="RAVINALA"){
+                            form_set_error('edit-conforme'.$row, t("Fichier non conforme."));
+							return;
+                        }
+                    }
+					
+                    if($row==6 && $col==0){//A6
+                        if($annee!=$val && "Année ".$annee!=$val){
+                            form_set_error('edit-annee'.$row , t("L'année sélectionnée ".$annee." est différente de ".getCellule($row, $col)."=".$val));							
+                        }
+                    } 
+                    else if($row == 15 || $row == 31 || $row == 50 || $row == 66 || $row == 85 || $row == 101) {
+                    	if($col==$mois && $col>0){
+                    		controle_libelle_mois('edit-code'.$row,$val,$row,$col);
+                    	}
+                    }
+                    else if(($row>=16 && $row<=27) || ($row>=32 && $row<=43) || ($row>=51 && $row<=62) 
+                    		|| ($row>=67 && $row<=78) || ($row>=86 && $row<=97)
+                    		|| ($row>=102 && $row<=113)){
+							
+                        if($col==0){
+                            $id_aeroport = get_id_aeroport($val);
+                            if(!$id_aeroport){
+                                form_set_error('edit-code'.$row, t("Le code aéroport ".$val." (".getCellule($row, $col).") est introuvable dans la base."));
+                            }
+                        }
+                        else if($col==$mois){
+                            if($val){
+                            	controle_error_int('edit-valeur'.$row,$val,$row, $col);
+						
+                                /*if(!filter_var($val, FILTER_VALIDATE_INT)){
+                                    form_set_error('edit-valeur'.$row, t($val." n'est pas un entier (".getCellule($row, $col).") ."));
+                                }*/
+                            }
+                            
+                            if (is_null($val)) {
+								form_set_error('edit-valeur'.$row, t($val." n'est pas un entier (".getCellule($row, $col).") ."));
+							}
+                            
+                            
+							$nb_pax = $worksheet->getCellByColumnAndRow($col, $row+108)->getValue();
+                            if($nb_pax){
+								controle_error_int('edit-valeur'.$row,$nb_pax,$row+108, $col);
+								
+                                /*if(!filter_var($nb_pax, FILTER_VALIDATE_INT)){
+                                    form_set_error('edit-valeur'.$row, t($nb_pax." n'est pas un entier (".getCellule($row+275, $col).") ."));
+                                }*/
+                            }
+                            if ($nb_pax == '') {
+							//	form_set_error('edit-valeur'.$row, t($nb_pax." n'est pas un entier (".getCellule($row+275, $col).") ."));
+							}
+							
+                        }
+                    }
+                    $lastVal = $val;
+                }
+            }
+        }
+    }
+}
+
+function csv_import_ravinala_02_submit($form, &$form_state){
+
+	if(!isset($form_state['storage']['confirm'])) {
+		
+		list($id_importation,$question) = searchDataExist(ENTITE_RAVINALA, $_POST['annee'], $_POST['mois'], STATUT_VALIDE, true) ;
+		
+        if($id_importation){
+            $form_state['storage']['confirm'] = TRUE;
+            $form_state['rebuild'] = TRUE;
+            $form_state['storage']['csv_file'] = $form_state['values']['csv_file'];
+            $file = file_load($form_state['values']['csv_file']);
+            $form_state['storage']['uri'] = $file->uri;
+        } else {
+            $file = file_load($form_state['values']['csv_file']);
+            traitement_ravinala02($file->uri,$form_state);
+        }
+    } else {
+        if(isset($_POST["chemin"])) $chemin = $_POST["chemin"];
+        else{
+            $file = file_load($form_state['values']['csv_file']);
+            $chemin = $file->uri;
+        }
+        traitement_ravinala02($chemin,$form_state);
+    }
+
+
+
+}
+
+function traitement_ravinala02($chemin,&$form_state){
+	
+    if($form_state['values']['csv_file']){
+
+		$path = drupal_realpath($chemin);
+		try {
+			$inputFileType = PHPExcel_IOFactory::identify($path);
+			$objReader = PHPExcel_IOFactory::createReader($inputFileType);
+			$objPHPExcel = $objReader->load($path);
+		} catch (Exception $e) {
+			
+		}
+		$annee = $_POST['annee'];
+		$mois = $_POST['mois'];
+		controleDoublonImportation($annee, $mois,ENTITE_RAVINALA);
+		$data = array();
+		$data['annee'] = $annee;$data['id_mois'] = $mois;
+		$data["li_fichier"] = basename($path);$data["id_statut"] = STATUT_AVALIDER;$data["id_type_fichier"] = TYPE_FICHIER_RAVINALA;
+		$id_importation = insert_importation($data);
+		$data = array();
+		
+		foreach ($objPHPExcel->getWorksheetIterator() as $worksheet) {
+				$highestRow         = $worksheet->getHighestRow(); 
+				$highestColumn      = $worksheet->getHighestColumn(); 
+				$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
+				for ($row = 6; $row <= $highestRow; ++ $row) {
+					for ($col = 0; $col < $highestColumnIndex; ++ $col) {
+						$cell = $worksheet->getCellByColumnAndRow($col, $row);
+						$val = $cell->getValue();
+
+                        if ($row == 16 || $row==20 || $row == 32 || $row == 36 || $row == 51 || $row==55 || $row == 67 || $row==71 || $row==86 || $row==90 || $row==102 || $row==106) {
+
+
+						if(($row>=16 && $row<=27) || ($row>=32 && $row<=43) || ($row>=51 && $row<=62) || ($row>=67 && $row<=78) || ($row>=86 && $row<=97) || ($row>=102 && $row<=113)){
+							if($col==0){
+								$id_aeroport = get_id_aeroport($val);
+							}
+							else if($col==$mois){
+								if($val){
+									$data = array();
+									$data['annee'] = $annee;$data['id_mois'] = $col;$data['id_aeroport'] = $id_aeroport;
+									if($row<=43)$data['id_type_vol'] = 1;// Réseau national
+									else if($row<=78)$data['id_type_vol'] = 2; //Réseau régional
+									else $data['id_type_vol'] = 3; // Réseau international
+									$data['nb_vols'] = $val;
+									$data['nb_passagers'] = $worksheet->getCellByColumnAndRow($col, $row+108)->getValue();
+									if(($row>=16 && $row<=27)  || ($row>=51 && $row<=62)  || ($row>=86 && $row<=97) )$data['id_arrivee_depart'] = 1;
+									else if(($row>=32 && $row<=43)|| ($row>=67 && $row<=78) || ($row>=102 && $row<=113))$data['id_arrivee_depart'] = 2;
+									//else $data['id_arrivee_depart'] = 3;
+									$data['id_importation'] = $id_importation;
+                                    import_data_adema($data);
+                                }
+								
+							}
+						}
+
+                        }
+						$lastVal = $val;
+					}
+				}
+			}
+			//var_dump($data) or die();
+		drupal_set_message("L'import a été effectué avec succès.", $type = 'status');
+		$form_state['redirect'] ="siit_importation_liste";
+	}
+}

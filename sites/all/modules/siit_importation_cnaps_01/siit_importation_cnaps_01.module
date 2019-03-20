@@ -374,6 +374,7 @@ function traitement_cnaps01($chemin, &$form_state){
 						$data[] = array(	
 							'id_etablissement' =>  $id_etablissement,
 							'li_etablissement' =>  $li_etablissement,
+                            'li_enseigne' =>  $li_etablissement,
                             'id_activite_etablissement' =>  $id_activite_etablissement,						
 							'id_region' =>  $id_region,														
 							'annee' => $annee,

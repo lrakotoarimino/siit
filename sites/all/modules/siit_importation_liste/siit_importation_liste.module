@@ -7,7 +7,9 @@
 define('ENTITE_MNP','MNP');
 define('ENTITE_ONTM01','ONTM01');
 define('ENTITE_ONTM02','ONTM02');
+define('ENTITE_ONTM03','ONTM03');
 define('ENTITE_EDBM','EDBM');
+define('ENTITE_EDBM02','EDBM02');
 define('ENTITE_PAF01','PAF01');
 define('ENTITE_PAF02','PAF02');
 define('ENTITE_CNAPS01','CNAPS01');
@@ -19,11 +21,13 @@ define('ONTM01_NB_COL','11');
 define('EDBM01_NB_COL','16');
 define('TYPE_FICHIER_MNP','3');
 define('TYPE_FICHIER_ONTM02','11');
+define('TYPE_FICHIER_ONTM03','13');
 define('TYPE_FICHIER_ONTM01','7');
 define('TYPE_FICHIER_CNAPS01','10');
 define('TYPE_FICHIER_PAF01','1');
 define('TYPE_FICHIER_PAF02','2');
 define('TYPE_FICHIER_EDBM','5');
+define('TYPE_FICHIER_EDBM_02','12');
 define('TYPE_FICHIER_ADEMA','9');
 define('TYPE_FICHIER_RAVINALA','4');
 define('TYPE_FICHIER_BCM','8');
@@ -339,7 +343,7 @@ function siit_importation_liste_form($form) {
 			
     $uid = $user->uid;
     
-    $limit = 10;
+    $limit = 50;
     if (isset($_REQUEST['page']) && !empty($_REQUEST['page'])) {
     	$start = $_REQUEST['page'] * $limit;
     	$page = $_REQUEST['page'];
@@ -461,15 +465,21 @@ function siit_importation_liste_form($form) {
 					        break;
 					    case "APMF":
 				            $type_consult= "apmf_01";
-				            break;  
-									    
-					}
+				            break;
+
+                        case "ONTM03":
+                            $type_consult= "ontm_03";
+                            break;
+
+                    }
 				 //	statut 1 à valider mettre les 3 liens consulter/valider/refuser 
 				 // sinon refusé ou deja validé mettre consulter seulement
-				 
+
 				 if ($result->li_type_fichier == "BCM") {
-				 	$detail = $base_url."/siit_bcm_detail";
-				 } else {
+                     $detail = $base_url . "/siit_bcm_detail";
+                 } elseif ($result->li_type_fichier == "EDBM02") {
+                     $detail = $base_url . "/siit_importation_edbm_01_detail";
+                 } else {
 					$detail = $base_url."/siit_importation_".$type_consult."_detail";
 				 }
 				 
@@ -560,7 +570,86 @@ function get_id_type_etablissement($li_type_etablissement) {
 	return $id_type_etablissement;
 }
 
+function get_id_activite_etablissement_from_licence($licence) {
+    //Special pour evpt
+
+    $licence = str_replace("'", "", $licence);
+    $licence = str_replace(",", "", $licence);
+    $licence = str_replace(".", "", $licence);
+    $licence = str_replace(" ", "", $licence);
+    $licence = str_replace(",", "", $licence);
+
+    $id_activite_etablissement = 0;
+
+    $activite_etablissement = db_query("select id_activite_etablissement from siit_activite_etablissement  ae 
+        INNER JOIN siit_type_etablissement te on te.id_type_etablissement = ae.id_type_etablissement
+		WHERE cd_type_etablissement = '".$licence."'");
+    foreach($activite_etablissement as $p) {
+        $id_activite_etablissement = $p->id_activite_etablissement;
+    }
+
+    return $id_activite_etablissement;
+
+}
+
 function get_id_activite_etablissement($li_activite_etablissement, $origine = '', $li_enseigne = '') {
+    $val = $li_activite_etablissement;
+    if ($val == 'Snack ou café') {
+        $val = "Restaurant et snack ou café";
+    }
+    if ($val == "Snack ou café et fast food") {
+        $val = "Restaurant et snack ou café";
+    }
+    if ($val == "Restaurant - salon de thé") {
+        $val = "Restaurant et snack ou café";
+    }
+    if ($val == 'Snack ou Café') {
+        $val = "Restaurant et snack ou café";
+    }
+    if ($val == 'Snack ou cafe') {
+        $val = "Restaurant et snack ou café";
+    }
+    if ($val == "Snack ou café et salon de thé") {
+        $val = "Restaurant et snack ou café";
+    }
+    if ($val == 'Hôtel et snack ou café') {
+        $val = "Hôtel-snack ou café";
+    }
+    if ($val == "Restaurant, snack ou café et salon de thé") {
+        $val = "Restaurant et snack ou café";
+    }
+    if ($val == "Chambre d'hôtes et restaurant") {
+        $val = "Chambre d’hôtes-restaurant";
+    }
+    if ($val == "Chambre d'hotes-Table d'hotes") {
+        $val = "Chambre d’hôtes et table d’hôtes";
+    }
+    if ($val == "Chambre d'hôte") {
+        $val = "Chambre d’hôtes";
+    }
+    if ($val == "Chambre d'hôtes et gite") {
+        $val = "Chambre d’hôtes";
+    }
+    if ($val == "Salon de thé") {
+        $val="Restaurant et snack ou café";
+    }
+    if ($val == "Hôtel-restaurant, snack ou café") {
+        $val = "Hôtel-snack ou café";
+    }
+    if ($val == "Pension de famille et restaurant") {
+        $val = "Pension de famille-restaurant";
+    }
+    if ($val == "Chambre d'hôtes et table d'hôtes") {
+        $val = "Chambre d’hôtes et table d’hôtes";
+    }
+
+    if ($val == "Auberge et restaurant") {
+        $val = "Auberge et table d’hôtes";
+    }
+    if ($val == "Chambre d'hôtes, table d'hôtes et service traiteur") {
+        $val = "Chambre d’hôtes et table d’hôtes";
+    }
+    $li_activite_etablissement = $val;
 
 	$li_activite_etablissement = str_replace("'", "''", $li_activite_etablissement);
 	//$id_activite_etablissement = 9; //9 Hotel restaurant par défaut
@@ -751,7 +840,7 @@ function isToInsert($row, $col,$val,$entite,$data) {
 
 function insert_importation($data){
   //insertion dans la table importation pour toutes les entités
-  
+
   global $user; 
   $query = "INSERT INTO {siit_importation} (annee, id_mois,dt_importation,uid_importation,li_fichier,id_statut,id_type_fichier) 
   	VALUES (:arg1, :arg2, now(), :arg3, :arg4, :arg5, :arg6)";
@@ -766,10 +855,18 @@ function insert_importation($data){
 
 function import_data_edbm_01($value){
 
-    if(!$value['nb_chambres']) $value['nb_chambres'] = 4;
-    $value['nb_lits'] = $value['nb_chambres'];
+    if (!$value['evpt']) {
+        if (!$value['nb_chambres']) {
+            $value['nb_chambres'] = 4;
+        }
+        $value['nb_lits'] = $value['nb_chambres'];
+        if (!$value['id_classement_etablissement']) {
+            $value['id_classement_etablissement'] = 11;
+        }
+    }
+
     if(!$value['id_nationalite_promoteur']) $value['id_nationalite_promoteur'] = 134; //Malagasy
-    if(!$value['id_classement_etablissement']) $value['id_classement_etablissement'] = 11;
+
     $value["is_edbm"] = 1;
     
     //On recherche si l'établissement existe déjà
@@ -788,12 +885,12 @@ function import_data_edbm_01($value){
 			
 			//Si c'est un etablissement déjà connu par la CNAPS, les données nb employés sont prioritaires
 			if (!$is_cnaps) {
-				$data['nb_emplois_nationaux'] = $value['nb_emplois_nationaux'];
-				$data['nb_emplois_etrangers'] = $value['nb_emplois_etrangers'];
+				$data['nb_emplois_nationaux'] = intVal($value['nb_emplois_nationaux']);
+				$data['nb_emplois_etrangers'] = intVal($value['nb_emplois_etrangers']);
 			}
 			
 			//Si c'est un établissement déjà connu par l'EDBM, on met à jour toutes les autres données
-			if ($is_edbm) {
+			if ($is_edbm && !$value['evpt']) {
 				$data['li_adresse'] = $value['li_adresse'];
 				$data['id_activite_etablissement'] = $value['id_activite_etablissement'];
 				$data['mt_investissement'] = $value['mt_investissement'];
@@ -804,8 +901,10 @@ function import_data_edbm_01($value){
 			
 			//Si c'est un etablissement déjà connu par l'ONTM, les données suivantes sont prioritaires
 			if (!$is_ontm) {
-				$data['nb_chambres'] = $value['nb_chambres'];
-				$data['id_classement_etablissement'] = $value['id_classement_etablissement'];
+                if (!$value['evpt']) {
+                    $data['nb_chambres'] = $value['nb_chambres'];
+                    $data['id_classement_etablissement'] = $value['id_classement_etablissement'];
+                }
 			}
 			
 		}
@@ -813,6 +912,7 @@ function import_data_edbm_01($value){
         $query->fields($data)
       		->execute();
     } else {
+        unset($value['evpt']);
         $id_etablissement = db_insert('siit_etablissement')
         		->fields($value)
       			->execute();
@@ -1119,15 +1219,18 @@ function clean_ms_word($original)
 }
 
 
-function get_id_nationalite($libelle,$entite) {
+function get_id_nationalite($libelle,$entite, $utf8=true) {
     $id_nationalite = 0;
    
     $libelle = clean_ms_word($libelle);
     $libelle = str_replace("’","''", $libelle);
-	$libelle = utf8_encode($libelle);
+    if ($utf8) {
+        $libelle = utf8_encode($libelle);
+    }
+
   	$sql = "SELECT id_nationalite FROM {siit_nationalite} p WHERE 
-			lower(li_nationalite) ='".strtolower(str_replace("'", "''", $libelle))."'"; 
-	
+			lower(li_nationalite) ='".strtolower(str_replace("'", "''", $libelle))."'";
+
 	$results = db_query($sql);
 	foreach($results as $result) {
 		$id_nationalite = $result->id_nationalite;
@@ -1625,19 +1728,23 @@ function getPeriodAndStatutImport($idImportation) {
 
 
 function get_id_etablissement($value) {
-	$libelle = str_replace( "'", "\\'", trim($value["li_etablissement"]));
-	
-	if (empty($libelle)) {
+    //On ne vérifie pas l'établissement, mais l'enseigne
+	//$libelle = str_replace( "'", "\\'", trim($value["li_etablissement"]));
+
+	//if (empty($libelle)) {
 		$libelle = str_replace( "'", "\\'", trim($value["li_enseigne"]));
 		$libelle = str_replace(' ', '', $libelle);
-	}
+	//}
 	
-	$id_etab =0;
-	$sql = "SELECT id_etablissement, annee, is_cnaps, is_edbm, is_ontm FROM siit_etablissement p WHERE 
+	$id_etab = 0;
+	/*$sql = "SELECT id_etablissement, annee, is_cnaps, is_edbm, is_ontm FROM siit_etablissement p WHERE
 			(replace(lower(p.li_etablissement),' ', '') = '".trim(strtolower(escape(str_replace(' ', '', $libelle))))."' 
 			OR replace(lower(p.li_enseigne),' ', '') = '".trim(strtolower(escape(str_replace(' ', '', $libelle))))."')
-			and p.id_region = ".$value["id_region"].""; 
-	
+			and p.id_region = ".$value["id_region"]."";*/
+    $sql = "SELECT id_etablissement, annee, is_cnaps, is_edbm, is_ontm FROM siit_etablissement p WHERE 
+			replace(lower(p.li_enseigne),' ', '') = '".trim(strtolower(escape(str_replace(' ', '', $libelle))))."'
+			and p.id_region = ".$value["id_region"]."";
+
 	$results = db_query($sql);
 	$id_etablissement = 0;
 	$annee = 0;

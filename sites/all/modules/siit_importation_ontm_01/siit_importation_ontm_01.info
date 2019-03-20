@@ -1,5 +1,5 @@
-name = SIIT ONTM : Formulaire d'importation des établissements pour l'ONTM
-description = SIIT ONTM : Formulaire d'importation des établissements pour l'ONTM
+name = SIIT ONTM : Formulaire d'importation des Ã©tablissements XXX pour l'ONTM
+description = SIIT ONTM : Formulaire d'importation des Ã©tablissements pour l'ONTM
 core = 7.x
 version = 7.x-0.x-dev
 package = SIIT

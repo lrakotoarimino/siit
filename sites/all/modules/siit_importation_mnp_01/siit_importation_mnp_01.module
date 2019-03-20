@@ -185,7 +185,7 @@ function csv_import_mnp_01_validate($form, &$form_state){
                                     if($col==0){
                                         if(!in_array(strtolower($val), array_map('strtolower', $libTotals))){
                                             $data = array();$data['id_categorie_visiteur'] = 0;
-                                            $id_nationalite = get_id_nationalite($val,ENTITE_MNP);
+                                            $id_nationalite = get_id_nationalite($val,ENTITE_MNP, false);
                                             if(!$id_nationalite){
                                                 form_set_error('edit-nat'.rand(), t("Onglet ".$parc." - La nationalité ".$val." (".getCellule($row, $col).") est introuvable dans la base."));
                                             } 
@@ -313,7 +313,7 @@ function doTraitement($chemin, &$form_state){
                                 	//On est sur les lignes nationalités
                                     $data = array();
                                     $data['id_categorie_visiteur'] = 0;
-                                    $id_nationalite = get_id_nationalite($val,ENTITE_MNP);
+                                    $id_nationalite = get_id_nationalite($val,ENTITE_MNP, false);
                                     $data['id_nationalite'] = $id_nationalite;
                                 } elseif(in_array(strtolower($val), array_map('strtolower', $categorie_visiteur))){
                                 	$rowType = 'groupe';

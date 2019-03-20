@@ -366,8 +366,14 @@ function traitement_apmf01($chemin, &$form_state){
 									$data['id_nationalite'] = get_id_nationalite($val,""); //passager
 									break;
 								case 9:
-									$data['nb_passagers'] = $val; //passager
+									$data['nb_passagers'] = $val; //passagers
 									break;
+                                case 10:
+                                    $data['nb_passagers_h'] = $val; //passagers hommes
+                                    break;
+                                case 11:
+                                    $data['nb_passagers_f'] = $val; //passagers femmes
+                                break;
 							}
 								
 						}
@@ -443,10 +449,12 @@ function import_data_apmf_croisiere($value){
 function import_data_apmf_passagers($value){
 	
     db_insert('siit_apmf_passagers')
-					->fields(array('id_nationalite','nb_passagers', 'id_apmf_escale', 'id_importation'))
+					->fields(array('id_nationalite','nb_passagers','nb_passagers_h','nb_passagers_f', 'id_apmf_escale', 'id_importation'))
 					->values(array(							
 							'id_nationalite' => $value["id_nationalite"],
 							'nb_passagers' => $value["nb_passagers"],
+                            'nb_passagers_h' => $value["nb_passagers_h"],
+                            'nb_passagers_f' => $value["nb_passagers_f"],
 							'id_apmf_escale' => $value["id_apmf_escale"],
 							'id_importation' => $value["id_importation"],
 							))

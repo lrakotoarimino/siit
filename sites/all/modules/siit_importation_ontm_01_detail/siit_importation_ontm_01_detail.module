@@ -71,7 +71,7 @@ function siit_importation_ontm_01_detail_form($form) {
    left join siit_classement_etablissement classetab on classetab.id_classement_etablissement = etab.id_classement_etablissement
     
    where id_importation=".$_GET["idImportation"];
-    
+
 	/*$results = db_query("select li_etablissement,li_enseigne,li_adresse,li_region,
    
    li_activite_etablissement,nb_emplois_nationaux,
@@ -94,7 +94,7 @@ function siit_importation_ontm_01_detail_form($form) {
 	} else {
 		$sql .= " order by li_etablissement";
 	}
-	
+
 	//$results = db_query($sqlList.$sql);
 	$count_result = db_query($sqlCount.$sql)->fetchAssoc();;
 	$results = db_query_range($sqlList.$sql,$start,$limit);

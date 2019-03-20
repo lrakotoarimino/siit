@@ -85,7 +85,7 @@ function get_siit_importation_paf_03_form($form, &$form_state){
 		
 		
 	$form['importation']["template"] = array(
-	    "#markup" => "Cliquez ici pour télécharger un exemple de <a href='sites/default/files/templates/SIIT_PAF_01.csv' target='_blank'>template</a>. Merci de suivre la procédure d'export du fichier ACCESS en UTF-8.",      
+	    "#markup" => "Cliquez ici pour télécharger un exemple de <a href='sites/default/files/templates/SIIT_PAF_03.csv' target='_blank'>template</a>. Le fichier doit être encodé en ISO-8859-1.",
 	    );
 	    
 	$form['importation']['csv_file'] = array(

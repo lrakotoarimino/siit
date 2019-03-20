@@ -15,6 +15,14 @@
         'type'             => MENU_LOCAL_TASK,
     		//'access callback' => TRUE,
     );
+        $items['siit_importation_edbm_02'] = array(
+            'title'            => t('Formulaire importation'),
+            'page callback'    => 'drupal_get_form',
+            'page arguments' => array('siit_importation_edbm_01_form', 'evpt'),
+            'access arguments' => array('access siit_importation_edbm_01'),
+            'type'             => MENU_LOCAL_TASK,
+            //'access callback' => TRUE,
+        );
     
     return $items;
     
@@ -32,13 +40,21 @@ function siit_importation_edbm_01_permission() {
 
 function siit_importation_edbm_01_form($form, &$form_state) {
 
-		
+
+
         if(!isset($form_state['storage']['confirm'])){			 
 	        return get_siit_importation_edbm_01_form($form, $form_state);
 	    }
         else{
-            
-			list($id_importation,$question) = searchDataExist(ENTITE_EDBM, $_POST['annee'], 0, STATUT_AVALIDER, false);
+            $evpt = $_POST['evpt'];
+
+            if($evpt) {
+                $typeFichier = ENTITE_EDBM02;
+            } else {
+                $typeFichier = ENTITE_EDBM;
+            }
+
+			list($id_importation,$question) = searchDataExist($typeFichier, $_POST['annee'], 0, STATUT_AVALIDER, false);
 			
             if($id_importation){
                   $path = 'siit_importation_edbm_01';
@@ -68,23 +84,51 @@ function siit_importation_edbm_01_form($form, &$form_state) {
 	
 }
 
-function get_siit_importation_edbm_01_form($form, &$form_state){
+function get_siit_importation_edbm_01_form($form, &$form_state)
+{
 
-drupal_set_title(t('Formulaire EDBM'));
-	
-	$options = optionYear();
-	$form['annee'] = array(
-    "#type" => "select",   
-    '#default_value' => date("Y"),   
-    "#title" => t("Année :"),
-    "#options" => $options,
-    //"#default_value" => $settings[""],
-    "#required" => TRUE,
-	);
-	
-	$form['importation']["template"] = array(
-	    "#markup" => "Cliquez ici pour télécharger un exemple de <a href='sites/default/files/templates/SIIT_EDBM.xlsx' target='_blank'>template</a>",      
-	    );
+    drupal_set_title(t('Formulaire EDBM - Hôtels / Restaurants'));
+
+    $evpt = false;
+    if (isset($form_state['build_info']['args'][0])) {
+        if ($form_state['build_info']['args'][0] == 'evpt') {
+            $evpt = true;
+            drupal_set_title(t('Formulaire EDBM - Voyagistes'));
+        }
+    }
+
+    $form['evpt'] = array(
+        "#type" => "hidden",
+        "#id" => "evpt",
+        "#name" => "evpt",
+    );
+
+    if ($evpt) {
+        $form['evpt']['#value'] = true;
+    } else {
+        $form['evpt']['#value'] = false;
+    }
+
+
+    $options = optionYear();
+    $form['annee'] = array(
+        "#type" => "select",
+        '#default_value' => date("Y"),
+        "#title" => t("Année :"),
+        "#options" => $options,
+        //"#default_value" => $settings[""],
+        "#required" => TRUE,
+    );
+
+    if (!$evpt) {
+        $form['importation']["template"] = array(
+            "#markup" => "Cliquez ici pour télécharger un exemple de <a href='sites/default/files/templates/SIIT_EDBM.xlsx' target='_blank'>template</a>",
+        );
+    } else {
+        $form['importation']["template"] = array(
+            "#markup" => "Cliquez ici pour télécharger un exemple A FAIRE de <a href='sites/default/files/templates/SIIT_EDBM.xlsx' target='_blank'>template</a>",
+        );
+    }
 	
 	$form['importation']['csv_file'] = array(
 	        '#title' => 'Importer Fichier :', // Titre dans la page d'importation du fichier
@@ -101,7 +145,7 @@ drupal_set_title(t('Formulaire EDBM'));
 	        '#value' => t('Process'),
 	        '#attributes' => array('class' => array('button button--primary js-form-submit form-submit btn-success btn'),),
 	    	'#validate' => array('csv_import_edbm_01_validate'),
-	    		'#submit' => array('csv_import_edbm_01_submit'),
+            '#submit' => array('csv_import_edbm_01_submit'),
 	    );
 	    
 	    
@@ -116,7 +160,7 @@ drupal_set_title(t('Formulaire EDBM'));
 }
 
 function csv_import_edbm_01_validate($form, &$form_state){
-   
+
    if($form_state['values']['csv_file']){
         $file = file_load($form_state['values']['csv_file']);
         $uri = $file->uri;
@@ -129,10 +173,18 @@ function csv_import_edbm_01_validate($form, &$form_state){
             
         }
         $annee = $_POST['annee'];
+        $evpt = ($_POST['evpt']);
         
         if(!empty($_POST['annee'])){
+
+            if($evpt) {
+                $typeFichier = ENTITE_EDBM02;
+            } else {
+                $typeFichier = ENTITE_EDBM;
+            }
+
 			//Controle si un import validé existe déjà
-			list($id_importation,$question) = searchDataExist(ENTITE_EDBM, $_POST['annee'], 0, STATUT_VALIDE, false);
+			list($id_importation,$question) = searchDataExist($typeFichier, $_POST['annee'], 0, STATUT_VALIDE, false);
 		}
 		
         
@@ -162,7 +214,7 @@ function csv_import_edbm_01_validate($form, &$form_state){
 						}else if(!empty($val)){
 							$id_region = get_id_region($val);
 							if($id_region == 0){
-								form_set_error('edit-region2'.$row, t("La region '$val' n'existe pas en base. (".getCellule($row, $col).")"));
+								form_set_error('edit-region2'.$row, t("La région '$val' n'existe pas en base. (".getCellule($row, $col).")"));
 							} 
 							$val_region = "tmp";		
 						}
@@ -172,10 +224,17 @@ function csv_import_edbm_01_validate($form, &$form_state){
 						form_set_error('edit-etab'.$row , t("Nom d'établissement et enseigne sont vides. (".getCellule($row, $col).")."));						
 					}
 					
-                    if($val){	
-                    	if($col==6 ){
+                    if($val){
+                        if($col==5){
+                            if ($evpt) {
+                                //Le code A/B/C doit être présent
+                                controle_error_licence_etablissement('edit-licence-etablissement' . $row, $val, $row, $col);
+                            }
+                        }else if($col==6 ){
                     		//Activités
-                    		controle_error_activite_etablissement('edit-activite-etablissement'.$row, $val,$row,$col);
+                            if (!$evpt) {
+                                controle_error_activite_etablissement('edit-activite-etablissement' . $row, $val, $row, $col);
+                            }
                     	}else if($col==7 ){
                         	//Nb d'emplois nationaux
 							controle_error_int('edit-nb-nat'.$row,$val,$row,$col);
@@ -187,12 +246,16 @@ function csv_import_edbm_01_validate($form, &$form_state){
 							controle_error_nombre('edit-invest'.$row,$val,$row,$col);
 						}elseif($col==14 ){
 							//Nb de chambres
-							controle_error_int('edit-nb-ch'.$row,$val,$row,$col);
+                            if (!$evpt) {
+                                controle_error_int('edit-nb-ch' . $row, $val, $row, $col);
+                            }
 						}else if($col==15 ){
 							//Nb de places au restos
-							controle_error_int('edit-nb-place'.$row,$val,$row,$col);
+                            if (!$evpt) {
+							    controle_error_int('edit-nb-place'.$row,$val,$row,$col);
+                            }
 						}else if($col == 12){
-							$id_nat = get_id_nationalite($val,ENTITE_EDBM);
+							$id_nat = get_id_nationalite($val,ENTITE_EDBM, false);
 							if($id_nat == 0){
 							    form_set_error('edit-nat'.$row, t("La nationalité '$val' n'existe pas en base. (".getCellule($row, $col).")"));
 							} 
@@ -281,8 +344,14 @@ function condition_arret($col,$val,&$data_arret){
 function csv_import_edbm_01_submit($form, &$form_state) {
 
 	if(!isset($form_state['storage']['confirm'])) {
+        $evpt = $_POST['evpt'];
+        if($evpt) {
+            $typeFichier = ENTITE_EDBM02;
+        } else {
+            $typeFichier = ENTITE_EDBM;
+        }
 			
-        list($id_importation,$question) = searchDataExist(ENTITE_EDBM, $_POST['annee'],0, STATUT_VALIDE, true) ;
+        list($id_importation,$question) = searchDataExist($typeFichier, $_POST['annee'],0, STATUT_VALIDE, true) ;
 		
         if($id_importation){
             $form_state['storage']['confirm'] = TRUE;
@@ -323,13 +392,19 @@ function traitement_edbm01($chemin, &$form_state){
             
         }
         $annee = $_POST['annee'];
+        $evpt = $_POST['evpt'];
+
         controleDoublonImportation($annee, 0,ENTITE_EDBM);
         $data = array();
         $data['annee'] = $annee;
         $data['id_mois'] = 0;
         $data["li_fichier"] = basename($path);
         $data["id_statut"] = STATUT_AVALIDER;
-        $data["id_type_fichier"] = TYPE_FICHIER_EDBM;
+        if (!$evpt) {
+            $data["id_type_fichier"] = TYPE_FICHIER_EDBM;
+        } else {
+            $data["id_type_fichier"] = TYPE_FICHIER_EDBM_02;
+        }
         $id_importation = insert_importation($data);
         
         $data = array();
@@ -358,17 +433,27 @@ function traitement_edbm01($chemin, &$form_state){
                         case 3:
                           $data['id_region'] = get_id_region($val);
                           break;
+                        case 5:
+                            if($evpt) {
+
+                                $data['evpt'] = true;
+                                $data['id_activite_etablissement'] = get_id_activite_etablissement_from_licence($val);
+                            }
+                            break;
                         case 6:
-                          $data['id_activite_etablissement'] = get_id_activite_etablissement($val);
+                            if(!$evpt) {
+                                $data['evpt'] = false;
+                                $data['id_activite_etablissement'] = get_id_activite_etablissement($val);
+                            }
                           break;
                         case 7:
-                          $data['nb_emplois_nationaux'] = $val;
+                          $data['nb_emplois_nationaux'] = intVal($val);
                           break;
                         case 8:
-                          $data['nb_emplois_etrangers'] = $val;
+                          $data['nb_emplois_etrangers'] = intVal($val);
                           break;
                         case 9:
-                          $data['mt_investissement'] = $val;
+                          $data['mt_investissement'] = intVal($val);
                           break;
                         case 10:
                           $PHPTimeStamp = PHPExcel_Shared_Date::ExcelToPHP($val);
@@ -384,10 +469,10 @@ function traitement_edbm01($chemin, &$form_state){
                           $data['id_classement_etablissement'] = get_id_classement_etablissement($val);
                           break;
                         case 14:
-                          $data['nb_chambres'] = $val;
+                          $data['nb_chambres'] = intVal($val);
                           break;
                         case 15:
-                          $data['nb_places_repas'] = $val;
+                          $data['nb_places_repas'] = intVal($val);
                           break;
                     }
                 }
@@ -408,4 +493,11 @@ function controle_error_activite_etablissement($code, $val,$row,$col) {
 	if (empty($idActivite)) {
 		form_set_error($code , t("L'activité ".$val." n'est pas connue (".getCellule($row, $col).") ."));
 	}
+}
+
+function controle_error_licence_etablissement($code, $val,$row,$col) {
+    $idActivite = get_id_activite_etablissement_from_licence($val);
+    if (empty($idActivite)) {
+        form_set_error($code , t("L'activité ".$val." n'est pas connue (".getCellule($row, $col).") ."));
+    }
 }

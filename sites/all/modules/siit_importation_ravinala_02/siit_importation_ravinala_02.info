@@ -1,0 +1,5 @@
+name = SIIT RAVINALA : Formulaire d'importation 02 pour le RAVINALA
+description = SIIT RAVINALA : Formulaire d'importation 02 pour le RAVINALA
+core = 7.x
+version = 7.x-0.x-dev
+package = SIIT
