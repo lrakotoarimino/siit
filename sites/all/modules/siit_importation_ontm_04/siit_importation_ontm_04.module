@@ -1,0 +1,1211 @@
+<?php
+
+/**
+* @file
+* Display a ONTM Importation formulaire
+*/
+
+
+	function siit_importation_ontm_04_menu(){
+	    $items = array();
+	    $items['siit_importation_ontm_04'] = array(
+	        'title'            => t('Formulaire importation'), 
+	        'page callback'    => 'drupal_get_form',
+	        'page arguments' => array('siit_importation_ontm_04_form'),
+	        'access arguments' => array('access siit_importation_ontm_04'),
+	        'type'             => MENU_LOCAL_TASK,
+	    		//'access callback' => TRUE,
+	    );
+	    
+	    return $items;
+	    
+	}  
+
+function siit_importation_ontm_04_permission() {
+  return array( 
+    'access siit_importation_ontm_04' => array(
+      'title' => t('siit_importation_ontm_04 : Ontm vignettes importation formulaire'),
+      'description' => t('Perform administration tasks for ontm importation formulaire.'),
+    ),
+  );
+}
+
+function siit_importation_ontm_04_form($form, &$form_state) {
+	
+	drupal_set_title(t('IMPORTATION DES VIGNETTES TOURISTIQUES (ONTM)'));
+	
+	 if(!isset($form_state['storage']['confirm'])){			 
+	        return get_siit_importation_ontm_04_form($form, $form_state);
+	    }
+        else{
+            csv_import_ontm_04_submit($form, $form_state);
+        }
+	
+}
+
+function get_siit_importation_ontm_04_form($form, $form_state){
+	 $form['importation']["template"] = array(
+	    "#markup" => "Cliquez ici pour télécharger un exemple de <a href='sites/default/files/templates/SIIT_ONTM.xlsx' target='_blank'>template</a>",      
+	    );	
+	    
+	
+   $form['importation']['csv_file'] = array(
+	        '#title' => 'Importer Fichier :', // Titre dans la page d'importation du fichier
+	        '#description' => 'Seuls ces fichiers xlsx sont valides.',
+	        '#type' => 'managed_file',
+	        '#required' => TRUE,
+	        '#upload_validators' => array(
+	            'file_validate_extensions' => array('xlsx'),
+	        ),
+	    );
+	    
+	
+	 $form['importation']['submit'] = array(
+	        '#type' => 'submit',
+	        '#value' => t('Process'),
+	        '#attributes' => array('class' => array('button button--primary js-form-submit form-submit btn-success btn'),),
+			'#validate' => array('csv_import_ontm_04_validate'),
+	    	'#submit' => array('csv_import_ontm_04_submit'),
+	 );
+	    
+	    
+	 $form['importation']['back'] = array('#type' => 'submit', '#value' => t('Back'));
+   	 $form['importation']['back']['#submit'] = array('siit_back_ontm02_submit');
+	 $form['importation']['back']['#limit_validation_errors'] = array();
+	 $form['importation']['back']['#name'] = 'back';
+	 
+	
+	$form['#attributes']['class'][] = 'import-form';
+	return $form;
+	
+}
+
+function csv_import_ontm_04_validate($form, &$form_state){
+
+	$region="";
+	$li_etablissement;
+	//;
+    //$etrangers ;
+	$row_begin =0 ;
+	$col_begin=0;
+	$cell_="";
+	$valid = false;
+	
+	
+	if(!empty($_POST['annee']) && !empty($_POST['mois'])){
+		//Controle si un import validé existe déjà
+		list($id_importation,$question) = searchDataExist2(ENTITE_ONTM02, 0, 0, STATUT_VALIDE, false);
+	}
+	
+	
+	// Récupération du fichier 
+	if($form_state['values']['csv_file'] && empty($id_importation)){	
+		$valid = true;
+					
+		$file = file_load($form_state['values']['csv_file']);
+		$uri = $file->uri;
+		$path = drupal_realpath($uri);
+		try {
+			$inputFileType = PHPExcel_IOFactory::identify($path);	
+			$objReader = PHPExcel_IOFactory::createReader($inputFileType);		
+			$objPHPExcel = $objReader->load($path);				
+		} catch (Exception $e) {}
+		
+		//récuperer les nom des onglets			
+		$tableau_nom_onglet = $objPHPExcel->getSheetNames();
+		//Test champs
+		$numWorksheet = 0;
+		foreach ($objPHPExcel->getWorksheetIterator() as $worksheet) {
+			//if($numWorksheet == 0) { //On importe uniquement le 1er onglet
+			$nom_onglet = $tableau_nom_onglet[$numWorksheet];
+			
+			    $numWorksheet++;
+				$highestRow         = $worksheet->getHighestRow(); 
+				$highestColumn      = $worksheet->getHighestColumn(); 
+				$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
+				
+				if ($highestColumnIndex == 8){
+					form_set_error('edit-annee', t("L'année des données doit être indiquée en celulle I1."));
+					return;
+				}
+				$type_de_fichier = 0;
+				$val_A1 = $worksheet->getCellByColumnAndRow(0, 1)->getValue();
+				if (trim(strtolower($val_A1)) === trim(strtolower("Region"))) 
+				{
+					$type_de_fichier = 1;
+				}
+				else
+				{
+					$type_de_fichier = 2;
+				}
+				if ($type_de_fichier == 2) {
+					$region = 0;
+					$region = get_id_region_ontm02(addslashes($nom_onglet));
+					if ($region == 0) {
+						form_set_error('edit-debut', t("La région '$nom_onglet' n'existe pas en base. (Nom de la feuille : ".$nom_onglet.")"));
+						return;
+					}
+				}
+				for ($row = 1; $row <= $highestRow; ++ $row) 
+				{
+					
+					$line = array();
+					$line[0] = $worksheet->getCellByColumnAndRow(0, $row)->getValue();
+					$line[1] = $worksheet->getCellByColumnAndRow(1, $row)->getValue();
+					$line[2] = $worksheet->getCellByColumnAndRow(2, $row)->getValue();
+					$line[3] = $worksheet->getCellByColumnAndRow(3, $row)->getValue();
+					$line[4] = $worksheet->getCellByColumnAndRow(4, $row)->getValue();
+					$line[5] = $worksheet->getCellByColumnAndRow(5, $row)->getValue();
+					$line[6] = $worksheet->getCellByColumnAndRow(6, $row)->getValue();
+					
+					for ($col = 0; $col < $highestColumnIndex; ++ $col) 
+					{   
+						
+						$cell = $worksheet->getCellByColumnAndRow($col, $row)->getValue();
+						if($row == 1 && $col == 0)
+						{
+							//Vérifie la conformité du fichier
+							
+							if(trim(strtolower($cell)) == trim(strtolower("Region")) || trim(strtolower($cell)) == trim(strtolower("Etablissement")))
+							{
+							  	$row_begin = $row;
+							  	$col_begin = $col;
+							} 
+							else
+							{
+								form_set_error('edit-debut', t("Fichier non conforme. - A1 doit s'appeler : Etablissement ou Region (Feuille : ".$nom_onglet.")"));
+								return;
+							}
+						}
+						if($row == 1 && $col == 1)
+						{
+							//Vérifie la conformité du fichier
+							if ($type_de_fichier == 1) {// fichier type 1
+								if(trim(strtolower($cell)) == trim(strtolower("Hotel")))
+								{
+							  		$row_begin = $row;
+							  		$col_begin = $col;
+								} else if( trim(strtolower($cell)) != trim(strtolower("cat"))){
+									form_set_error('edit-debut', t("Fichier non conforme. - B1 doit s'appeler : Hotel (Feuille : ".$nom_onglet.")"));
+									return;
+								}
+							}
+							elseif ($type_de_fichier == 2) {// fichier type 2
+								if(trim(strtolower($cell)) == trim(strtolower("Nb CHB"))){
+							  		$row_begin = $row;
+							  		$col_begin = $col;
+								} else if( trim(strtolower($cell)) != trim(strtolower("cat"))){
+									form_set_error('edit-debut', t("Fichier non conforme. - B1 doit s'appeler : Nb CHB ou Nb Chab (Feuille : ".$nom_onglet.")"));
+									return;
+								}
+							}
+							
+						}
+						if($row == 1 && $col == 2){
+							//Vérifie la conformité du fichier
+							if ($type_de_fichier == 1){
+								if(trim(strtolower($cell)) == trim(strtolower("Nb chab"))){
+							  		$row_begin = $row;
+							  		$col_begin = $col;
+								} else{
+									form_set_error('edit-debut', t("Fichier non conforme. - C1 doit s'appeler : Nb Chab (Feuille : ".$nom_onglet.")"));
+									return;
+								}
+							}
+							elseif ($type_de_fichier == 2){
+								if(trim(strtolower($cell)) == trim(strtolower("taux VT"))){
+							  		$row_begin = $row;
+							  		$col_begin = $col;
+								} else{
+									form_set_error('edit-debut', t("Fichier non conforme. - C1 doit s'appeler : taux VT (Feuille : ".$nom_onglet.")"));
+									return;
+								}
+							}
+							
+						}
+						if($row == 1 && $col == 3){
+							//Vérifie la conformité du fichier
+							if ($type_de_fichier == 1) {// fichier type 1
+								if(trim(strtolower($cell)) == trim(strtolower("Taux VT"))){
+								  	$row_begin = $row;
+								  	$col_begin = $col;
+								} else{
+									form_set_error('edit-debut', t("Fichier non conforme. - D1 doit s'appeler : taux VT (Feuille : ".$nom_onglet.")"));
+									return;
+								}
+							}elseif ($type_de_fichier == 2) {// fichier type 2
+								if(trim(strtolower($cell)) == trim(strtolower("Mois"))){
+								  	$row_begin = $row;
+								  	$col_begin = $col;
+								} else{
+									form_set_error('edit-debut', t("Fichier non conforme. - D1 doit s'appeler : Mois (Feuille : ".$nom_onglet.")"));
+									return;
+								}
+							}
+						}
+						if($row == 1 && $col == 4){
+							//Vérifie la conformité du fichier
+							if ($type_de_fichier == 1) {// fichier type 1
+								if(trim(strtolower($cell)) == trim(strtolower("Mois"))){
+								  	$row_begin = $row;
+								  	$col_begin = $col;
+								} else{
+									form_set_error('edit-debut', t("Fichier non conforme. - E1 doit s'appeler : Mois (Feuille : ".$nom_onglet.")"));
+									return;
+								}
+							}elseif ($type_de_fichier == 2) {// fichier type 2
+								if(trim(strtolower($cell)) == trim(strtolower("Montant VT 50%"))){
+								  	$row_begin = $row;
+								  	$col_begin = $col;
+								} else{
+									form_set_error('edit-debut', t("Fichier non conforme. - E1 doit s'appeler : Montant VT 50% (Feuille : ".$nom_onglet.")"));
+									return;
+								}
+							}
+						}
+						if($row == 1 && $col == 5){
+							//Vérifie la conformité du fichier
+							if ($type_de_fichier == 1) {// fichier type 1
+								if(trim(strtolower($cell)) == trim(strtolower("Montant VT 50%"))){
+							  		$row_begin = $row;
+							  		$col_begin = $col;
+								} else{
+									form_set_error('edit-debut', t("Fichier non conforme. - F1 doit s'appeler : Montant VT 50% (Feuille : ".$nom_onglet.")"));
+									return;
+								}
+							}elseif ($type_de_fichier == 2) {// fichier type 2
+								if(trim(strtolower($cell)) == trim(strtolower("Taux d'occupation"))){
+							  		$row_begin = $row;
+							  		$col_begin = $col;
+								} else{
+									form_set_error('edit-debut', t("Fichier non conforme. - F1 doit s'appeler : Taux d'occupation (Feuille : ".$nom_onglet.")"));
+									return;
+								}
+							}
+						}
+						if($row == 1 && $col == 6){
+							//Vérifie la conformité du fichier
+							//var_dump($type_de_fichier) or die();
+							if ($type_de_fichier == 1) {// fichier type 1
+								if(trim(strtolower($cell)) == trim(strtolower("Taux d'occupation"))){
+								  	$row_begin = $row;
+								  	$col_begin = $col;
+								} else{
+									form_set_error('edit-debut', t("Fichier non conforme. - G1 doit s'appeler : Taux d'occupation (Feuille : ".$nom_onglet.")"));
+									return;
+								}
+							}
+						}
+					}
+					//var_dump($type_de_fichier) or die();
+					if ($row >1) {
+						$data = cas_fichier_4($line, $valid, $row, $nom_onglet, $type_de_fichier);
+
+					}
+						
+				}
+			//}
+			
+		}
+		
+	}
+	
+	if (!$valid) {
+		//Si il y a une seule erreur, on affiche les erreurs sans aller plus loin
+		form_set_error('edit-error', t("Merci de corriger les erreurs ci-dessus avant de réimporter le fichier"));
+		return false;
+	}
+}
+
+
+function csv_import_ontm_04_submit($form, &$form_state){
+
+	if(!isset($form_state['storage']['confirm'])) {
+		$file = file_load($form_state['values']['csv_file']);
+        traitement_ONTM04($file->uri,$form_state);
+    } else {
+        $file = file_load($form_state['values']['csv_file']);
+        $chemin = $file->uri;
+        traitement_ONTM04($chemin,$form_state);
+    }
+
+}
+
+
+function traitement_ONTM04($chemin, &$form_state){
+
+	// Récupération du fichier  
+	if($form_state['values']['csv_file']){
+				
+		$path = drupal_realpath($chemin);
+		try {
+		
+			$inputFileType = PHPExcel_IOFactory::identify($path);	
+			$objReader = PHPExcel_IOFactory::createReader($inputFileType);		
+			$objPHPExcel = $objReader->load($path);				
+			
+		} catch (Exception $e) {
+			
+		}
+		
+		//INSERTION siit_importation		
+		// rechercher importation avec dt_import et li_fichier et id_type_fichier
+		$data_import = array();
+		//recup année list	
+		//$annee  = $form_state['values']['annee'];
+		//$id_mois_form = $form_state['values']['mois'];
+	
+		$name_file = basename($path);
+					
+		//$data_import['annee'] = $annee;
+		//$data_import['id_mois'] = $id_mois_form;
+		$data_import["li_fichier"] = basename($path);
+		$data_import["id_statut"] = STATUT_AVALIDER;
+		$data_import["id_type_fichier"] = TYPE_FICHIER_ONTM02;
+			
+		//On supprime l'importation existante pour l'équivalent
+		//controleDoublonImportation(0, 0,ENTITE_ONTM02);
+		$id_importation = insert_importation2($data_import);
+
+
+
+/*
+		$data_import['annee'] = $annee;
+		$data_import['id_mois'] = $id_mois_form;
+		$data_import["li_fichier"] = basename($path);
+		$data_import["id_statut"] = STATUT_AVALIDER;
+		$data_import["id_type_fichier"] = TYPE_FICHIER_ONTM02;
+			
+		//On supprime l'importation existante pour l'équivalent
+		controleDoublonImportation($annee, 0,ENTITE_ONTM02);
+*/
+
+
+		
+		$data = array();
+		$region="";
+		$li_etablissement = "";
+		$id_etablissement = 0;
+		$row_begin =0;
+		$col_begin=0;
+		$cell_="";
+		//récuperer les nom des onglets			
+		$tableau_nom_onglet = $objPHPExcel->getSheetNames();
+		$numWorksheet = 0;
+		foreach ($objPHPExcel->getWorksheetIterator() as $worksheet) {
+		   	$nom_onglet = $objPHPExcel->getSheetNames();
+			$highestRow         = $worksheet->getHighestRow(); 
+			$highestColumn      = $worksheet->getHighestColumn(); 
+			$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
+			$nom_onglet = $tableau_nom_onglet[$numWorksheet];
+			$numWorksheet++;
+			//drupal_set_message(t($highestRow."ligne ".$highestColumnIndex), $type = '', $repeat = FALSE);
+			$type_de_fichier = 0;
+			$val_A1 = $worksheet->getCellByColumnAndRow(0, 1)->getValue();
+			if (trim(strtolower($val_A1)) === trim(strtolower("Region"))) 
+			{
+				$type_de_fichier = 1;
+			}
+			else
+			{
+				$type_de_fichier = 2;
+			}
+			for ($row = 2; $row <= $highestRow; ++ $row) {
+			
+				$line = array();
+				$line[0] = $worksheet->getCellByColumnAndRow(0, $row)->getValue();
+				$line[1] = $worksheet->getCellByColumnAndRow(1, $row)->getValue();
+				$line[2] = $worksheet->getCellByColumnAndRow(2, $row)->getValue();
+				$line[3] = $worksheet->getCellByColumnAndRow(3, $row)->getValue();
+				$line[4] = $worksheet->getCellByColumnAndRow(4, $row)->getValue();
+				$line[5] = $worksheet->getCellByColumnAndRow(5, $row)->getValue();
+				$line[6] = $worksheet->getCellByColumnAndRow(6, $row)->getValue();
+				$valid = true;
+				$dataLine = cas_fichier_4($line, $valid, $row, $nom_onglet, $type_de_fichier);
+				
+				if ($dataLine != null) {
+					$donnee = $dataLine[0];
+					
+					if (isset($donnee["li_etablissement"])) {
+						if($donnee["li_etablissement"] != "" && $donnee["id_etablissement"] == 0 ){
+							
+							//insert 			
+							$id_etab = import_data_etablissement_ontm_04($donnee,$id_importation);
+							import_data_ontm_04($donnee,$id_importation,$id_etab);
+						} else{
+							//update 
+							import_data_ontm_04($donnee,$id_importation,0);
+						}
+					}	
+				}
+			}
+		}
+			
+	
+		drupal_set_message("L'import a été effectué avec succès.", $type = 'status');
+		$form_state['redirect'] ="siit_importation_fusion_etablissement";
+	}				
+}
+
+
+
+
+function import_data_etablissement_ontm_04($value){
+	
+	if ( mb_detect_encoding($value["li_etablissement"], 'UTF-8', true) === false ){
+		$li_etablissement = utf8_encode($value["li_etablissement"]);
+	}else {
+		$li_etablissement = $value["li_etablissement"];
+	}
+	//$li_etablissement = str_replace( "'", "\'", $li_etablissement );
+    $value["li_enseigne"] = $value["li_etablissement"];
+	
+	
+	list($id_etablissement,$annee) = get_id_etablissement($value);
+	
+	if($id_etablissement==0){
+        $id_etablissement =   db_insert('siit_etablissement')
+				->fields(array('li_etablissement', 'li_enseigne', 'id_region', 'li_adresse', 'nb_emplois_nationaux', 'nb_emplois_etrangers',
+				'id_activite_etablissement','mt_investissement', 'dt_autorisation', 'num_autorisation', 'nb_chambres', 'nb_places_repas',
+				'fixe',	'mobile', 'email' ,'website',
+				'id_nationalite_promoteur', 'id_classement_etablissement', 'id_importation', 'is_ontm'))
+				->values(array(
+					'li_etablissement' => $li_etablissement,
+					'li_enseigne' => $li_etablissement,
+					'id_region' => $value["id_region"],
+					'li_adresse' => "",
+					'id_activite_etablissement' => 9, //Comme on ne connait pas, on met Hotel-Restaurant
+					'mt_investissement' => 0,
+					'num_autorisation' => 0,
+					'dt_autorisation' => '2010-01-01',
+					'id_nationalite_promoteur' => 0,
+					'id_classement_etablissement' => $value["id_classement_etablissement"],
+					'nb_chambres' => $value["nb_chambres"],
+					'nb_places_repas' => 0,
+					'fixe' => '',
+					'mobile' => '',
+					'email' => '',
+					'website' => '',
+					'nb_emplois_nationaux' => 0,	           					
+					'nb_emplois_etrangers' => 0,
+					'id_importation' => 0, 
+					'is_ontm' => '1'
+				))
+			->execute();
+	}
+	return 	 $id_etablissement;	
+}
+
+function import_data_ontm_04($value,$id_importation,$id_etab){
+		$id_etablissement = $id_etab!=0?$id_etab:$value["id_etablissement"];
+		//compter le nombre des mois
+		//var_dump($value["id_mois"]) or die();
+		$total_mois = intval(conversion_2date_mois($value["id_mois"])); 
+		var_dump($total_mois." ".$id_etablissement);
+		if ($total_mois == 1) {
+			//recuperer l'id_mois et année, exemple: 1/2019
+			$date1 = conv_date_en_id($value["id_mois"]);
+			$date1 = explode("/",$date1);
+			$idmois = $date1[0];
+			$idannee = $date1[1];
+			//var_dump($idannee) or die();
+			//verifier l'éxistance des données
+			$res = verifier_vignette($idmois, $idannee, $value["id_etablissement"]);
+			ajouter_donnee($res, $idmois, $idannee, $value,$id_importation);
+		}
+		else{
+			//recuperer id mois et année exemple: 11/2010A3/2011
+			//var_dump($value["id_mois"]) or die();
+			$dateTous = conv_date_en_id($value["id_mois"]);
+			$dateTous = explode("_",$dateTous);
+			//var_dump($dateTous) or die();
+			$date1 = explode("/",$dateTous[0]);
+			$moiss = intval($date1[0]);
+			//$dada = explode("A",$date1[1]);
+			$anneeannee = intval($date1[1]);
+			//var_dump($date1[1]) or die();
+			$montant_ajouter = intval($value["montant"])/$total_mois;
+			for ($i=0; $i < intval($total_mois); $i++) {
+				$res = verifier_vignette($moiss, $anneeannee, $value["id_etablissement"]);
+				if ($res == 0) {
+					//donnée non éxistant //Ajouter\\
+					$aajouter = array(
+						'id_etablissement' => $value["id_etablissement"],
+						'id_mois' => $moiss,
+						'annee' => $anneeannee,	           					
+						'mt_vignette_touristique' => $value["montant"] ? $montant_ajouter:0,
+						'nb_chambres' => $value["nb_chambres"],
+						'id_importation' => $id_importation, 
+					);
+					//var_dump($aajouter) or die();
+					ajouter_vignette($aajouter);
+				}
+				else{
+					//données éxistant //Mettre à jour\\
+					$amodifier = array(
+						'mt_vignette_touristique' => $value["montant"] ? $montant_ajouter:0,
+						'nb_chambres' => $value["nb_chambres"],
+					);
+					modifier_vignette($res, $amodifier);
+				}
+				//var_dump($res) or die();
+				//ajouter_donnee($res, $moiss, $anneeannee, $value);
+				if ($moiss == 12) {
+					$moiss = 1;
+					$anneeannee++;
+				}
+				else{
+					$moiss++;
+				}
+			}
+		}
+		//Mettre à jour le classement
+		if($id_etablissement){
+			$num_updated = db_update('siit_etablissement')
+				->fields(array('id_classement_etablissement' => $value["id_classement_etablissement"],
+				'is_ontm' => '1'))
+				->condition('id_etablissement', $id_etablissement)
+				->execute();						
+		}
+}
+
+function getinterval4($strDate1,$strDate2){
+	$date3=new Datetime($strDate1);
+	$date4=new Datetime($strDate2);
+	
+	$interval = $date3->diff($date4);
+	$ecarmois=(int)$interval->format('%R%m');
+	$ecarannee = (int)$interval->format('%R%y');
+	$ecarmois = $ecarannee*12 + $ecarmois;
+	$datedeb = $date3;
+	if($ecarmois <0){
+		$datedeb = $date4;
+		$ecarmois = - $ecarmois;
+	}
+	
+	$listdate[] = $datedeb->format("Y-m-d");
+	for($i = 0;$i<$ecarmois ; $i++){
+		$datedeb->add(new DateInterval('P1M'));
+		$listdate[] = $datedeb->format("Y-m-d");
+	}
+	return $listdate;
+}
+
+
+function multiexplode4($delimiters,$string) {
+   
+    $string = str_replace("  ", " ",$string);
+    $string = explode($delimiters, $string);
+    return  $string;
+    
+   /* $ready = str_replace($delimiters, $delimiters[0], $string);
+    $launch = explode($delimiters[0], $ready);
+    return  $launch;*/
+}
+
+function real_line4($row){
+	return 'Ligne n° '.$row;
+}
+
+function manage_montant4($string){
+
+	if($string!==0 || empty($string)){
+		if(strpos($string, ',') !== false ){ 
+			$str = substr(trim($string), 0, -3);
+			$mt = str_replace(",", "", $str);
+			$mt = str_replace(" ", "", $mt);
+		}else{ 				
+			$mt = str_replace(" ", "", $string);
+		}
+	}		
+	
+	return $mt;
+}
+
+function get_id_region_ontm04($libelle) {
+	
+	if (mb_detect_encoding($libelle, 'UTF-8', true) === false ){
+		$str = utf8_encode(trim(strtolower($libelle)));
+	}else {
+		$str = trim(strtolower($libelle));
+	}
+	
+	
+	$id_region =0;
+	$sql = "SELECT id_region FROM siit_region  
+			WHERE lower(li_region) = '".addslashes($str)."'"; 
+		
+	$results = db_query($sql);
+	foreach($results as $result) {
+		$id_region = $result->id_region;
+	}	
+		
+	if (empty($id_region)) {
+		$sql = "SELECT id_region FROM {siit_region_entite} p WHERE 
+				 lower(li_region) ='".addslashes($str)."'"; 
+		$results = db_query($sql);
+		foreach($results as $result) {
+			$id_region = $result->id_region;
+		}
+	}	   
+		
+	return $id_region;	
+}
+function verifier_vignette($mois, $annee, $etab) {
+	//var_dump($etab) or die();
+	$id_vign =0;
+	$sql = "SELECT id_vignette_touristique FROM siit_vignette_touristique  
+			WHERE id_mois = '".$mois."' AND annee = '".$annee."' AND id_etablissement = '".$etab."'"; 
+		
+	$results = db_query($sql);
+	foreach($results as $result) {
+		$id_vign = $result->id_vignette_touristique;
+	}	
+	if (empty($id_vign)) {
+		return 0;
+	}else{
+		return $id_vign;
+	}	
+}
+
+function ajouter_vignette($value){
+	//var_dump($value) or die('io value');
+	db_insert('siit_vignette_touristique')->fields($value)->execute();
+}
+function modifier_vignette($id, $value){
+	//var_dump($value) or die('io value');
+	db_update('siit_vignette_touristique')->fields($value)->condition('id_vignette_touristique', $id, '=')->execute();
+}
+
+
+
+
+
+
+
+
+	/*
+	0 Etablissement
+	1 CAT
+	2 NBRE CH;
+	3 Taux VT;
+	4 Mois;
+	5 Montant (50%);
+	6 Taux d'occupation	
+*/
+
+function cas_fichier_4($line, &$valid, $row, $nom_onglet, $type_de_fichier){
+	//var_dump($line);
+	$data = array();
+
+	$id_etablissement=0;
+	$id_classement_etablissement=0;
+	$id_mois_min=0; 
+    $id_mois_max=0; 
+    $annee_min=0;
+    $annee_max=0;
+	$annee_min_actif =false;
+	$is_montant_set=false;
+	$id_mois_tmp = 0;
+	$annee_tmp=0;	
+	$max_au = false;
+	$max_et= false;
+	$nb_chambre=0;
+	$montant=0;
+	$li_etablissement = "";
+	$province = "";
+	$district = "";
+	$id_region  = 0;
+	if ($type_de_fichier == 1) {
+
+		if($line[0] != '') {
+			$cell_region = addslashes($line[0]);
+		    $id_region = get_id_region_ontm02($cell_region);
+		    if($id_region==0){
+		        drupal_set_message(t("La région '$cell_region' n'existe pas en base. (Feuille : ".$nom_onglet." - ".real_line4($row).")"), $type = 'error', $repeat = true);
+		        $valid = false;
+		    }
+		    
+			if ($line[1] == '') {
+				drupal_set_message(t("La colonne 'Hotel' est vide. (Feuille : ".$nom_onglet." - ".real_line4($row).")"), $type = 'error', $repeat = true);											
+				$valid = false;
+			}
+			else{
+				$li_etablissement = $line[1];
+				$id_etablissement = get_id_etablissement2($li_etablissement, $id_region);
+			}	
+			if ($line[2] == '' || !is_numeric($line[2])) {
+				drupal_set_message(t("La colonne 'Nb Chab' doit être un chiffre. (Feuille : ".$nom_onglet." - ".real_line4($row).")"), $type = 'error', $repeat = true);											
+				$valid = false;
+			}
+			else{
+				$nb_chambre=intval($line[2]);
+			}	
+			if ($line[3] == '' || !is_numeric($line[3])) {
+				drupal_set_message(t("La colonne 'taux VT' doit être un chiffre. (Feuille : ".$nom_onglet." - ".real_line4($row).")"), $type = 'error', $repeat = true);								 			
+				$valid = false;
+			}	
+			if (isset($line[4]) && $line[4] !== '') {
+
+					//Les différents cas sont :
+				//Mai 2016
+				//Novembre 2015 A Mai 2016
+				//Novembre A Mai 2016
+				//Mars A Mai 2016
+				//Mars 2015 A Mai 2016
+				//AVRIL ET Mai 2016
+				//Novembre 2015 AU Mai 2016
+				//Novembre AU Mai 2016
+				//Mars AU Mai 2016
+				//Mars 2015 AU Mai 2016
+				$str = str_replace("  ", " ", $line[4]);
+				$str = str_replace(" AU ", "/", $str);
+				$str = str_replace(" ET ", "/", $str);
+				$str = str_replace(" A ", "/", $str);
+				$str = explode("/",$str); //==> On a mois min et mois max
+				$annee_min = 0;
+				$annee_max = 0;
+				if (isset($str[0])) {
+					$dateMin = explode(" ",$str[0]);
+					$id_mois_min = $dateMin[0];
+					$id_mois_min = get_id_mois($id_mois_min);
+					if (isset($dateMin[1])) {
+						$annee_min = $dateMin[1];
+					}
+				}
+				
+				$intervalle = true;
+				if (isset($str[1])) {
+					$dateMax = explode(" ",$str[1]);
+					$id_mois_max = $dateMax[0];
+					$id_mois_max = get_id_mois($id_mois_max);
+					if (isset($dateMax[1])) {
+						$annee_max = $dateMax[1];
+					}
+				} else {
+					$intervalle = false; //Juste un mois sans intervalle de période
+					$id_mois_max = $id_mois_min;
+					$annee_max = $annee_min;
+				}
+				
+				
+				if ($id_mois_min < $id_mois_max) {
+					if (empty($annee_min) && !empty($annee_max)) {
+						$annee_min = $annee_max;
+					}
+				}
+				
+				if ($intervalle && empty($id_mois_max)) {
+					drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier le mois de fin '$line[4]' de l'intervalle. (Feuille : ".$nom_onglet." - ".real_line($row).")"), $type = 'error', $repeat = true);											
+					$valid = false;
+				}
+				
+				if ($intervalle && empty($annee_max)) {
+					drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année de fin '$line[4]' de l'intervalle. (Feuille : ".$nom_onglet." - ".real_line($row).")"), $type = 'error', $repeat = true);											
+					$valid = false;
+				}
+				if ($annee_max < 2010) {
+					drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année de fin '$line[4]' de l'intervalle. (Feuille : ".$nom_onglet." - ".real_line($row).")"), $type = 'error', $repeat = true);											
+					$valid = false;
+				}
+				if ($annee_min < 2010) {
+					drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année de debut '$line[4]' de l'intervalle. (Feuille : ".$nom_onglet." - ".real_line($row).")"), $type = 'error', $repeat = true);											
+					$valid = false;
+				}
+				
+				if (empty($id_mois_min)) {
+					drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier le mois du début '$line[4]' de l'intervalle. (Feuille : ".$nom_onglet." - ".real_line($row).")"), $type = 'error', $repeat = true);
+					$valid = false;
+				}
+				
+				
+				if ($intervalle && $id_mois_min > $id_mois_max) {
+					if (empty($annee_min)) {
+						drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année du début '$line[4]' de l'intervalle. (Feuille : ".$nom_onglet." - ".real_line($row).")"), $type = 'error', $repeat = true);
+						$valid = false;
+					}
+				}
+				
+				if($intervalle && !is_numeric($annee_max)){
+					drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année de fin '$line[4]' de l'intervalle. (Feuille : ".$nom_onglet." - ".real_line($row).")"), $type = 'error', $repeat = true);
+					$valid = false;
+				}
+				if(!is_numeric($annee_min)){
+					drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année de début '$line[4]' de l'intervalle. (Feuille : ".$nom_onglet." - ".real_line($row).")"), $type = 'error', $repeat = true);
+					$valid = false;
+				}
+				
+				if ($intervalle && $annee_max < $annee_min ){
+					drupal_set_message(t("Intervalle de date incoherente avec la période : '$line[4]'. (Feuille : ".$nom_onglet." - ".real_line($row).")"), $type = 'error', $repeat = true);									
+					$valid = false;
+				}
+
+			}
+			else{
+				drupal_set_message(t("Veuillez remplir la colonne Mois: '$line[4]'. (Feuille : ".$nom_onglet." - ".real_line($row).")"), $type = 'error', $repeat = true);									
+					$valid = false;
+			}
+			if ($line[5] == ''  || !is_numeric($line[5])) {
+
+				drupal_set_message(t("La colonne 'Montant VT 50%' ne doit pas être vide et doit être numérique. (Feuille : ".$nom_onglet." - ".real_line4($row).")"), $type = 'error', $repeat = true);											
+				$valid = false;
+			}
+			else{
+				$montant=$line[5];
+			}
+
+		}
+		$id_mois_tmp = $line[4];
+	   	$annee_tmp = $line[4];
+	}	
+	elseif ($type_de_fichier == 2) { // Fichier de type 2
+		$colonneA = explode(' ', $line[0]); 
+		if($line[0] != '') { // colonne A n'est pas vide
+			// Récuperer l'id_region
+			$id_region = get_id_region_ontm02(addslashes($nom_onglet));
+		    // récuperer la valeur du colonne A 
+			$li_etablissement = addslashes($line[0]);
+			// récuperer l'id_etablissement
+			$id_etablissement = get_id_etablissement2($li_etablissement, $id_region);
+		    if (($line[1] == '' || !is_numeric($line[1])) && $colonneA[0] != "Moyenne") {
+				drupal_set_message(t("La colonne 'Nb CHB' doit être un chiffre. (Feuille : ".$nom_onglet." - ".real_line4($row).")"), $type = 'error', $repeat = true);											
+				$valid = false;
+			}
+			else{
+				$nb_chambre=intval($line[1]);
+			}	
+			if (($line[2] == '' || !is_numeric($line[2])) && $colonneA[0] != "Moyenne") {
+				drupal_set_message(t("La colonne 'taux VT' doit être un chiffre. (Feuille : ".$nom_onglet." - ".real_line4($row).")"), $type = 'error', $repeat = true);								 			
+				$valid = false;
+			}	
+			if (isset($line[3]) && $line[3] !== '') {
+
+					//Les différents cas sont :
+				//Mai 2016
+				//Novembre 2015 A Mai 2016
+				//Novembre A Mai 2016
+				//Mars A Mai 2016
+				//Mars 2015 A Mai 2016
+				//AVRIL ET Mai 2016
+				//Novembre 2015 AU Mai 2016
+				//Novembre AU Mai 2016
+				//Mars AU Mai 2016
+				//Mars 2015 AU Mai 2016
+				$str = str_replace("  ", " ", $line[3]);
+				$str = str_replace(" AU ", "/", $str);
+				$str = str_replace(" ET ", "/", $str);
+				$str = str_replace(" A ", "/", $str);
+				$str = explode("/",$str); //==> On a mois min et mois max
+				$annee_min = 0;
+				$annee_max = 0;
+				if (isset($str[0])) {
+					$dateMin = explode(" ",$str[0]);
+					$id_mois_min = $dateMin[0];
+					$id_mois_min = get_id_mois($id_mois_min);
+					if (isset($dateMin[1])) {
+						$annee_min = $dateMin[1];
+					}
+				}
+				
+				$intervalle = true;
+				if (isset($str[1])) {
+					$dateMax = explode(" ",$str[1]);
+					$id_mois_max = $dateMax[0];
+					$id_mois_max = get_id_mois($id_mois_max);
+					if (isset($dateMax[1])) {
+						$annee_max = $dateMax[1];
+					}
+				} else {
+					$intervalle = false; //Juste un mois sans intervalle de période
+					$id_mois_max = $id_mois_min;
+					$annee_max = $annee_min;
+				}
+				
+				
+				if ($id_mois_min < $id_mois_max) {
+					if (empty($annee_min) && !empty($annee_max)) {
+						$annee_min = $annee_max;
+					}
+				}
+				
+				if ($intervalle && empty($id_mois_max)) {
+					drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier le mois de fin '$line[3]' de l'intervalle. (Feuille : ".$nom_onglet." - ".real_line($row).")"), $type = 'error', $repeat = true);											
+					$valid = false;
+				}
+				
+				if ($intervalle && empty($annee_max)) {
+					drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année de fin '$line[3]' de l'intervalle. (Feuille : ".$nom_onglet." - ".real_line($row).")"), $type = 'error', $repeat = true);											
+					$valid = false;
+				}
+				if ($annee_max < 2010) {
+					drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année de fin '$line[3]' de l'intervalle. (Feuille : ".$nom_onglet." - ".real_line($row).")"), $type = 'error', $repeat = true);											
+					$valid = false;
+				}
+				if ($annee_min < 2010) {
+					drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année de debut '$line[3]' de l'intervalle. (Feuille : ".$nom_onglet." - ".real_line($row).")"), $type = 'error', $repeat = true);											
+					$valid = false;
+				}
+				
+				if (empty($id_mois_min)) {
+					drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier le mois du début '$line[3]' de l'intervalle. (Feuille : ".$nom_onglet." - ".real_line($row).")"), $type = 'error', $repeat = true);
+					$valid = false;
+				}
+				
+				
+				if ($intervalle && $id_mois_min > $id_mois_max) {
+					if (empty($annee_min)) {
+						drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année du début '$line[3]' de l'intervalle. (Feuille : ".$nom_onglet." - ".real_line($row).")"), $type = 'error', $repeat = true);
+						$valid = false;
+					}
+				}
+				
+				if($intervalle && !is_numeric($annee_max)){
+					drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année de fin '$line[3]' de l'intervalle. (Feuille : ".$nom_onglet." - ".real_line($row).")"), $type = 'error', $repeat = true);
+					$valid = false;
+				}
+				if(!is_numeric($annee_min)){
+					drupal_set_message(t("La colonne 'Mois' contient une erreur : vérifier l'année de début '$line[3]' de l'intervalle. (Feuille : ".$nom_onglet." - ".real_line($row).")"), $type = 'error', $repeat = true);
+					$valid = false;
+				}
+				
+				if ($intervalle && $annee_max < $annee_min ){
+					drupal_set_message(t("Intervalle de date incoherente avec la période : '$line[3]'. (Feuille : ".$nom_onglet." - ".real_line($row).")"), $type = 'error', $repeat = true);									
+					$valid = false;
+				}
+
+			}
+			elseif($colonneA[0] != "Moyenne"){
+				drupal_set_message(t("Veuillez remplir la colonne Mois: '$line[3]'. (Feuille : ".$nom_onglet." - ".real_line($row).")"), $type = 'error', $repeat = true);									
+					$valid = false;
+			}
+			if (($line[4] == ''  || !is_numeric($line[4])) && $colonneA[0] != "Moyenne") {
+
+				drupal_set_message(t("La colonne 'Montant VT 50%' ne doit pas être vide et doit être numérique. (Feuille : ".$nom_onglet." - ".real_line4($row).")"), $type = 'error', $repeat = true);											
+				$valid = false;
+			}
+			else{
+				$montant=$line[4];
+			}
+
+		}
+		$id_mois_tmp = $line[3];
+	   	$annee_tmp = $line[3];
+	}	
+	if($montant!==0 && $id_region !==0 && $id_mois_tmp!==0 && $annee_tmp!==0 && $nb_chambre!==0){
+		$data[] = array(
+			'id_region' =>  $id_region,
+			'nb_chambres' => $nb_chambre,
+			'li_etablissement' => $li_etablissement,
+			'id_etablissement' => $id_etablissement,
+			'id_mois' => $id_mois_tmp,
+			'id_classement_etablissement' => $id_classement_etablissement,
+			'annee' => $annee_tmp,
+			'montant' => $montant,						
+		);
+	}
+	//}
+	//var_dump($data);
+	//reset
+	$li_etablissement  ="";
+	$province = "";
+	$district = "";
+	$annee_tmp = 0;
+	$id_mois_tmp = 0;
+
+	return $data;
+	//var_dump($data);
+}
+function get_id_etablissement2($libelle, $region){
+	$id_etabl = 0;
+	$sql = "SELECT id_etablissement FROM {siit_etablissement} p WHERE 
+				 li_enseigne ='".addslashes($libelle)."' AND id_region='".$region."'"; 
+	$results = db_query($sql);
+	foreach($results as $result) {
+		$id_etabl = $result->id_etablissement;
+	}
+	return $id_etabl;
+}
+
+function conversion_2date_mois($daty){
+	//Mai 2016
+	//Mars A Mai 2016*
+	//AVRIL ET Mai 2016*
+	//Novembre 2015 A Mai 2016*
+	//Novembre A Mai 2016*
+	//Mars 2015 A Mai 2016*
+	//Novembre 2015 AU Mai 2016*
+	//Novembre AU Mai 2016*
+	//Mars AU Mai 2016*
+	//Mars 2015 AU Mai 2016*
+	$mois = array('','JANVIER','FEVRIER','MARS','AVRIL', 'MAI','JUIN','JUILLET','AOUT','SEPTEMBRE','OCTOBRE','NOVEMBRE','DECEMBRE' );
+	$str = str_replace("  ", " ", $daty);
+	$str = str_replace(" AU ", "/", $str);
+	$str = str_replace(" ET ", "/", $str);
+	$str = str_replace(" A ", "/", $str);
+	$str = explode("/",$str);
+	//var_dump(sizeof($str)) or die();
+	if(sizeof($str) == 1){
+		return 1;
+	}
+	elseif(sizeof($str) == 2){
+		$str1 = str_replace(" ", "/", $str[0]);
+		$str2 = str_replace(" ", "/", $str[1]);
+		$str1 = explode("/",$str1);
+		$str2 = explode("/",$str2);
+		if(sizeof($str1) > 1 && sizeof($str2) > 1){
+			$numMois1 = 0;
+			$numMois2 = 0;
+			for($i=0; $i<13; $i++){
+				if(strtoupper($str1[0]) == $mois[$i]){
+					$numMois1 = $i;
+				}
+				if(strtoupper($str2[0]) == $mois[$i]){
+					$numMois2 = $i;
+				}
+			}
+			$datetime1 = new DateTime($str1[1].'/'.$numMois1.'/1');
+			$datetime2 = new DateTime($str2[1].'/'.$numMois2.'/1');
+			$interval = $datetime1->diff($datetime2);
+			$nbmonth= $interval->format('%m');
+			$nbyear = $interval->format('%y');
+			if ($numMois1 == 2 || $numMois1 == 11 || $numMois1 == 6 || $numMois1 == 4 || $numMois1 == 9) {
+				return (12 * $nbyear + $nbmonth)+2;
+			}
+			else{
+				return (12 * $nbyear + $nbmonth)+1;
+			}
+			
+		}elseif(sizeof($str1) == 1 && sizeof($str2) > 1){
+			$numMois1 = 0;
+			$numMois2 = 0;
+			for($i=0; $i<13; $i++){
+				if(strtoupper($str1[0]) == $mois[$i]){
+					$numMois1 = $i;
+				}
+				if(strtoupper($str2[0]) == $mois[$i]){
+					$numMois2 = $i;
+				}
+			}
+			$datetime1 = new DateTime($str2[1].'/'.$numMois1.'/1');
+			$datetime2 = new DateTime($str2[1].'/'.$numMois2.'/1');
+			$interval = $datetime1->diff($datetime2);
+			//var_dump($interval) or die();
+			$nbmonth= $interval->format('%R%m');
+			$nbyear = $interval->format('%R%y');
+			//var_dump($nbmonth) or die();
+			if ($numMois1 == 2 || $numMois1 == 11 || $numMois1 == 6 || $numMois1 == 4 || $numMois1 == 9) {
+				return (12 * $nbyear + $nbmonth)+2;
+			}
+			else{
+				return (12 * $nbyear + $nbmonth)+1;
+			}
+		}
+	}
+}
+
+function conv_date_en_id($daty){
+	//Mai 2016
+	//Mars A Mai 2016
+	//AVRIL ET Mai 2016
+	//Novembre 2015 A Mai 2016
+	//Novembre A Mai 2016
+	//Mars 2015 A Mai 2016
+	//Novembre 2015 AU Mai 2016
+	//Novembre AU Mai 2016
+	//Mars AU Mai 2016
+	//Mars 2015 AU Mai 2016
+	$mois = array('','JANVIER','FEVRIER','MARS','AVRIL', 'MAI','JUIN','JUILLET','AOUT','SEPTEMBRE','OCTOBRE','NOVEMBRE','DECEMBRE' );
+	$str = str_replace("  ", " ", $daty);
+	$str = str_replace(" AU ", "/", $str);
+	$str = str_replace(" ET ", "/", $str);
+	$str = str_replace(" A ", "/", $str);
+	$str = explode("/",$str);
+
+	if(sizeof($str) == 1){
+		
+		$str = str_replace(" ", "/", $str[0]);
+		$str = explode("/",$str);
+		$numMois = '';
+		for($i=0; $i<13; $i++){
+			if(strtoupper($str[0]) == $mois[$i]){
+				$numMois = $i;
+			}
+		}
+		return $numMois.'/'.$str[1];
+		
+	}
+	elseif(sizeof($str) == 2){
+		$str1 = str_replace(" ", "/", $str[0]);
+		$str2 = str_replace(" ", "/", $str[1]);
+		$str1 = explode("/",$str1);
+		$str2 = explode("/",$str2);
+		if(sizeof($str1) > 1 && sizeof($str2) > 1){
+			$numMois1 = 0;
+			$numMois2 = 0;
+			for($i=0; $i<13; $i++){
+				if(strtoupper($str1[0]) == $mois[$i]){
+					$numMois1 = $i;
+				}
+				if(strtoupper($str2[0]) == $mois[$i]){
+					$numMois2 = $i;
+				}
+			}
+			return $numMois1.'/'.$str1[1].'_'.$numMois2.'/'.$str2[1];
+		}elseif(sizeof($str1) == 1 && sizeof($str2) > 1){
+			$numMois1 = 0;
+			$numMois2 = 0;
+			for($i=0; $i<13; $i++){
+				if(strtoupper($str1[0]) == $mois[$i]){
+					$numMois1 = $i;
+				}
+				if(strtoupper($str2[0]) == $mois[$i]){
+					$numMois2 = $i;
+				}
+			}
+			return $numMois1.'/'.$str2[1].'_'.$numMois2.'/'.$str2[1];
+		}
+	}
+}
+
+function insert_importation2($data){
+  //insertion dans la table importation pour toutes les entités
+
+  global $user; 
+  $query = "INSERT INTO {siit_importation} (dt_importation,uid_importation,li_fichier,id_statut,id_type_fichier) 
+  	VALUES (now(), :arg1, :arg2, :arg3, :arg4)";
+  	
+  $args = array(':arg1' => $user->uid, 
+  	':arg2' => $data["li_fichier"], ':arg3' => $data["id_statut"], 
+  	':arg4' => $data["id_type_fichier"]);
+  $last_id = db_query($query, $args, array('return' => Database::RETURN_INSERT_ID));
+  
+  return $last_id;
+}
+
+function ajouter_donnee($res, $idmois, $idannee, $value, $id_importation){
+	if($res > 0){
+		//données éxistant //Mettre à jour\\
+		//var_dump($date1[1]) or die('Fa misy');
+		$amodifier = array(
+			'mt_vignette_touristique' => $value["montant"] ? $value["montant"]:0,
+			'nb_chambres' => $value["nb_chambres"],
+		);
+		modifier_vignette($res, $amodifier);
+	}
+	else{
+		//donnée non éxistant //Ajouter\\
+		//var_dump($value) or die();
+		$aajouter = array(
+			'id_etablissement' => $value["id_etablissement"],
+			'id_mois' => $idmois,
+			'annee' => $idannee,	           					
+			'mt_vignette_touristique' => $value["montant"] ? $value["montant"]:0,
+			'nb_chambres' => $value["nb_chambres"],
+			'id_importation' => $id_importation, 
+		);
+		//var_dump($aajouter) or die();
+		ajouter_vignette($aajouter);
+	}
+}
+
+
