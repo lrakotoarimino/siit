@@ -5,9 +5,9 @@
 * Display a Adema Importation
 */
 define('ENTITE_MNP','MNP');
-define('ENTITE_ONTM01','ONTM01');
-define('ENTITE_ONTM02','ONTM02');
-define('ENTITE_ONTM03','ONTM03');
+define('ENTITE_ONTM01','ONTM01'); //Données sur les établissements
+define('ENTITE_ONTM02','ONTM02'); //Données sur les vignettes touristiques 1er format reçu
+//define('ENTITE_ONTM03','ONTM03'); //Données sur les vignettes touristiques 2eme format reçu //Non utile normalement
 define('ENTITE_EDBM','EDBM');
 define('ENTITE_EDBM02','EDBM02');
 define('ENTITE_PAF01','PAF01');
@@ -21,7 +21,7 @@ define('ONTM01_NB_COL','11');
 define('EDBM01_NB_COL','16');
 define('TYPE_FICHIER_MNP','3');
 define('TYPE_FICHIER_ONTM02','11');
-define('TYPE_FICHIER_ONTM03','13');
+//define('TYPE_FICHIER_ONTM03','13');//Non utile normalement
 define('TYPE_FICHIER_ONTM01','7');
 define('TYPE_FICHIER_CNAPS01','10');
 define('TYPE_FICHIER_PAF01','1');
@@ -107,8 +107,11 @@ function detail_donnee($a_valider){
 			        $li_type_fichier= "ONTM 01 (ETABLISSEMENTS HOTELIERS)";
 			        break;
 			    case "ONTM02":
-			        $li_type_fichier= "ONTM 02 (VIGNETTES TOURISTIQUES)";	
+			        $li_type_fichier= "ONTM 02 (VIGNETTES TOURISTIQUES)";
 			        break;
+                case "ONTM03": //Je pense pas utile
+                    $li_type_fichier= "ONTM 03 (VIGNETTES TOURISTIQUES - NOUVEAU FORMAT)";
+                    break;
 			    case "EDBM":
 			        $li_type_fichier= "EDBM (ETABLISSEMENTS TOURISTIQUES CREES)";
 			        break;				 									   
