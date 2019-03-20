@@ -146,6 +146,7 @@ function csv_import_ontm_04_validate($form, &$form_state){
 						return;
 					}
 				}
+
 				for ($row = 1; $row <= $highestRow; ++ $row) 
 				{
 					
